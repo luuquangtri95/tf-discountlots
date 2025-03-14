@@ -6,12 +6,14 @@
 {% capture css_values %}
     --section-padding: {{ section.settings.padding }};    
 {% endcapture %}
+
 {% comment %} Classname {% endcomment %}
 {%- capture class -%}
   |section-container relative
   {% if layout == 'boxed' %}|container{% endif %}
   {%- if section.settings.show_background -%}|[background:var(--background)] {%- endif -%}
 {%- endcapture -%}
+
 {% style %}
   {% render 'css-resp'
   , class: section_id
@@ -19,10 +21,7 @@
   , value: css_values %}
 {% endstyle %}
 
-{%- render 'snippet-section'
-  , type: 'css'
--%}
-
+{%- render 'snippet-section', type: 'css' -%}
 
 <div style="background-color: {{ section.settings.bg_color }}" class="w-full p-[var(--section-padding)]">
   <div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
@@ -43,110 +42,120 @@
 </div>
 
 {%- schema -%}
-  {
-    "name": "Our Benefits Section",
-    "tag": "section",
-    "settings": [
-      {
-        "type": "header",
-        "content": "General settings"
-      },
-      {
-        "type": "select",
-        "id": "section_layout",
-        "label": "t:general.styles.section_layout.label",
-        "options": [
-          {
-            "value": "boxed",
-            "label": "t:general.styles.section_layout.options.option_1"
-          }, {
-            "value": "wide",
-            "label": "t:general.styles.section_layout.options.option_2"
-          }
-        ],
-        "default": "boxed"
-      },
-      {
-        "type": "text",
-        "id": "margin",
-        "label": "Margin",
-        "info": "t:blocks.block_style.settings.block_margin.info"
-      },
-      {
-        "type": "text",
-        "id": "padding",
-        "label": "Section Padding",
-        "default": "50px 20px",
-        "info": "Define the padding for the section. Format: Top Right Bottom Left (e.g., 50px 20px)."
-      }, {
-        "type": "header",
-        "content": "Section settings"
-      }, {
-        "type": "color",
-        "id": "bg_color",
-        "label": "Section Background Color",
-        "default": "#114273",
-        "info": "Set the background color for the entire section. Use a color that aligns with your brand."
-      }
-    ],
-    "blocks": [
-      {
-        "type": "point",
-        "name": "Benefit Point",
-        "settings": [
-          {
-            "type": "select",
-            "id": "icon",
-            "label": "Benefit Icon",
-            "options": [
-              {
-                "value": "headset.svg",
-                "label": "Headset Icon"
-              }, {
-                "value": "medal-reward.svg",
-                "label": "Medal Icon"
-              }, {
-                "value": "star.svg",
-                "label": "Star Icon"
-              }
-            ],
-            "default": "headset.svg",
-            "info": "Choose an icon that visually represents the benefit. Icons help make the content more engaging."
-          }, {
-            "type": "inline_richtext",
-            "id": "text",
-            "label": "Benefit Description",
-            "default": "Your selling point here",
-            "info": "Write a short and compelling description of the benefit. Keep it concise and customer-focused."
-          }
-        ]
-      }
-    ],
-    "presets": [
-      {
-        "name": "Our Benefits Section",
-        "blocks": [
-          {
-            "type": "point",
-            "settings": {
-              "text": "You Can Contact Support Fast",
-              "icon": "headset.svg"
+{
+  "name": "Our Benefits",
+  "tag": "section",
+  "settings": [
+    // SECTION SETTINGS
+    {
+      "type": "header",
+      "content": "Section settings"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Section Background Color",
+      "default": "#114273",
+      "info": "Set the background color for the entire section. Use a color that aligns with your brand."
+    },
+    // GENERAL SETTINGS
+    {
+      "type": "header",
+      "content": "General settings"
+    },
+    {
+      "type": "select",
+      "id": "section_layout",
+      "label": "t:general.styles.section_layout.label",
+      "options": [
+        {
+          "value": "boxed",
+          "label": "t:general.styles.section_layout.options.option_1"
+        },
+        {
+          "value": "wide",
+          "label": "t:general.styles.section_layout.options.option_2"
+        }
+      ],
+      "default": "boxed"
+    },
+    {
+      "type": "text",
+      "id": "margin",
+      "label": "Margin",
+      "info": "t:blocks.block_style.settings.block_margin.info"
+    },
+    {
+      "type": "text",
+      "id": "padding",
+      "label": "Section Padding",
+      "default": "50px 20px",
+      "info": "Define the padding for the section. Format: Top Right Bottom Left (e.g., 50px 20px)."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "point",
+      "name": "Benefit Point",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Benefit Icon",
+          "options": [
+            {
+              "value": "icon-headset.svg",
+              "label": "Headset Icon"
+            },
+            {
+              "value": "icon-medal-reward.svg",
+              "label": "Medal Icon"
+            },
+            {
+              "value": "icon-star.svg",
+              "label": "Star Icon"
             }
-          }, {
-            "type": "point",
-            "settings": {
-              "text": "Best Selection Of Land Online",
-              "icon": "medal-reward.svg"
-            }
-          }, {
-            "type": "point",
-            "settings": {
-              "text": "Loved By Thousands of Satisfied Buyers",
-              "icon": "star.svg"
-            }
+          ],
+          "default": "icon-headset.svg",
+          "info": "Choose an icon that visually represents the benefit. Icons help make the content more engaging."
+        },
+        {
+          "type": "inline_richtext",
+          "id": "text",
+          "label": "Benefit Description",
+          "default": "Your selling point here",
+          "info": "Write a short and compelling description of the benefit. Keep it concise and customer-focused."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Our Benefits",
+      "blocks": [
+        {
+          "type": "point",
+          "settings": {
+            "text": "You Can Contact Support Fast",
+            "icon": "icon-headset.svg"
           }
-        ]
-      }
-    ]
-  }
+        },
+        {
+          "type": "point",
+          "settings": {
+            "text": "Best Selection Of Land Online",
+            "icon": "icon-medal-reward.svg"
+          }
+        },
+        {
+          "type": "point",
+          "settings": {
+            "text": "Loved By Thousands of Satisfied Buyers",
+            "icon": "icon-star.svg"
+          }
+        }
+      ]
+    }
+  ]
+}
 {%- endschema -%}

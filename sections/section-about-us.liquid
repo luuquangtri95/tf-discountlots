@@ -4,6 +4,7 @@
   assign external_video_url = section.settings.external_video_url
   assign hosted_video = section.settings.hosted_video
   assign heading = section.settings.heading
+  assign layout = section.settings.section_layout | handle
 %}
 
 {% capture css_variables %}
@@ -12,6 +13,16 @@
     --section-background: {{ section.settings.background }};
     --video-aspect-ratio: {{ section.settings.video_aspect_ratio | default: "56.25%" }};
 {% endcapture %}
+
+{% comment %} Classname {% endcomment %}
+{%- capture class -%}
+  |section-container relative
+  {% if layout == 'boxed' %}|container{% endif %}
+  {%- if section.settings.show_background -%}|[background:var(--background)] {%- endif -%}
+{%- endcapture -%}
+
+{%- render 'snippet-section', type: 'css' -%}
+
 {% style %}
   {% render 'css-resp'
       , class: section_id
@@ -20,70 +31,75 @@
 {% endstyle %}
 
 <div class="bg-[#f7f9fb]">
-  <div class="container grid grid-cols-1 bg-[var(--section-background)] p-[var(--section-padding)] lg:grid-cols-2 lg:gap-[40px] xl:grid-cols-2 xl:w-[1100px]">
-    <div>
-      {%- if video_source == 'external' and external_video_url != blank -%}
-        {%- capture video_id -%}video-player-{{ section.id | append: block.id | append: external_video_url.external_id }}{%- endcapture -%}
-        {%- assign external_video_id = external_video_url.id -%}
+  <div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
+    <div class="p-[var(--padding)]">
+      <div class="grid grid-cols-1 bg-[var(--section-background)]] lg:grid-cols-2 lg:gap-[40px] xl:grid-cols-2">
+        <div>
+          {%- if video_source == 'external' and external_video_url != blank -%}
+            {%- capture video_id -%}video-player-{{ section.id | append: block.id | append: external_video_url.external_id }}{%- endcapture -%}
+            {%- assign external_video_id = external_video_url.id -%}
 
-        {%- capture video_embed_url -%}
-          {%- if external_video_url.type == 'youtube' -%}
-            https://www.youtube.com/embed/{{ external_video_id }}?playsinline=1&playlist={{ external_video_id }}&enablejsapi=1&rel=0&modestbranding=1
-          {%- else -%}
-            https://player.vimeo.com/video/{{ external_video_id }}
+            {%- capture video_embed_url -%}
+              {%- if external_video_url.type == 'youtube' -%}
+                https://www.youtube.com/embed/{{ external_video_id }}?playsinline=1&playlist={{ external_video_id }}&enablejsapi=1&rel=0&modestbranding=1
+              {%- else -%}
+                https://player.vimeo.com/video/{{ external_video_id }}
+              {%- endif -%}
+            {%- endcapture -%}
+            <lazy-script
+              class="video-wrapper relative block pt-[var(--video-aspect-ratio)]"
+              data-type="{{ external_video_url.type }}"
+              play-in-view
+              data-tag="video-component"
+              data-file="{{ 'video-component.js' | asset_url }}"
+            >
+              <iframe
+                src="{{ video_embed_url }}"
+                allow="autoplay; encrypted-media"
+                width="100%"
+                height="100%"
+                allowfullscreen
+                title="Video"
+                class="video-iframe absolute left-0 top-0 w-full h-full"
+                id="{{ video_id }}"
+                data-video-id="{{ external_video_id }}"
+              ></iframe>
+            </lazy-script>
+
+          {%- elsif video_source == 'hosted' and hosted_video != blank -%}
+            <div class="video-wrapper relative block pt-[var(--video-aspect-ratio)]">
+              {{
+                hosted_video
+                | video_tag:
+                  autoplay: true,
+                  loop: true,
+                  muted: true,
+                  controls: true,
+                  class: 'absolute left-0 top-0 w-full h-full'
+              }}
+            </div>
           {%- endif -%}
-        {%- endcapture -%}
-        <lazy-script
-          class="video-wrapper relative block pt-[var(--video-aspect-ratio)]"
-          data-type="{{ external_video_url.type }}"
-          play-in-view
-          data-tag="video-component"
-          data-file="{{ 'video-component.js' | asset_url }}"
-        >
-          <iframe
-            src="{{ video_embed_url }}"
-            allow="autoplay; encrypted-media"
-            width="100%"
-            height="100%"
-            allowfullscreen
-            title="Video"
-            class="video-iframe absolute left-0 top-0 w-full h-full"
-            id="{{ video_id }}"
-            data-video-id="{{ external_video_id }}"
-          ></iframe>
-        </lazy-script>
-
-      {%- elsif video_source == 'hosted' and hosted_video != blank -%}
-        <div class="video-wrapper relative block pt-[var(--video-aspect-ratio)]">
-          {{
-            hosted_video
-            | video_tag:
-              autoplay: true,
-              loop: true,
-              muted: true,
-              controls: true,
-              class: 'absolute left-0 top-0 w-full h-full'
-          }}
         </div>
-      {%- endif -%}
-    </div>
-    <div>
-      <h2 class="text-[28px] text-[#124f92] mb-[20px] mt-[14px] lg:mt-0">{{ heading }}</h2>
+        <div>
+          <h2 class="text-[28px] text-[#124f92] mb-[20px] mt-[14px] lg:mt-0">{{ heading }}</h2>
 
-      {%- for block in section.blocks -%}
-        <div class="mb-[20px]">
-          {{ block.settings.subtitle }}
+          {%- for block in section.blocks -%}
+            <div class="mb-[20px]">
+              {{ block.settings.subtitle }}
+            </div>
+          {%- endfor -%}
         </div>
-      {%- endfor -%}
+      </div>
     </div>
   </div>
 </div>
 
 {%- schema -%}
 {
-  "name": "About Us Section",
+  "name": "About Us",
   "tag": "section",
   "settings": [
+    // SECTION SETTINGS
     {
       "type": "inline_richtext",
       "id": "heading",
@@ -95,13 +111,6 @@
       "id": "background",
       "label": "Section Background",
       "default": "linear-gradient(#ffffff, #000000)"
-    },
-    {
-      "type": "text",
-      "id": "padding",
-      "label": "Section Padding",
-      "default": "50px 20px",
-      "info": "Format: Top Right Bottom Left (e.g., 50px 20px)"
     },
     {
       "type": "video_url",
@@ -156,6 +165,40 @@
         }
       ],
       "default": "56.25%"
+    },
+    // GENERAL SETTINGS
+    {
+      "type": "header",
+      "content": "General settings"
+    },
+    {
+      "type": "select",
+      "id": "section_layout",
+      "label": "t:general.styles.section_layout.label",
+      "options": [
+        {
+          "value": "boxed",
+          "label": "t:general.styles.section_layout.options.option_1"
+        },
+        {
+          "value": "wide",
+          "label": "t:general.styles.section_layout.options.option_2"
+        }
+      ],
+      "default": "boxed"
+    },
+    {
+      "type": "text",
+      "id": "padding",
+      "label": "Section Padding",
+      "default": "50px 20px",
+      "info": "Define the padding for the section. Format: Top Right Bottom Left (e.g., 50px 20px)."
+    },
+    {
+      "type": "text",
+      "id": "margin",
+      "label": "Margin",
+      "info": "t:blocks.block_style.settings.block_margin.info"
     }
   ],
   "blocks": [
