@@ -1,0 +1,81 @@
+{%- assign mediaScreens = '0,575px,750px,990px,1400px,1600px' | split: ',' -%}
+
+{%- capture cssFile -%}
+  |tailwind
+  |base
+  {%- if request.design_mode -%}|editor{%- endif -%}
+  {%- case request.page_type -%}
+    {%- when 'policy' -%}|page
+  {%- endcase -%}
+{%- endcapture -%}
+{%- assign cssFile = cssFile | strip_newlines | strip | remove_first: '|' | split: '|' -%}
+
+{%- for file in cssFile -%}
+  {%- capture fileName -%}{{- file | strip | append: '.css' -}}{%- endcapture -%}
+  {{ fileName | asset_url | stylesheet_tag: preload: preload }}
+  {% comment %}
+    <link rel="preload" href="{{ fileName | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ fileName | asset_url }}"></link></noscript>
+  {% endcomment %}
+{%- endfor -%}
+
+{% style %}
+  {%- capture css -%}
+  {%- assign font = settings.body_shopify_font -%}
+  {%- for fontVariant in font.variants -%}
+    {{- fontVariant | font_modify: 'weight', fontVariant.weight | font_face: font_display: 'swap' -}}
+  {%- endfor -%}
+
+  :root{
+    --primary-color: {{ settings.primary_color}};
+    --success-color: {{ settings.success_color}};
+    --error-color: {{ settings.error_color}};
+    --heading-font: {{ font.fallback_families }};
+    --body-font: {{ font.family }}, {{ font.fallback_families }};
+    --caret: url('data:image/svg+xml,<svg width="10" height="9" viewBox="0 0 10 9" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.94175 1.97167L3.53528 8.37813left-0 4.83049L1.35293 3.48227L3.53764 5.67463L8.59118 0.621094L9.94175 1.97167Z" fill="%23FF6E00"/></svg>');
+  }
+  {%- endcapture -%}
+
+  {{- css | strip_newlines -}}
+
+  {%- capture css_values -%}
+    --body-fs: {{ settings.body_fs | default: 10 }};
+    --body-fw: {{settings.body_fw |   default: 400}};
+  {%- endcapture -%}
+
+  {%- render 'css-resp', class: ':root', type: 'multi', value: css_values -%}
+    {%- # Grid -%}
+    {%- assign limit_items_per_row = settings.limit_items_per_row  | default: 12 -%}
+  {%- for screen in mediaScreens -%}
+
+    {%- if mediaScreens.size > 4 -%}
+      {%- assign className = forloop.index0  | replace: 0, ''  | replace: 1, 'sm\:' | replace: 2, 'md\:' | replace: 3, 'lg\:' | replace: 4, 'xl\:' | replace: 5, 'xxl\:' -%}
+    {%- else -%}
+      {%- assign className = forloop.index0  | replace: 0, ''  | replace: 1, 'md\:' | replace: 2, 'lg\:' | replace: 4, 'xl\:' | replace: 5, 'xxl\:' -%}
+    {%- endif -%}
+
+
+    {%- unless screen == '0' -%}@media (min-width:{{screen}}){ {%- endunless -%}
+
+      {%- for i in (1..limit_items_per_row) -%}
+        .{{className}}items-{{i}}:not(.items-nobreak):not(.slider-loaded){
+          grid-template-columns: repeat({{ i }}, 1fr);
+        }
+        .{{className}}items-{{i}}.flex-container:not(.items-nobreak):not(.slider-loaded) {
+            display: flex;
+            flex-wrap: wrap;
+            row-gap: var(--items-row-gap, 0);
+            column-gap: var(--items-column-gap, 0);
+          }
+        .{{className}}items-{{i}}.flex-container:not(.items-nobreak):not(.slider-loaded) > * {
+          flex: 1 1 calc((100% - (var(--items-column-gap, 0) * ({{i}} - 1))) / {{i}});
+          max-width: calc((100% - (var(--items-column-gap, 0) * ({{i}} - 1))) / {{i}});
+        }
+        .{{className}}items-{{i}}.items-nobreak:not(.slider-loaded){
+            grid-auto-columns: calc(100% / {{i}});
+        }
+      {%- endfor -%}
+
+      {%- unless screen == '0' -%} } {%- endunless -%}
+    {%- endfor -%}
+{% endstyle %}

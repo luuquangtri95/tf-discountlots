@@ -1,0 +1,159 @@
+{%- if disable == '0' -%}
+  {{- slideContent -}}
+  {%- break -%}
+{%- endif -%}
+
+{%- liquid
+  # Variables:
+  # controlsHTML
+  # totalItems
+  # iconName
+  assign object = object | default: section
+-%}
+
+{%- capture custom_schema_color -%}
+    {%- unless object.settings.schema_color_nav == blank -%}
+      schema-color-{{- object.settings.schema_color_nav | handle -}}
+    {%- endunless -%}
+  {%- endcapture -%}
+
+{%- liquid
+  assign slidesPerView = items | default: 1 | split: ','
+  assign spaceBetween = spacing | default: 0 | split: ','
+  assign disable = disable | default: 'true' | remove: ' ' | replace: '0', 'false' | replace: '1', 'true' | split: ','
+  assign dots = dots | default: false
+  assign iconName = iconName | default: 'arrow'
+  assign autoPlay = autoPlay | default: 0 | times: 1000
+  assign mediaBreakPoint = '0,575,750,992,1200, 1500' | split: ','
+  assign centeredSlides = centeredSlides | default: 'false' | split: ','
+-%}
+
+{%- capture slidesPerView -%}{%- render 'set-resp-value', value: slidesPerView -%}{%- endcapture -%}
+{%- capture spaceBetween -%}{%- render 'set-resp-value', value: spaceBetween -%}{%- endcapture -%}
+{%- capture disable -%}{%- render 'set-resp-value', value: disable -%}{%- endcapture -%}
+{%- capture centeredSlides -%}{%- render 'set-resp-value', value: centeredSlides -%}{%- endcapture -%}
+
+{%- liquid
+  assign slidesPerView = slidesPerView | split: ','
+  assign spaceBetween = spaceBetween | split: ','
+  assign disable = disable | split: ','
+  assign centeredSlides = centeredSlides | split: ','
+-%}
+
+{%- capture responsive -%}
+	  {%- for m in mediaBreakPoint -%}
+
+		{%- liquid
+			assign current_index = forloop.index0
+			assign slide_per_view = slidesPerView[current_index] | strip | default: last_slide_per_view
+			assign slide_spacing = spaceBetween[current_index] | strip | default: last_slide_spacing
+			assign slide_disable = disable[current_index] | strip | default: last_slide_disable
+
+			assign last_slide_per_view = slide_per_view
+			assign last_slide_spacing = slide_spacing
+			assign last_slide_disable = slide_disable
+			
+			assign centered_slides = centeredSlides[current_index] | strip | replace: 'false', false | replace: 'true', true
+		-%}
+
+		  "{{ m }}": {
+			  {% if slide_per_view contains 'auto' %}
+				  "slidesPerView": {{slide_per_view | json }},
+			  {% else %}
+				  "slidesPerView": {{slide_per_view}},
+			  {% endif %}
+			  "spaceBetween": {{ slide_spacing | json }},
+			  "enabled": {{ slide_disable | default: 'true' | json }},
+			  "centeredSlides": {{ centered_slides }}
+		  }
+		  {%- unless forloop.last -%},{%- endunless -%}
+	  {%- endfor -%}
+  {%- endcapture -%}
+
+{%- capture swiperControls -%}
+	  {%- if controls -%}
+		{%- capture defaultControlsId -%}{{id}} .js-slider-controls{%- endcapture -%}
+
+		{%- capture arrowSVG -%}
+			  {% render 'svg' type: iconName, useLink: false %}
+		  {%- endcapture -%}
+
+		{%- if controlsID == blank -%}
+		  {%- if controlsHTML != blank -%}
+			{{- controlsHTML -}}
+		  {%- else -%}
+			<div class="slider-controls js-slider-controls js">
+			  <button type="button" class="swiper-button-prev slider-prev-button js-prev-button" aria-label="Previous">{{ arrowSVG }}</button>
+			  <button type="button" class="swiper-button-next slider-next-button js-next-button" aria-label="Next">{{ arrowSVG }}</button>
+			</div>
+		  {%- endif -%}
+		{%- endif -%}
+		{%- assign controlsID = controlsID | default: defaultControlsId -%}
+	  {%- endif -%}
+	  {%- if scrollbar -%}<div class="swiper-scrollbar"></div>{%- endif -%}
+  {%- endcapture -%}
+
+<script type="application/json">
+  {
+  	"container": "{% if container != blank %}{{ container }}{% else %}{{id}} .js-slider{% endif %}"
+  	{% if slidesPerView[0] contains 'auto' %}
+  		,"slidesPerView" : {{ slidesPerView[0] | json }}
+  	{% else %}
+  		,"slidesPerView" : {{ slidesPerView[0] }}
+  	{% endif %}
+  	,"spaceBetween" : {{ spaceBetween[0] | json }}
+  	,"loop" : {{loop | default: false}}
+  	{%- if controls -%}
+  		,"navigation": {
+  			"nextEl": "{{id}} .js-next-button",
+  			"prevEl": "{{id}} .js-prev-button"
+  		}
+  	{%- endif -%}
+  	{% if dots %}
+  		,"pagination": {
+  			"el": "{{id}} {{ dotclass | default: '.swiper-pagination' }}",
+  			"clickable": true,
+  			"type": {{ dottype | default: 'bullets' | json }}
+  		}
+  	{% endif %}
+  	{% if scrollbar %}
+  	,"scrollbar": {
+  		"el": "{{id}} .swiper-scrollbar"
+  		,"hide": false
+  		,"draggable": true
+  		,"snapOnRelease": true
+  	}
+  	{% endif %}
+  	{%- if autoPlay > 0 -%}
+  	,"autoplay":{
+  		"delay": {{autoPlay}}
+  	}
+  	{%- endif -%}
+
+  	,"autoHeight" : {{autoHeight | default: false}}
+  	,"autoWidth" : {{autoWidth | default: false}}
+  	,"center" : {{center | default: false}}
+  	,"breakpoints" : { {{responsive }} }
+  	{%- unless gridClass == blank -%}
+  	,"gridClass" : {{ gridClass | strip | json }}
+  	{%- endunless -%}
+  }
+</script>
+
+{{- slideContent -}}
+
+{%- capture class -%}
+{%- unless custom_schema_color == blank -%}|{{custom_schema_color}}{%- endunless -%}
+{%- endcapture -%}
+
+{%- unless swiperControls == blank -%}
+  <div class="swiper-group-controls {{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
+    {{- swiperControls -}}
+  </div>
+{%- endunless -%}
+
+{%- if dots -%}
+  <div class="swiper-pagination {{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
+    {{- placeholderPaginate -}}
+  </div>
+{%- endif -%}

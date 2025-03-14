@@ -1,0 +1,5 @@
+package.json
+package-lock.json
+config.yml
+tailwind.config.js
+app

@@ -1,0 +1,23 @@
+{%- capture content -%}
+  {%- case request.page_type -%}
+    {%- when 'search' -%}
+      {%- assign style = 'msg' -%}
+      <div class="popup-msg">{{- search.terms -}}</div>
+
+  {%- endcase -%}
+{%- endcapture -%}
+
+{%- if content == blank -%}{%- break -%}{%- endif -%}
+
+<popup-component id="cartNoti" class="cart-popup cart-popup-{{style}} popup-component popup-center" aria-hidden="true" auto-append auto-show>
+
+  <div class="popup-content container relative">
+    <button type="button" class="btn btn-popup-close absolute right-0 jsClose">
+      {%- render 'icons', icon: 'close' -%}
+    </button>
+
+    <div class="popup-body popup-scroller">
+      {{- content -}}
+    </div>
+  </div>
+</popup-component>

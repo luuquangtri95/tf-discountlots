@@ -1,0 +1,27 @@
+{%- capture custom_schema_color -%}
+  {%- unless settings.header_color_scheme == blank -%}
+    schema-color-{{ settings.header_color_scheme | handle }} bg-[var(--background)] text-[var(--text)]
+  {%- endunless -%}
+{%- endcapture -%}
+
+<header
+  id="theme-header"
+  class="{{custom_schema_color}} shadow-[0_0_1px_rgba(0,0,0,0.2)]{% unless request.page_type =='product' %} sticky top-0 z-[3]{% endunless %}"
+>
+  {%- liquid
+    if headerGroup contains '<!-- header_mobile -->'
+      assign headerGroup = headerGroup | split: '<!-- header_mobile -->'
+      assign mobileSection = headerGroup[1]
+
+      echo headerGroup[0] | append: headerGroup[2]
+    else
+      echo headerGroup
+    endif
+  -%}
+</header>
+
+<template id="mobileMenuTemplate">
+  {{- mobileSection -}}
+</template>
+
+{%- render 'popup-search' -%}

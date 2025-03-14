@@ -1,0 +1,107 @@
+{%- liquid
+  render 'snippet-section', type: 'css-file', name: 'customer'
+
+  assign sectionId = '#shopify-section-' | append: section.id
+  assign layout = settings.account_section_layout | handle
+-%}
+{%- style -%}
+  {{sectionId}}{
+    --padding: {{settings.account_section_padding}};
+    --margin: {{settings.account_section_margin}};
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign pageTitle = 'customer.active_account.title' | t
+  assign pageContent = 'customer.active_account.subtitle' | t
+  assign password = 'customer.active_account.password' | t
+  assign passwordConfirm = 'customer.active_account.confirm_password' | t
+  assign submitButton = 'customer.active_account.accept_button' | t
+  assign declineButton = 'customer.active_account.decline_button' | t
+
+  assign errorTitle = 'form.general.error_title' | t
+-%}
+
+<div class="page-title text-center">
+  <h1>{{ 'customer.register.page_title' | t }}</h1>
+</div>
+
+<div class="layout-{{layout}}">
+  <div class="main-page section-container{% if layout == 'boxed' %} container{% endif %}">
+    <div class="block-item">
+      <div class="block-inner">
+        <div class="form-wrapper reset-password-form">
+          <p class="page-heading">{{ pageTitle }}</p>
+          <p>{{ pageContent }}</p>
+
+          {%- form 'activate_customer_password' -%}
+            {%- if form.errors -%}
+              {{ form.errors | default_errors }}
+            {%- endif -%}
+
+            <div class="field">
+              <label class="label-field block text-left" for="password">{{ password }}</label>
+              <div class="password-wrapper hide-password">
+                <input
+                  type="password"
+                  name="customer[password]"
+                  id="password"
+                  class="input-field"
+                  autocomplete="new-password"
+                  {% if form.errors contains 'password' %}
+                    aria-invalid="true"
+                    aria-describedby="password-error"
+                  {% endif %}
+                >
+
+                <button class="btn-password-toggle cursor-pointer js-password-toggle" type="button">
+                  {%- render 'icons', icon: 'hide_password' -%}
+                  {%- render 'icons', icon: 'show_password' -%}
+                </button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label-field block text-left" for="password_confirmation">{{ passwordConfirm }}</label>
+              <div class="password-wrapper hide-password">
+                <input
+                  type="password"
+                  name="customer[password_confirmation]"
+                  id="password_confirmation"
+                  class="input-field"
+                  autocomplete="new-password"
+                  {% if form.errors contains 'password' %}
+                    aria-invalid="true"
+                    aria-describedby="password_confirmation-error"
+                  {% endif %}
+                >
+
+                <button class="btn-password-toggle cursor-pointer js-password-toggle" type="button">
+                  {%- render 'icons', icon: 'hide_password' -%}
+                  {%- render 'icons', icon: 'show_password' -%}
+                </button>
+              </div>
+            </div>
+
+            <div class="form-field form-button-group">
+              <button type="submit" class="btn btn-{{ settings.submit_btn_color }}">{{ submitButton }}</button>
+              <button type="submit" name="decline" class="btn btn-{{ settings.cancel_btn_color }}">
+                {{ declineButton }}
+              </button>
+            </div>
+          {%- endform -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.main_account.name",
+  "tag": "section",
+  "class": "shopify-section-account shopify-section-account-active",
+  "settings": [],
+  "blocks": []
+}
+{% endschema %}

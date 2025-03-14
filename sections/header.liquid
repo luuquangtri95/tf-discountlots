@@ -1,0 +1,252 @@
+{%- liquid
+  assign section_id = '#shopify-section-' | append: section.id
+  assign layout = section.settings.section_layout
+  assign main_menu = section.settings.main_menu
+  assign logo_width = settings.logo_width | default: '120px,200px'
+-%}
+
+{%- unless main_menu == blank -%}
+  {%- assign half_menu = main_menu.links.size | divided_by: 2.0 | ceil -%}
+
+  {%- for link in main_menu.links -%}
+    {%- capture menu_item -%}
+      {%- render 'header-snippet', type: 'link', link: link, firstLv: true -%}
+    {%- endcapture -%}
+
+    {%- if forloop.index0 < half_menu -%}
+      {%- assign left_menu = left_menu | append: menu_item -%}
+    {%- else -%}
+      {%- assign right_menu = right_menu | append: menu_item -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endunless -%}
+
+{%- capture section_css -%}
+  {%- render 'css-resp', class: section_id, css: '--logo-width', value: logo_width -%}
+{%- endcapture -%}
+
+{%- render 'snippet-section', type: 'css', value: section_css -%}
+
+<div
+  class="header-section block layout-{{ layout | handle }} relative"
+  data-section-type="header"
+>
+  <div class="section-container{% if layout == 'boxed' %} container{% endif %}">
+    <div class="flex items-center justify-between py-4">
+      {% comment %} Search {% endcomment %}
+      <div class="hidden lg:block  flex-[0_0_150px] ">
+        <a
+          class="inline-block jsTogglePopup"
+          href="{{routes.search_url}}"
+          title="{{- 'sections.header.search' | t -}}"
+          aria-label="{{- 'sections.header.search' | t -}}"
+          data-control="#headerSearchPopup"
+        >
+          {{ 'icon-search.svg' | inline_asset_content }}
+        </a>
+      </div>
+
+      {% comment %} Hamburger {% endcomment %}
+      <div class="lg:hidden flex-[0_0_50px]">
+        <button
+          class="cursor-pointer jsTogglePopup jsTemplate"
+          type="button"
+          data-template="#mobileMenuTemplate"
+          data-control="#mobileMenu"
+          aria-label="{{- 'accessibility.text.mobile_menu' | t -}}"
+        >
+          {{ 'icon-hamburger.svg' | inline_asset_content }}
+          <span class="sr-only">{{- 'accessibility.text.mobile_menu' | t -}}</span>
+        </button>
+      </div>
+
+      {% comment %} Left menu {% endcomment %}
+      <div class="flex flex-[1] justify-center items-center gap-[30px]">
+        {%- unless left_menu == blank -%}
+          <div class="hidden lg:flex lg:flex-[1] lg:justify-end">
+            <ul
+              class="main-navigation lg:flex lg:gap-[15px] xl:gap-[20px] lg:flex-wrap lg:justify-end lg:items-center"
+              role="list"
+              aria-label="{{- 'accessibility.text.main_navigation' | t -}}"
+            >
+              {{ left_menu }}
+            </ul>
+          </div>
+        {%- endunless -%}
+
+        {% comment %} Logo {% endcomment %}
+        <div class="flex-[0_0_var(--logo-width)] text-center text-xl md:text-3xl">
+          {%- render 'logo', is_header: true -%}
+        </div>
+
+        {% comment %} Right menu {% endcomment %}
+        {%- unless right_menu == blank -%}
+          <div class="hidden lg:flex lg:flex-[1]">
+            <ul
+              class="main-navigation lg:flex lg:gap-[15px] xl:gap-[20px] lg:flex-wrap lg:items-center"
+              role="list"
+              aria-label="{{- 'accessibility.text.main_navigation' | t -}}"
+            >
+              {{ right_menu }}
+            </ul>
+          </div>
+        {%- endunless -%}
+      </div>
+
+      {% comment %} Icons {% endcomment %}
+      {%- liquid
+        assign icon_class = 'p-2 md:p-3'
+        assign icon_width = 'md:max-w-[28px]'
+      -%}
+      <div class="flex items-center justify-end flex-[0_0_50px] lg:flex-[0_0_150px]">
+        {%- if shop.customer_accounts_enabled -%}
+          <a
+            href="{{routes.account_url}}"
+            class="{{icon_class}} hidden lg:block"
+            title="{% if customer %}{{- 'general.text.my_account' | t -}}{% else %}{{- 'general.text.account' | t -}}{% endif %}"
+            aria-label="{% if customer %}{{- 'general.text.my_account' | t -}}{% else %}{{- 'general.text.account' | t -}}{% endif %}"
+          >
+            {{ 'icon-account.svg' | inline_asset_content }}
+          </a>
+        {%- endif -%}
+
+        <a
+          href="{{routes.cart_url}}"
+          title="{{- 'sections.header.cart' | t -}}"
+          class="{{icon_class}} jsTogglePopup"
+          data-control="#cartDrawer"
+          aria-label="{{- 'sections.header.cart' | t -}}"
+        >
+          <span class="relative">
+            {{ 'icon-cart.svg' | inline_asset_content }}
+            <span
+              class="pointer-events-none jsCartCount data-[count=0]:hidden before:absolute before:bottom-[-4px] before:right-[-4px] before:block before:w-[8px] before:h-[8px] before:bg-[var(--primary-color)] before:rounded-full"
+              data-count="{{ cart.item_count }}"
+            >
+            </span>
+          </span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% render 'snippet-mobile-menu' %}
+
+{% schema %}
+{
+  "name": "t:sections.header.name",
+  "tag": "section",
+  "class": "ss-header",
+  "presets": [
+    {
+      "name": "t:sections.header.name"
+    }
+  ],
+  "limit": 1,
+  "enabled_on": {
+    "groups": ["header"]
+  },
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_layout",
+      "label": "t:general.styles.section_layout.label",
+      "options": [
+        {
+          "value": "boxed",
+          "label": "t:general.styles.section_layout.options.option_1"
+        },
+        {
+          "value": "wide",
+          "label": "t:general.styles.section_layout.options.option_2"
+        }
+      ],
+      "default": "boxed"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header_1"
+    },
+    {
+      "type": "link_list",
+      "id": "main_menu",
+      "label": "Main menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "header",
+      "content": "* Mobile custom"
+    },
+    {
+      "type": "paragraph",
+      "content": "+ Banner"
+    },
+    {
+      "type": "image_picker",
+      "id": "mm_banner",
+      "label": "Main banner"
+    },
+    {
+      "type": "richtext",
+      "id": "mm_banner_heading",
+      "label": "Banner content"
+    },
+    {
+      "type": "color",
+      "id": "mm_banner_heading_color",
+      "label": "Content text color",
+      "default": "#333333"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "mm_button",
+      "label": "Button content"
+    },
+    {
+      "type": "color",
+      "id": "mm_button_background_color",
+      "label": "Button background color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "mm_button_color",
+      "label": "Button color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Additional content"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "m_content",
+      "label": "Content"
+    },
+    {
+      "type": "text",
+      "id": "m_btn_text",
+      "label": "Button text"
+    },
+    {
+      "type": "url",
+      "id": "m_btn_link",
+      "label": "Button link"
+    },
+    {
+      "type": "color",
+      "id": "m_btn_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "m_btn_bg_color",
+      "label": "Button background color",
+      "default": "#00af9f"
+    }
+  ],
+  "blocks": []
+}
+{% endschema %}

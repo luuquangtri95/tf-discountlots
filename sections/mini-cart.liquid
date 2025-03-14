@@ -1,0 +1,121 @@
+{%- unless request.page_type != 'cart' and settings.cart_styles contains 'drawer' -%}{%- break -%}{%- endunless -%}
+
+{%- capture section_css -%}
+  {% render 'css-resp', class: '#cartDrawer', value: section.settings.border_radius, css: '--border-radius' %}
+  {% render 'css-resp', class: '#cartDrawer', value: '0.3s opacity ease-in-out 0s', css: 'transition' %}
+  {% render 'css-resp', class: '#cartDrawer popup-content', value: '0.3s transform ease-in-out 0s', css: 'transition' %}
+{%- endcapture -%}
+
+{%- render 'snippet-section', type: 'css-file', name: 'component-slider', async: true -%}
+{%- render 'snippet-section', type: 'css-file', name: 'cart-drawer', async: true -%}
+{%- render 'snippet-section', type: 'css', value: section_css -%}
+
+{%- capture custom_schema_color -%}
+  {%- unless section.settings.schema_color_name == blank -%}
+    schema-color-{{- section.settings.schema_color_name | handle -}}
+  {%- endunless -%}
+{%- endcapture -%}
+
+{%- capture class -%}
+{%- unless custom_schema_color == blank -%}|{{custom_schema_color}}{%- endunless -%}
+  |popup-cart-drawer popup-component popup-right flex items-stretch justify-end
+  |popup-component group [color:var(--text)] top-0 right-0 h-full lg:hidden fixed color-{{ settings.header_color_scheme.id }}
+{%- endcapture -%}
+
+<!-- jsFile: cart-component -->
+
+<popup-component
+  id="cartDrawer"
+  data-body-class="show-mini-cart"
+  class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}"
+  data-section-type="popup-section"
+>
+  <div class="popup-content h-full max-w-[350px] drawer-transition -translate-x-full group-[.active]:translate-x-[0]">
+    <cart-component class="block popup-content jsCartUpdate drawer-transition max-w-[360px]">
+      {%- if cart.empty? -%}
+        <div
+          class="flex flex-col bg-neutral-300 w-56 h-64 animate-pulse rounded-xl p-4 gap-4"
+        >
+          <div class="bg-neutral-400/50 w-full h-32 animate-pulse rounded-md"></div>
+          <div class="flex flex-col gap-2">
+            <div class="bg-neutral-400/50 w-full h-4 animate-pulse rounded-md"></div>
+            <div class="bg-neutral-400/50 w-4/5 h-4 animate-pulse rounded-md"></div>
+            <div class="bg-neutral-400/50 w-full h-4 animate-pulse rounded-md"></div>
+            <div class="bg-neutral-400/50 w-2/4 h-4 animate-pulse rounded-md"></div>
+          </div>
+        </div>
+
+      {%- else -%}
+        <div class="popup-content-inner h-full">
+          <div class="popup-header text-center relative flex justify-between items-center p-[9px_14px] bg-[var(--bg-header)] text-[var(--text)]">
+            <a href="{{ routes.cart_url }}">
+              {% render 'icons', icon: 'cart-drawer' %}
+            </a>
+            <p class="text-[15px] font-[500]">
+              {{- 'cart.drawer.title' | t -}}
+              {%- render 'money', value: cart.total_price -%}
+            </p>
+            <button type="button" class="btn btn-popup-close" onclick="this.closest('popup-component').close?.();">
+              {%- render 'icons', icon: 'close' -%}
+            </button>
+          </div>
+          <div class="popup-body">
+            {%- if cart.empty? -%}
+            {%- else -%}
+              {% content_for 'block', type: '_cart-free-shipping', id: 'free-shipping-desktop' %}
+              {% content_for 'block', type: '_cart-move-fit-profile', id: 'cart-move-fit-profile' %}
+              {% content_for 'block', type: '_cart-main', id: 'cart-main-desktop' %}
+              {% content_for 'block', type: '_cart-group-checkmark-content', id: 'cart-group-checkmark-content' %}
+              {% content_for 'block', type: '_cart-group-image-with-content', id: 'cart-group-image-with-content' %}
+              {% content_for 'block',
+                type: '_cart-group-notes-and-total-price',
+                id: 'cart-group-notes-and-total-price'
+              %}
+              {% content_for 'block', type: '_cart-group-reviews', id: 'group-reviews' %}
+              {% content_for 'block', type: '_cart-recommendation', id: 'cart-recommendations' %}
+              {% content_for 'block', type: '_cart-accordion-group', id: 'group-acc-mobile' %}
+            {%- endif -%}
+          </div>
+        </div>
+        {% content_for 'block', type: '_cart-group-checkout', id: 'group-checkout' %}
+      {%- endif -%}
+    </cart-component>
+  </div>
+</popup-component>
+
+{%- schema -%}
+{
+  "name": "t:sections.mini_cart.name",
+  "class": "empty-hidden",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "schema_color_name",
+      "label": "Schema color name"
+    },
+    {
+      "type": "header",
+      "content": "Buttons"
+    },
+    {
+      "type": "text",
+      "id": "border_radius",
+      "label": "Border radius",
+      "default": "4px"
+    },
+    {
+      "type": "checkbox",
+      "id": "has_border",
+      "label": "Has border",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "hover",
+      "label": "Enable hover",
+      "default": false
+    }
+  ]
+}
+{%- endschema -%}

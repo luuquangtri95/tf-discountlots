@@ -1,0 +1,87 @@
+{%- liquid
+  assign section_id = '#shopify-section-' | append: section.id
+  assign layout = section.settings.section_layout | handle
+-%}
+
+{% comment %} Stylesheet {% endcomment %}
+{%- capture stylesheet -%}
+    {%- capture css_values -%}
+    {%- endcapture -%}
+    {%- render 'css-resp', class: section_id, type: 'multi', value: css_values -%}
+  {%- endcapture -%}
+{%- render 'snippet-section'
+  , type: 'css'
+  , value: stylesheet -%}
+
+{% comment %} Classname {% endcomment %}
+{%- capture wrapper_class -%}
+    |section-container
+    |p-[var(--padding)]
+    |m-[var(--margin)]
+{%- endcapture -%}
+{%- capture class -%}
+    {%- case layout -%}
+      {%- when "boxed" -%}
+        |container
+      {%- when "boxed_page" -%}
+        |container-min
+      {%- when "boxed_page_max" -%}
+        |container-max
+    {%- endcase -%}
+      |relative
+{%- endcapture -%}
+<div class="{{ wrapper_class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
+  <div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
+    {%- for block in section.blocks -%}
+      {%- render block -%}
+    {%- endfor -%}
+  </div>
+</div>
+
+{%- schema -%}
+  {
+    "name": "t:sections.app.name",
+    "tag": "section",
+    "class": "shopify-section-apps",
+    "settings": [
+      {
+        "type": "header",
+        "content": "t:general.styles.header"
+      }, {
+        "type": "select",
+        "id": "section_layout",
+        "label": "t:general.styles.section_layout.label",
+        "options": [
+          {
+            "value": "boxed",
+            "label": "t:general.styles.section_layout.options.option_1"
+          }, {
+            "value": "wide",
+            "label": "t:general.styles.section_layout.options.option_2"
+          }
+        ],
+        "default": "boxed"
+      }, {
+        "type": "text",
+        "id": "padding",
+        "label": "t:general.styles.padding.label",
+        "info": "t:general.styles.padding.info"
+      }, {
+        "type": "text",
+        "id": "margin",
+        "label": "t:general.styles.margin.label",
+        "info": "t:general.styles.margin.info"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "@app"
+      }
+    ],
+    "presets": [
+      {
+        "name": "App"
+      }
+    ]
+  }
+{%- endschema -%}

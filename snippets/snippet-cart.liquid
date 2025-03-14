@@ -1,0 +1,283 @@
+{%- liquid
+  assign default_form_id = 'cartForm' | append: section.id
+  assign form_id = form_id | default: default_form_id
+  assign item_image = item.image | default: item.product.featured_media.preview_image
+  assign button_toggle_customization_id = 'toogle-' | append: item.key | handle | prepend: '.'
+  assign types_without_customization = block.settings.types_without_customization | downcase | replace: ', ', ',' | split: ','
+  assign product_type = item.product.type | downcase
+  assign disable_customization = false
+  if types_without_customization contains product_type
+    assign disable_customization = true
+  endif
+  assign types_to_show_qty_and_product_option = block.settings.types_to_show_qty_and_product_option | downcase | replace: ', ', ',' | split: ','
+-%}
+
+{%- capture properties -%}
+  {%- for property in item.properties -%}
+    {%- assign property_first_char = property.first | slice: 0 -%}
+
+    {%- if property.last contains '| $' -%}
+      {%- assign additional_price_prop = property.last | split: '| $' | last | split: '.' | first | append: '00' -%}
+      {%- assign additional_price = additional_price | plus: additional_price_prop -%}
+    {%- endif -%}
+
+    {%- assign p_in_handle = property.first | handle -%}
+
+    {%- assign skip_prop = 'design,jacket,jacket-advanced-options,pants-advanced-options,customer-note,customer_note' | split: ',' -%}
+    {%- if skip_prop contains p_in_handle -%}{%- continue -%}{%- endif -%}
+
+    {%- unless property.last == blank or property_first_char == '_' or property.first == 'image' or p_in_handle == 'fit_profile' or p_in_handle == 'fabric' -%}
+      <div class="item-prop--{{ p_in_handle }} toggle__content">
+        <div class="key">
+          {{ property.first }}:
+        </div>
+        <div class="value">
+          {% if property.last contains '/uploads/' %}
+            {% comment %} 
+              <a href="{{ property.last }}">
+                {% assign file_type = property.last | split: '.' | last | downcase %}
+                {% assign file_types = 'jpg,jpeg,webp,gif,png,apng,avif,svg,bmp,ico,tiff' | split: ',' %}
+                {% if file_types contains file_type %}
+                <div class="bcpo-cart-file"><img src="{{ property.last }}" style="max-width: 50px; height: auto;"></div>
+                {% else %}
+                <span class="bcpo-cart-file">Uploaded file</span>
+                {% endif %}
+              </a> 
+            {% endcomment %}
+
+            <a href="{{ property.last }}" class="link" target="_blank">{{- property.last | split: '/' | last -}}</a>
+          {% else %}
+            {{ property.last }}
+          {% endif %}
+        </div>
+      </div>
+    {%- endunless -%}
+    {%- assign additional_price = additional_price | times: item.quantity -%}
+  {%- endfor -%}
+  {% comment %} 
+  {%- if item.selling_plan_allocation != nil -%}
+    <li>{{ item.selling_plan_allocation.selling_plan.name }}</li>
+  {%- endif -%} 
+  {% endcomment %}
+{%- endcapture -%}
+
+{%- capture button_class -%}
+  |cursor-pointer js w-[20px] h-[20px]
+{%- endcapture -%}
+
+<li class="cart-item w-full [background:var(--background)]"
+  data-product-type="{{ product_type | escape }}"
+>
+  <div class="cart-item-inner w-full">
+    <div class="flex flex-nowrap items-center gap-[12px]">
+      <a href="{{ item.url }}" class="cart-item-media w-[104px]">
+        {%- liquid
+          assign image_ratio = item_image.aspect_ratio | default: 1
+          assign card_image_crop = card_image_crop | default: settings.card_image_mode
+          assign card_image_height = settings.card_image_ratio | remove: 'auto' | strip
+
+          if settings.card_ratio_custom != blank
+            assign card_image_height = 1.0 | divided_by: settings.card_ratio_custom.aspect_ratio | times: 100 | append: '%'
+            assign focal_point = settings.card_ratio_custom.presentation.focal_point
+          endif
+          if card_image_height == blank
+            assign card_image_height = 1.0 | divided_by: image_ratio | times: 100 | append: '%'
+          endif
+        -%}
+
+        {%- render 'image',
+          image: item_image,
+          type: 'product',
+          height: card_image_height,
+          crop: card_image_crop,
+          focal_point: focal_point,
+          index: item.index,
+          width: 104,
+          fetchpriority: 'low',
+          loading: 'lazy'
+        -%}
+      </a>
+
+      <div class="cart-item-info flex-1">
+        <div class="group-content w-full md:max-w-[90%] flex flex-col gap-[8px] pt-[8px] pb-[15px]">
+          <div class="cart-item-line flex flex-col">
+            <p class="product-title">
+              <a
+                href="{{ item.url }}"
+                title="{{ item.product.title | escape }}"
+                class="text-[12px] leading-[15.69px] font-[500] text-[var(--text)]"
+              >
+                {{- item.product.title -}}
+              </a>
+            </p>
+            <div class="item-total-price flex items-center">
+              {%- if item.original_line_price != item.final_line_price -%}
+                <span class="sr-only">{{ 'products.product.sale_price' | t }}</span>
+                <span class="price text-[13px] text-[#C30000] font-medium" 
+                  {% if additional_price %}data-aditional-price="{{ additional_price }}"{% endif %}>
+                  {{ item.final_line_price | plus: additional_price | money_without_trailing_zeros }}
+                </span>
+                <span class="sr-only">{{ 'products.product.regular_price' | t }}</span>
+                <span class="price price-compare ml-[8px] text-[13px] line-through">
+                  {{ item.original_line_price | plus: additional_price | money_without_trailing_zeros }}
+                </span>
+                {%- if product_type != 'suit' -%}
+                  <span class="price text-[13px] text-[#C30000] font-semibold ml-[12px]">
+                    Save {{ item.original_line_price | minus: item.final_line_price | money_without_trailing_zeros }}
+                  </span>
+                {%- endif -%}
+              {%- else -%}
+                <span class="sr-only">{{ 'products.product.regular_price' | t }}</span>
+                <span class="price text-[13px] font-medium"{% if additional_price %}data-aditional-price="{{ additional_price }}"{% endif %}>
+                  {{ item.original_line_price | plus: additional_price | money_without_trailing_zeros }}
+                </span>
+              {%- endif -%}
+
+              {%- if product_type == 'suit' -%}
+                <div class="meta-content meta-type-{{ product_type }} ml-[2px]">
+                  <svg width="117" height="32" viewBox="0 0 117 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M117 0H0V32H117V0Z" fill="white"/>
+                    <path d="M24.5555 13.9229L24.0392 9.77611L21.2595 8.40931L19.5083 7.18537C19.481 7.16987 19.4516 7.15817 19.4209 7.15062C17.4793 6.92668 15.5172 6.92668 13.5755 7.15062C13.5447 7.15749 13.5152 7.16922 13.4882 7.18537L11.733 8.40931L8.95324 9.77611L8.42907 13.9074C8.13679 16.2131 7.98958 18.5341 7.98828 20.8572V24.0927H10.6171V24.9962H22.3635V24.0927H24.9883V20.8572C24.989 18.5394 24.8444 16.2236 24.5555 13.9229ZM19.5003 7.67186L20.9577 8.6873V10.8418C20.9574 10.9187 20.9415 10.9948 20.9108 11.0657C20.8801 11.1366 20.8353 11.2009 20.779 11.2549L20.362 11.641C20.2697 11.7307 20.1966 11.8372 20.1468 11.9545C20.0971 12.0718 20.0717 12.1975 20.0722 12.3244C20.0717 12.4513 20.0971 12.577 20.1468 12.6943C20.1966 12.8116 20.2697 12.9181 20.362 13.0078C20.4715 13.1132 20.5348 13.2557 20.5385 13.4055C20.5422 13.5552 20.486 13.7005 20.3819 13.8109L16.9192 17.4634L16.7008 16.7568L19.5003 7.67186ZM19.127 7.529L16.4943 16.1005L13.8575 7.529C15.6115 7.3431 17.381 7.3431 19.135 7.529H19.127ZM12.0308 8.6873L13.4882 7.67186L16.3036 16.8263L16.6372 17.9151L16.7127 18.1584L12.6066 13.8263C12.4998 13.7184 12.4402 13.5745 12.4402 13.4248C12.4402 13.2751 12.4998 13.1312 12.6066 13.0233C12.7002 12.9343 12.7744 12.8279 12.8249 12.7106C12.8754 12.5932 12.9011 12.4671 12.9005 12.3399C12.9011 12.2126 12.8754 12.0865 12.8249 11.9692C12.7744 11.8518 12.7002 11.7454 12.6066 11.6565L12.1896 11.2704C12.0777 11.1604 12.0149 11.0119 12.0149 10.8572L12.0308 8.6873ZM16.9509 24.614H11.0182V16.8534H10.6211V23.7105H8.38936V20.8611C8.38998 18.5573 8.53586 16.2557 8.82617 13.9692L9.32652 10.0426L11.6337 8.90352V10.8341C11.6331 10.9613 11.6588 11.0874 11.7093 11.2048C11.7598 11.3222 11.834 11.4285 11.9276 11.5175L12.3247 11.9229C12.4359 12.0333 12.4986 12.1814 12.4994 12.336C12.4993 12.4895 12.4364 12.6368 12.3247 12.7453C12.1416 12.9211 12.0363 13.1595 12.0311 13.4097C12.0259 13.6598 12.1213 13.9021 12.2969 14.085L16.9311 18.9731L16.9509 24.614ZM24.5952 23.7105H22.3674V16.8534H21.9703V24.614H17.348V18.9074C17.3502 18.8895 17.3502 18.8713 17.348 18.8534L17.0581 17.9113L20.6797 14.0927C20.8535 13.9089 20.9475 13.667 20.9424 13.4174C20.9372 13.1678 20.8332 12.9298 20.6519 12.753C20.5402 12.6445 20.4773 12.4973 20.4772 12.3437C20.478 12.1892 20.5407 12.041 20.6519 11.9306L21.0689 11.5252C21.1617 11.4357 21.2355 11.3293 21.2859 11.212C21.3364 11.0947 21.3625 10.9689 21.3627 10.8418V8.91124L23.6699 10.0503L24.1703 13.9769C24.4573 16.2636 24.6018 18.5651 24.6031 20.8688L24.5952 23.7105Z" fill="#4C4C4C"/>
+                    <path d="M16.0534 23.1313H15.6562V23.9691H16.0534V23.1313Z" fill="#4C4C4C"/>
+                    <path d="M16.0534 21.4519H15.6562V22.2897H16.0534V21.4519Z" fill="#4C4C4C"/>
+                    <path d="M16.0534 19.7761H15.6562V20.6139H16.0534V19.7761Z" fill="#4C4C4C"/>
+                    <path d="M33.2525 19H33.9485V16.312H36.6365V15.616H33.9485V12.928H33.2525V15.616H30.5645V16.312H33.2525V19Z" fill="#4C4C4C"/>
+                    <path d="M53.7306 8.75102C53.6437 8.09796 53.5526 7.42448 53.4905 6.63265C53.4921 6.47404 53.4328 6.32069 53.3246 6.20335C53.2163 6.08602 53.0671 6.01338 52.9067 6C49.9714 6.30653 47.0114 6.30653 44.0761 6C43.9184 6.01715 43.7727 6.0913 43.6672 6.20814C43.5617 6.32498 43.5038 6.47622 43.5048 6.63265C43.4468 7.4204 43.3558 8.09388 43.2647 8.74694C43.0983 9.80723 43.0111 10.8781 43.0039 11.951C43.0039 14.5061 43.0659 16.4816 43.1322 18.7673C43.1819 20.5796 43.244 22.6326 43.2895 25.3633C43.2874 25.5198 43.3442 25.6715 43.449 25.7891C43.5538 25.9067 43.699 25.9818 43.8567 26H46.7547L46.9617 25.8204L48.4852 14.1347L50.0212 25.8122L50.2282 25.9918H53.1262C53.286 25.9727 53.433 25.8957 53.5385 25.7758C53.6441 25.6559 53.7007 25.5016 53.6975 25.3429C53.7182 23.302 53.7803 21.3469 53.8382 19.4653C53.9128 17.0857 53.9873 14.6286 53.9831 11.9429C53.9761 10.8743 53.8917 9.80768 53.7306 8.75102ZM44.0513 6.40408C47.0003 6.71255 49.9742 6.71255 52.9233 6.40408C52.9688 6.40408 53.0641 6.49796 53.0765 6.65714C53.1055 7.01633 53.1386 7.34693 53.1759 7.6653C52.6004 7.74285 52.0125 7.80816 51.4205 7.85306V7.56326L51.0065 7.58775L51.0272 7.88163C50.5304 7.91837 50.0294 7.94285 49.5326 7.95918V7.55102L49.3256 7.34693H47.7028L47.4958 7.55102V7.95918C46.9534 7.95918 46.4566 7.92244 46.0012 7.88979V7.58367L45.5872 7.55918L45.5665 7.86122C44.8172 7.8 44.221 7.73061 43.8111 7.67347C43.8484 7.35102 43.8815 7.01632 43.9105 6.65306C43.9121 6.60349 43.9257 6.55501 43.9502 6.51169C43.9747 6.46836 44.0093 6.43146 44.0513 6.40408ZM49.1021 7.77551V8.59183H47.8932V7.77551H49.1021ZM53.4367 19.4612C53.3787 21.3429 53.3166 23.2939 53.2959 25.3347C53.2959 25.4939 53.1883 25.5918 53.1386 25.5918H50.4103L48.7046 12.5102H48.2906L46.585 25.5918H43.8525C43.807 25.5918 43.7076 25.4939 43.6994 25.3469C43.6538 22.6245 43.5917 20.5714 43.542 18.7592C43.4758 16.4735 43.4178 14.502 43.4137 11.951C43.4223 10.896 43.5081 9.84289 43.6704 8.8C43.7035 8.56735 43.7366 8.32653 43.7656 8.08571C44.1796 8.14286 44.7882 8.21632 45.5458 8.27755V8.55102L45.9598 8.57551V8.30612C46.4235 8.33877 46.9286 8.36326 47.4792 8.37551V8.78367L47.6862 8.98775H49.3091L49.5161 8.78367V8.37551C50.0212 8.37551 50.5304 8.33469 51.0355 8.29796V8.57959L51.4495 8.5551V8.26939C52.0498 8.22041 52.6418 8.1551 53.2297 8.08163C53.2586 8.32653 53.2918 8.57142 53.3249 8.80816C53.4866 9.8498 53.5738 10.9014 53.5857 11.9551C53.5857 14.6286 53.5112 17.0857 53.4367 19.4612Z" fill="#4C4C4C"/>
+                    <path d="M59.864 19H60.8V13H59.864V19ZM59.624 10.684C59.624 11.08 59.936 11.392 60.332 11.392C60.728 11.392 61.04 11.08 61.04 10.684C61.04 10.288 60.728 9.97595 60.332 9.97595C59.936 9.97595 59.624 10.288 59.624 10.684ZM66.8962 19H67.8322V14.968C67.8322 13.276 66.5482 12.904 65.8282 12.904C64.9762 12.904 64.3282 13.252 63.9202 14.02H63.8962V13H62.9602V19H63.8962V15.664C63.8962 14.416 64.7002 13.744 65.5762 13.744C66.2482 13.744 66.8962 14.128 66.8962 15.376V19ZM75.4041 14.908C75.1641 13.48 74.0721 12.832 72.7641 12.832C71.1561 12.832 69.7041 14.02 69.7041 16.024C69.7041 17.68 70.7601 19.168 72.7521 19.168C74.3841 19.168 75.1281 18.088 75.4401 17.056L74.4441 16.936C74.2401 17.62 73.7961 18.328 72.7641 18.328C71.3241 18.328 70.7121 17.224 70.7121 16.036C70.7121 14.584 71.6241 13.672 72.8121 13.672C73.9521 13.672 74.2881 14.548 74.4441 15.004L75.4041 14.908ZM77.0601 19H77.9961V9.97595H77.0601V19ZM84.0923 19H85.0283V13H84.0923V16.408C84.0923 17.656 83.2883 18.328 82.4123 18.328C81.7403 18.328 81.0923 17.944 81.0923 16.696V13H80.1563V16.948C80.1563 18.724 81.2843 19.168 82.1603 19.168C83.0123 19.168 83.6603 18.82 84.0683 18.052H84.0923V19ZM91.8202 16.048C91.8202 17.308 91.0762 18.328 89.8162 18.328C88.5562 18.328 87.9082 17.272 87.9082 16.024C87.9082 14.44 88.8202 13.744 89.8522 13.744C90.8482 13.744 91.8202 14.476 91.8202 16.048ZM91.8202 19H92.7562V9.97595H91.8202V14.044H91.7962C91.5442 13.66 91.0042 12.904 89.6722 12.904C88.4242 12.904 86.9002 13.792 86.9002 16C86.9002 17.872 88.1362 19.168 89.7922 19.168C91.0282 19.168 91.5202 18.424 91.7962 17.956H91.8202V19ZM99.2562 17.164C99.0522 17.656 98.5842 18.328 97.5042 18.328C96.4962 18.328 95.6442 17.608 95.6442 16.216H100.372V15.952C100.372 13.912 99.2082 12.832 97.5042 12.832C95.7402 12.832 94.6362 14.212 94.6362 16.228C94.6362 17.896 95.7762 19.168 97.4562 19.168C98.8362 19.168 99.7002 18.448 100.216 17.308L99.2562 17.164ZM95.6682 15.448C95.7402 14.632 96.3042 13.672 97.5282 13.672C98.6082 13.672 99.2322 14.356 99.3642 15.448H95.6682ZM106.624 16.048C106.624 17.308 105.88 18.328 104.62 18.328C103.36 18.328 102.712 17.272 102.712 16.024C102.712 14.44 103.624 13.744 104.656 13.744C105.652 13.744 106.624 14.476 106.624 16.048ZM106.624 19H107.56V9.97595H106.624V14.044H106.6C106.348 13.66 105.808 12.904 104.476 12.904C103.228 12.904 101.704 13.792 101.704 16C101.704 17.872 102.94 19.168 104.596 19.168C105.832 19.168 106.324 18.424 106.6 17.956H106.624V19Z" fill="#4C4C4C"/>
+                  </svg>
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+ 
+          {%- capture add_ons -%}{%- render 'snippet-cart-item', type: 'addon', product: item.product -%}{%- endcapture -%}
+          {%- unless add_ons == blank -%}
+            <div class="cart-item-line">{{ add_ons }}</div>
+          {%- endunless -%}
+
+          {%- if types_to_show_qty_and_product_option contains product_type -%}
+            {%- unless item.product.has_only_default_variant -%}
+              <div class="cart-item-line">
+                {%- for option in item.product.options_with_values -%}
+                  <div><span>{{ option.name }}:</span> {{ option.value }}</div>
+                {%- endfor -%}
+              </div>
+            {%- endunless -%}
+  
+            <div class="cart-item-line flex gap-[9px]">
+              {%- assign max_allowed_quantity = '' -%}
+              {%- assign allow_more = true -%}
+  
+              {%- if item.variant.inventory_management == 'shopify' and item.variant.inventory_policy == 'deny' -%}
+                {%- assign max_allowed_quantity = item.variant.inventory_quantity -%}
+                {% if item.variant.inventory_quantity <= item.quantity %}
+                  {%- assign allow_more = false -%}
+                {%- endif -%}
+              {%- endif -%}
+  
+              {%- assign max_allowed_quantity = '' -%}
+              {%- assign allow_more = true -%}
+              <p class="uppercase">Qty:</p>
+              <quantity-input class="quantity-select flex flex-nowrap gap-[6px] justify-center items-center">
+                <button
+                  class="qty-minus {{ button_class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}"
+                  type="button"
+                  name="minus"
+                  aria-label="{{- 'accessibility.text.minus' | t -}}"
+                >
+                  {% render 'icons', icon: 'minus', class: 'fill-current ' %}
+                </button>
+  
+                <input
+                  class="quantity-input w-[25px] h-[20px] p-[5px]"
+                  type="number"
+                  name="updates[]"
+                  value="{{ item.quantity }}"
+                  min="0"
+                  {% if max_allowed_quantity != '' %}
+                    max="{{- max_allowed_quantity -}}"
+                  {% endif %}
+                  aria-label="{{ 'products.product.input_label' | t: product: item.product.title | escape }}"
+                  id="Quantity-{{ item.index | plus: 1 }}"
+                  form="{{form_id}}"
+                  data-line="{{ item.index | plus: 1 }}"
+                  data-sections_url="{{ item.url }}"
+                  data-sections="{{section.id}}"
+                >
+                <button
+                  class="qty-plus {{ button_class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}"
+                  type="button"
+                  name="plus"
+                  aria-label="{{- 'accessibility.text.plus' | t -}}"
+                  {% unless allow_more %}
+                    disabled
+                  {% endunless %}
+                >
+                  {% render 'icons', icon: 'plus', class: 'fill-current' %}
+                </button>
+              </quantity-input>
+            </div>
+          {%- endif -%}
+
+          {%- if disable_customization == false -%}
+            <div class="cart-item-line">
+              <button
+                class="toggle-properties jsToggleClass {{button_toggle_customization_id |  remove: '.' }} group"
+                data-target="{{button_toggle_customization_id}}"
+                data-class-rule="toggle"
+                data-class-name="show"
+              >
+                <div class="toggle-content hide-customization hidden group-[.show]:block font-semibold text-[10.44px] leading-[11.3px] tracking-[3%]">
+                  HIDE CUSTOMIZATIONS
+                </div>
+                <div class="toggle-content show-customization block group-[.show]:hidden font-semibold text-[10.44px] leading-[11.3px] tracking-[3%] text-[var(--link)] schema-color-link">
+                  VIEW CUSTOMIZATIONS
+                </div>
+              </button>
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+
+      <cart-remove-button class="cart-remove-button">
+        <a
+          href="{{ item.url_to_remove }}"
+          data-line="{{ item.index | plus: 1 }}"
+          data-sections_url="{{item.url}}"
+          data-sections="{{section.id}}"
+          class="flex justify-end"
+        >
+          {%- render 'icons', icon: 'remove', class: 'w-[11px] h-[11px]' -%}
+        </a>
+      </cart-remove-button>
+    </div>
+
+    {%- if disable_customization == false -%}
+      <div class="cart-item-mark px-[6px]">
+        <lazy-script
+          data-tag="accordion-component"
+          data-file="{{ 'accordion-component.js' | asset_url }}"
+          class="{{button_toggle_customization_id |   remove: '.' }}"
+        >
+          <details>
+            <summary class="cursor-pointer hidden"></summary>
+            <div class="accordion-component-content font-medium text-[10.44px] leading-[11.38px] text-black">
+              <div class="expand-content-inner flex flex-col gap-[10px] mt-[10px] mb-[10px]">
+                <div class="cart-item-properties">
+                  {% if properties != blank %}
+                    {{ properties }}
+                  {% else %}
+                    <div class="cart-item-properties-no-customized m-0 text-center w-full">
+                      Not customized. Designer selections applied.
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </details>
+        </lazy-script>
+      </div>
+    {%- endif -%}
+    
+  </div>
+</li>

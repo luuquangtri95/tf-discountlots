@@ -1,0 +1,338 @@
+{%- liquid
+  assign sectionId = '#shopify-section-' | append: section.id
+  assign productSelect = productSelect | default: product.selected_or_first_available_variant
+  assign formId = formId | default: 'mainProductForm'
+-%}
+
+{%- capture blockClass -%}field-info field-type-{{ blockType | default: block.type }} {{blockId | remove: '.'}}{%- endcapture -%}
+
+{%- case type -%}
+  {%- when '@app' -%}
+    {%- render block -%}
+
+  {%- when 'title' -%}
+    <h1 class="product-title" {{ block.shopify_attributes }}>{{ product.title }}</h1>
+
+  {%- when 'line' -%}
+    <hr
+      class="block-hr{% if block.settings.show_on_mobile %} show-hr{% else %} hidden-hr{% endif %}"
+      {{ block.shopify_attributes }}
+    >
+
+  {%- when 'text' -%}
+    <div class="{{blockClass}} empty-hidden" {{ block.shopify_attributes }}>
+      {{ block.settings.text }}
+    </div>
+
+  {%- when 'price' -%}
+    <div
+      class="product-price {{blockClass}} jsVariantUpdate"
+      data-update-id="{{ type }}-{{ formId }}"
+      {{ block.shopify_attributes }}
+    >
+      <div class="flex">
+        {%- if productSelect == blank -%}
+          {%- capture mainPrice -%}{%- render 'money', value: product.price_min, class: 'price' -%}{%- endcapture -%}
+          <div class="price-range">{{ 'products.product.price_html' | t: price: mainPrice }}</div>
+
+        {%- elsif product.available != true or productSelect.available != true -%}
+          <span class="price-sold-out">{{- 'products.product.sold_out' | t -}}</span>
+
+        {%- else -%}
+          {%- capture priceClass -%}price{% if productSelect.compare_at_price > productSelect.price %} sale-price{% endif %}{%- endcapture -%}
+          {%- render 'money', value: productSelect.price, class: priceClass -%}
+
+          {%- if productSelect.compare_at_price > productSelect.price and settings.price_sale == 'show' -%}
+            {%- render 'money', value: productSelect.compare_at_price, class: 'price-compare' -%}
+          {%- endif -%}
+        {%- endif -%}
+      </div>
+    </div>
+
+  {%- when 'options' -%}
+    <div class="{{blockClass}} product-options" {{ block.shopify_attributes }}>
+      {%- unless product.has_only_default_variant -%}
+        <div class="variants-wrapper js">
+          {%- render 'swatch' for product.options_with_values as option, formId: formId, block: block, type: 'button' -%}
+        </div>
+      {%- endunless -%} 
+
+      <select name="id" class="variants-selector js-hide hidden" form="{{formId}}">
+        {%- for variant in product.variants -%}
+          <option
+            value="{{ variant.id }}"
+            {% if variant.id == productSelect.id %}
+              selected
+            {% endif %}
+          >
+            {{ variant.title }}
+          </option>
+        {%- endfor -%}
+      </select>
+    </div>
+
+  {%- when 'buy_button' -%}
+    {%- capture btnStyle -%}
+      {%- render 'snippet-section', type: 'button_style', style: btnStyle %} btn-interact
+      !flex items-center gap-2 w-full bg-[var(--primary-color)] [color:var(--background)] justify-center
+    {%- endcapture -%}
+
+    <product-cart-form
+      class="product-form [color:var(--text)] block {{blockClass}}{% if block.settings.show_price %} show-price{% endif %}"
+      data-url="{{product.url}}"
+      {{ block.shopify_attributes }}
+    >
+      {%- form 'product', product, id: formId, class: 'product-form' -%}
+        {% comment %} {%- render 'selling-plan', productSelect: productSelect -%} {% endcomment %}
+
+        <div class="product-cart flex gap-2 items-stretch" style="--border-radius: 4px;">
+          <div class="wishlist h-full"></div>
+
+          {%- if block.settings.enable_konfigurator -%}
+            {%- render 'konfigurator-data', type: 'button', block: block -%}
+          {%- endif -%}
+
+          <div class="flex-1 product-cart_button jsVariantUpdate" data-update-id="{{ type }}-{{ formId }}">
+            {%- if productSelect.available -%}
+              <button
+                type="submit"
+                name="add"
+                class="{{ btnStyle }} add-to-cart cursor-pointer h-full"
+                data-atc
+              >
+                {%- if block.settings.show_price -%}
+                  <span class="text" data-text>{{- 'products.product.add_to_cart' | t -}}</span>
+                  {%- if productSelect.available -%}
+                    {%- render 'money', value: productSelect.price -%}
+                  {%- endif -%}
+
+                {%- else -%}
+                  <span class="text" data-text>{{- 'products.product.add_to_cart' | t -}}</span>
+                {%- endif -%}
+              </button>
+
+            {%- else -%}
+              <button
+                type="submit"
+                name="add"
+                class="{{ btnStyle }} add-to-cart h-full disabled"
+                disabled
+                data-atc
+              >
+                {%- if productSelect == blank -%}
+                  <span class="text" data-text>{{- 'products.product.select_options' | t -}}</span>
+                {%- else -%}
+                  <span>{{- 'products.product.sold_out' | t -}}</span>
+                {%- endif -%}
+              </button>
+            {%- endif -%}
+          </div>
+        </div>
+
+        {% comment %}
+          {%- if block.settings.enable_dynamic_checkout -%}
+            <div class="dynamic-btn js-dynamic-checkout btn-{{ block.settings.dynamic_button_color }}{% if block.settings.show_price %} text-left{% endif %}">
+              {{ form | payment_button }}
+            </div>
+          {%- endif -%}
+
+          {{ form | payment_terms }}
+        {% endcomment %}
+      {%- endform -%}
+    </product-cart-form>
+
+    {%- if block.settings.enable_konfigurator -%}
+      {%- render 'konfigurator-data', type: '' -%}
+    {%- endif -%}
+
+  {%- when 'inventory' -%}
+    <p class="variant-inventory js empty-hidden jsVariantUpdate" data-update-id="inventory-{{ formId }}">
+      <span class="">
+        {%- if productSelect != blank
+          and productSelect.inventory_management == 'shopify'
+          and productSelect.inventory_policy == 'deny'
+          and productSelect.inventory_quantity > 0
+          and productSelect.inventory_quantity <= settings.product_low_inventory
+        -%}
+          {{- 'products.product.low_inventory' | t: count: productSelect.inventory_quantity -}}
+        {%- endif -%}
+      </span>
+    </p>
+
+  {%- when 'pickup_availability' -%}
+    {%- unless product.available -%}{%- break -%}{%- endunless -%}
+
+    <lazy-script
+      class="block jsVariantUpdate"
+      data-update-id="pickup-availability-{{ formId }}"
+      data-tag="pickup-availability"
+      data-file="{{- 'pickup-availability.js' | asset_url -}},{{- 'pickup-availability.css' | asset_url -}},{{- 'mapbox.css' | asset_url -}}"
+    >
+      {%- render 'pickup-availability', product_variant: productSelect -%}
+    </lazy-script>
+
+  {%- when 'vendor_sku', 'vendor' -%}
+    <div
+      class="product__info-row product-row-{{ block.type | replace: '_', '-' }} flex items-center empty-hidden"
+      {{ block.shopify_attributes }}
+    >
+      <div class="product-vendor">
+        {{- product.vendor | link_to_vendor -}}
+      </div>
+    </div>
+
+  {%- when 'description' -%}
+    {%- liquid
+      assign enable_multi_tab = block.settings.enable_multi_tab
+      assign description = product.description
+      assign descriptionCheck = description | strip_html | strip
+      assign description_parts = description | strip_newlines | strip | split: '<h5'
+    -%}
+    {%- if descriptionCheck == blank -%}{%- continue -%}{%- endif -%}
+
+    {%- if enable_multi_tab != true or description_parts.first.size > 0 -%}
+      {%- liquid
+        assign heading = 'products.sections.description.heading' | t
+        assign body = description
+      -%}
+
+      <lazy-script
+        class="tab__panel-item"
+        data-tag="accordion-component"
+        data-file="{{- 'accordion-component.js' | asset_url -}}"
+        {{ block.shopify_attributes }}
+      >
+        <details {{ open }}>
+          <summary class="tab__panel-title cursor-pointer flex justify-between align-items-start">
+            <span>{{ heading }}</span>
+            {%- render 'icons', icon: 'arrow' -%}
+          </summary>
+
+          <div class="tab__panel-content">
+            <div>{{- body -}}</div>
+          </div>
+        </details>
+      </lazy-script>
+    {%- endif -%}
+
+    {%- if enable_multi_tab -%}
+      {%- for part in description_parts -%}
+        {%- if part contains '</h5>' -%}
+          {%- liquid
+            assign fp = part | append: ' ' | split: '</h5>' | last
+            assign p = part | append: ' ' | split: '</h5>' | last | strip_html | replace: '&nbsp;', '' | replace: ' ', '' | strip_newlines
+
+            assign contentSplit = part | split: '</h5>'
+            assign remove = part | split: '>' | first | append: '>'
+            assign heading = contentSplit[0] | strip_html | remove: remove
+            assign body = contentSplit[1] | split: 'src=' | join: 'class="lazyload" data-src='
+          -%}
+
+          {%- if heading == blank -%}{%- continue -%}{%- endif -%}
+
+          <lazy-script
+            class="tab__panel-item"
+            data-tag="accordion-component"
+            data-file="{{- 'accordion-component.js' | asset_url -}}"
+            {{ block.shopify_attributes }}
+          >
+            <details {{ open }}>
+              <summary class="tab__panel-title cursor-pointer flex justify-between align-items-start">
+                <span>{{ heading }}</span>
+                {%- render 'icons', icon: 'arrow' -%}
+              </summary>
+
+              <div class="tab__panel-content">
+                <div>{{- body -}}</div>
+              </div>
+            </details>
+          </lazy-script>
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endif -%}
+
+  {%- when 'page' -%}
+    <lazy-script
+      class="tab__panel-item"
+      data-tag="accordion-component"
+      data-file="{{- 'accordion-component.js' | asset_url -}}"
+      {{ block.shopify_attributes }}
+    >
+      <details {{ open }}>
+        <summary class="tab__panel-title cursor-pointer flex justify-between align-items-start">
+          <span>{{ block.settings.title }}</span>
+          {%- render 'icons', icon: 'arrow' -%}
+        </summary>
+        <div class="tab__panel-content">
+          <div>{{ block.settings.content }}</div>
+          {%- unless block.settings.page.content == blank -%}
+            <div>{{ block.settings.page.content }}</div>
+          {%- endunless -%}
+        </div>
+      </details>
+    </lazy-script>
+
+  {%- when 'wishlist' -%}
+    <div class="product__info-row flex items-center">
+      {%- if settings.enable_wishlist -%}
+        <div class="wishlist-target">
+          <button
+            class="st-wishlist-button flex items-center cursor-pointer"
+            data-type="details"
+            data-handle="{{ product.handle }}"
+          >
+            {%- render 'icons', icon: 'wishlist' -%}
+            <span class="st-wishlist-text">{{- 'products.product.add_to_wishlist' | t -}}</span>
+          </button>
+        </div>
+      {%- endif -%}
+
+      {%- if block.settings.show_contact_form and isQuickview != true -%}
+        <div class="ask-product">
+          <button class="flex items-center jsTogglePopup cursor-pointer" type="button" data-control="#popupContact">
+            {%- render 'icons', icon: 'mail' -%}
+            <span class="">{{- 'products.product.ask_about_product' | t -}}</span>
+          </button>
+        </div>
+      {%- endif -%}
+    </div>
+
+  {%- when 'complementary' -%}
+    {%- if block.settings.products == blank -%}{%- break -%}{%- endif -%}
+    {%- liquid
+      assign items_resp = block.settings.items_resp
+      assign slideID = '#complementarySlide' | append: block.id
+    -%}
+
+    <div class="{{blockClass}} product-options max-items-{{ items_resp }}" {{ block.shopify_attributes }}>
+      <div class="product-complementary-inner overflow-hidden">
+        <p class="product-complementary-title">{{ block.settings.title }}</p>
+
+        {%- if items_resp > 2 -%}
+          {%- assign items_resp = '1.3,' | append: items_resp -%}
+          {%- capture gridClass -%}{%- render 'config-grid', value: items_resp %} flex-gap{%- endcapture -%}
+          {%- capture section_css -%}{{- section_css -}}{%- render 'config-grid', value: items_resp, spacing: '40px' style: true, id: slideID, class: 'el' -%}{%- endcapture -%}
+          {%- render 'snippet-section', type: 'css', value: section_css, default: false -%}
+
+          <lazy-script
+            id="{{ slideID | remove: '#' }}"
+            data-tag="slider-component"
+            data-file="{{ 'slider-component.js' | asset_url }}"
+          >
+            {%- render 'config-slide', id: slideID, items: items_resp, spacing: '40px' -%}
+
+            <div
+              id="{{ slideID | remove: '#' }}el"
+              class="product-complementary-list slider-list {{gridClass}} js-slider"
+            >
+              {%- render 'product-item' for block.settings.products as product, limitImageSize: 299 -%}
+            </div>
+          </lazy-script>
+        {%- else -%}
+          <div class="product-complementary-list">
+            {%- render 'product-item' for block.settings.products as product -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+{%- endcase -%}

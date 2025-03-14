@@ -1,0 +1,109 @@
+{%- liquid
+  assign media_index = media_index | times: 1
+  if media_index < 2
+    assign loading = 'eager'
+    assign fetchpriority = 'high'
+  else
+    assign loading = 'lazy'
+    assign fetchpriority = 'low'
+  endif
+
+  assign media_aspect_ratio = product.media | map: 'preview_image' | map: 'aspect_ratio' | sort | last
+  assign pswp_img_width = media.width
+  assign pswp_img_height = pswp_img_width | times: 1.0 | divided_by: media_aspect_ratio | ceil
+-%}
+
+{% if desktop_column_width and is_custom_block %}
+  <style>
+    .is-custom-block-true[data-media-index="{{media_index | plus: 1}}"] {
+      --desk-col-width: {{ desktop_column_width }};
+    }
+  </style>
+{% endif %}
+
+<div
+  class="media-item media-type-{{media.media_type}} swiper-slide is-custom-block-{{is_custom_block | default: false}}"
+  data-media-index="{{media_index | plus: 1}}"
+
+  {% if media.media_type == 'image' %}
+    data-src="{{ media | image_url: width: pswp_img_width }}"
+    data-width="{{ pswp_img_width }}"
+    data-height="{{ pswp_img_height }}"
+  {% endif %}
+>
+  {%- if media.media_type == 'image' -%}
+    {%- capture sizes -%}
+      {%- case media_size -%}
+        {%- when 'small' -%}
+          {%- assign media_container_width = 5.0 | divided_by: 12 -%}
+        {%- when 'medium' -%}
+          {%- assign media_container_width = 6.0 | divided_by: 12 -%}
+        {%- else -%}
+          {%- assign media_container_width = 8.0 | divided_by: 12 -%}
+      {%- endcase -%}
+      {%- if desktop_column_width and is_custom_block -%}
+        {%- assign column_width = desktop_column_width | remove: '%' | times: 1.0 | divided_by: 100 -%}
+      {%- else -%}
+        {%- assign column_width = 0.5 -%}
+      {%- endif -%}
+
+      (min-width: 1500px) calc(1500px * {{ media_container_width }} * {{ column_width }}), 
+      (min-width: 750px) calc((100vw - 40px * 2) * {{ media_container_width }} * {{ column_width }}), 100vw
+    {%- endcapture -%}
+    {%- assign sizes = sizes | strip_newlines | remove: '  ' | strip -%}
+    {%- render 'image',
+      image: media,
+      crop: img_crop,
+      height: height,
+      usePreload: false,
+      loading: loading,
+      fetchpriority: fetchpriority,
+      sizes: sizes
+    -%}
+
+    <button type="button" class="js-trigger-zoom flex absolute bottom-0 right-0 mb-[10px] 
+      mr-[10px] md:hidden p-[6px] bg-[#fff] border border-solid border-[#e8e8e1] text-[#000000] rounded-[50%]
+      transition-opacity duration-[0.5s] ease-out opacity-0"
+    >
+      <svg aria-hidden="true" focusable="false" role="presentation" class="flex w-[20px] h-[20px] fill-current" viewBox="0 0 64 64">
+        <path class="fill-none stroke-[3px] stroke-current" d="M47.16 28.58A18.58 18.58 0 1 1 28.58 10a18.58 18.58 0 0 1 18.58 18.58ZM54 54 41.94 42"></path>
+      </svg>
+    </button>
+  {%- else -%}
+    {%- capture media_class -%}absolute w-full h-full top-0 left-0{%- endcapture -%}
+    {%- assign autoplay = false -%}
+    {%- if media_index == 0 and media.media_type == 'video' -%}
+      {%- assign autoplay = true -%}
+      {%- assign media_class = media_class | append: ' playing' -%}
+    {%- endif -%}
+    {%- if media.media_type == 'video' -%}
+      {%- assign media_class = media_class | append: ' object-cover' -%}
+    {%- endif -%}
+
+    <div class="media-wrapper image__style relative" style="--imgHeight: {{height}}; padding-top: var(--imgHeight);">
+      {%- case media.media_type -%}
+        {%- when 'model' -%}
+          {{- media | model_viewer_tag: image_size: '1024x', class: media_class -}}
+
+        {%- when 'video', 'external_video' -%}
+          <lazy-script
+            class="absolute w-full h-full top-0 left-0"
+            data-type="{{ media.host | default: 'video' }}"
+            play-in-view
+            data-tag="video-component"
+            data-file="{{ 'video-component.js' | asset_url }}"
+          >
+            {%- if media.media_type == 'video' -%}
+              {{
+                media
+                | video_tag: image_size: '1024x', control: false, loop: enable_video_looping, autoplay: autoplay, class: media_class, muted: muted, loading: 'lazy'
+              }}
+            {%- else -%}
+              {%- capture video_id -%}player{{product.id | append: media.external_id}}{%- endcapture -%}
+              {{ media | external_video_tag: class: media_class, id: video_id, data-video-id: media.external_id, loading: 'lazy' }}
+            {%- endif -%}
+          </lazy-script>
+      {%- endcase -%}
+    </div>
+  {%- endif -%}
+</div>

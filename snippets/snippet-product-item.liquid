@@ -1,0 +1,100 @@
+{%- if product == blank -%}{%- break -%}{%- endif -%}
+
+{%- liquid
+  assign productSelect = productSelect
+  assign formId = 'f' | append: product.id | append: section.id
+-%}
+
+{%- case type -%}
+  {%- when 'price' -%}
+    {%- capture priceClass -%}price{% if productSelect.compare_at_price > productSelect.price %} sale-price{% endif %}{%- endcapture -%}
+
+    <div class="product-price{% unless class == blank %} {{class}}{% endunless %}{% if request.page_type == 'collection' or request.page_type == 'product' %} jsVariantUpdate" data-update-id="price-{{formId}}{% endif %}">
+      <div class="flex">
+        {%- if product.available == false or productSelect.available == false -%}
+          <span class="price-sold-out">{{- 'products.product.sold_out' | t -}}</span>
+
+        {%- else -%}
+          
+          {%- if product.price_varies and productSelect == blank -%}
+            {%- capture mainPrice -%}{%- render 'money', value: product.price_min, class: priceClass -%}{%- endcapture -%}
+            <div class="price-range">{{ 'products.product.price_html' | t: price: mainPrice }}</div>
+
+          {%- else -%}
+            <!-- {{ productSelect }} -->
+            {%- render 'money', value: productSelect.price, class: priceClass -%}
+
+            {%- if settings.price_sale == 'show' -%}
+              {%- if productSelect.compare_at_price > productSelect.price or isBundle -%}
+                {%- assign compareClass = 'price-compare' -%}
+                {%- if isBundle -%}
+                  {%- assign compareClass = compareClass | append: ' empty-hidden' -%}
+                {%- endif -%}
+                {%- render 'money', value: productSelect.compare_at_price, class: compareClass -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endif -%}
+        {%- endif -%}
+      </div>
+    </div>
+
+  {%- when 'label' -%}
+    {%- capture labelItems -%}
+      {% assign tagName = tagName | downcase %}
+			{%- for tag in product.tags -%}
+        {% assign tagCurrent = tag | downcase %}
+        {% if tagName == tagCurrent %}
+				  <span class="label label-tag label-border-radius {{ tag | remove_first: '_' | strip | handle }}">{{ tag }}</span>
+        {% endif %}
+			{%- endfor -%}
+
+			{%- if productSelect.available and productSelect.compare_at_price > productSelect.price and settings.label_sale != 'hide' -%}
+				<span class="label label-sale">
+					{%- if settings.label_sale == 'percent' -%}
+						{%- assign saving = productSelect.compare_at_price | minus: productSelect.price | times: 100.0 | divided_by: productSelect.compare_at_price | round: 0 -%}
+						{{- 'products.label.sale_with_percent' | t: count: saving -}}
+					{%- else -%}
+						{{- 'products.label.sale' | t -}}
+					{%- endif -%}
+				</span>
+			{%- endif -%}
+
+      {%- liquid
+        assign publishDate = product.published_at | date: '%s' | times: 1
+        assign currentDate = 'now' | date: '%s' | times: 1
+        assign leaveDays = currentDate | minus: publishDate | divided_by: 86400
+      -%}
+      {%- if leaveDays < 0 -%}
+        <span class="label label-tag label-border-radius label-new-arrival">{{ 'products.label.new_arrival' | t }}</span>
+      {%- endif -%}
+		{%- endcapture -%}
+    {%- if labelItems == blank -%}{%- break -%}{%- endif -%}
+
+    <div class="label-group absolute t0 left-0 flex">{{ labelItems }}</div>
+
+  {%- when 'atc' -%}
+    <div class="card-button jsVariantUpdate" data-update-id="ATC-{{formId}}">
+      <p class="quantity-heading variant-inventory highlight empty-hidden">
+        {%- if productSelect != blank
+          and productSelect.inventory_management == 'shopify'
+          and productSelect.inventory_policy == 'deny'
+          and productSelect.inventory_quantity > 0
+          and productSelect.inventory_quantity <= settings.product_low_inventory
+        -%}
+          {{- 'products.product.low_inventory' | t: count: productSelect.inventory_quantity -}}
+        {%- endif -%}
+      </p>
+
+      <button type="submit" name="add" class="btn btn-0 btn-interact block w100 add-to-cart cursor-pointer" form="{{ formId }}"{% unless productSelect.available %} disabled{% endunless %}>
+        <span class="icon">{%- render 'icons', icon: 'cart' -%}</span>
+        <span class="text">
+          {%- if productSelect.available -%}
+            {{- 'products.product.add_to_cart' | t -}}
+          {%- else -%}
+            {{- 'products.product.sold_out' | t -}}
+          {%- endif -%}
+        </span>
+      </button>
+    </div>
+
+{%- endcase -%}

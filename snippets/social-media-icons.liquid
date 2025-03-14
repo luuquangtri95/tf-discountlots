@@ -1,0 +1,33 @@
+{%- capture socialList -%}
+  |facebook
+  |instagram
+  |tiktok
+  |twitter
+  |youtube
+  |pinterest
+  |linkedin
+  |googleplus
+{%- endcapture -%}
+{%- assign socialList = socialListCustom | default: socialList | remove_first: '|' | strip_newlines | split: '|' -%}
+
+<ul class="list list-social {{ class }}" role="list">
+  {%- for item in socialList -%}
+    {%- assign social = item | strip -%}
+    {%- capture id -%}social_{{social}}_link{%- endcapture -%}
+    {%- if settings[id] == blank -%}
+      {%- continue -%}{%- endif -%}
+
+    {%- capture label -%}general.social.links.{{social}}{%- endcapture -%}
+    <li class="list-social__item inline-block">
+      <a
+        href="{{ settings[id] }}"
+        class="link link--text list-social__link"
+        title="{{ social | capitalize }}"
+        aria-label="{{ social | capitalize }}">
+        {%- capture social -%}{{social}}{% unless iconKey == blank %}_{{iconKey}}{% endunless %}{%- endcapture -%}
+        {%- render 'icons'
+          , icon: social -%}
+      </a>
+    </li>
+  {%- endfor -%}
+</ul>

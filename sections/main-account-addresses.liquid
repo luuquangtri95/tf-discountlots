@@ -1,0 +1,153 @@
+{%- liquid
+  render 'snippet-section', type: 'css-file', name: 'component-pagination'
+
+  assign sectionId      = '#shopify-section-' | append: section.id
+  assign layout         = settings.account_section_layout | handle
+-%}
+{%- style -%}
+  {{sectionId}}{
+    --padding: {{settings.account_section_padding}};
+    --margin: {{settings.account_section_margin}};
+  }
+{%- endstyle -%}
+
+<div class="layout-{{layout}}">
+  <div class="main-page section-container{% if layout == 'boxed' %} container{% endif %}">
+
+    <main class="main-account">
+      <div class="addresses-list">
+        {%- paginate customer.addresses by 20 -%}
+
+          <p class="text-left">
+            <a href="{{ routes.account_url }}" class="link underline">{{- 'customer.general.back_to_account' | t -}}</a>
+          </p>
+
+          <div class="addresses-wrapper" data-customer-addresses>
+
+            <div class="new-address flex" data-address>
+              <h1 class="page-heading fw600 text-center">{{ 'customer.addresses.title' | t }}</h1>
+
+              <div class="btn-wrapper">
+                <button type="button" aria-expanded="false" aria-controls="AddAddress" class="btn-add-address jsTogglePopup {% render 'snippet-section', type: 'button_style', style: settings.submit_btn_color %}" data-control="new-address" title="{{ 'customer.addresses.add_new' | t }}">
+                  {%- render 'icons', icon: 'plus' -%}
+                  <span class="text">{{- 'customer.addresses.add_new' | t -}}</span>
+                </button>
+              </div>
+            </div>
+
+            <ul class="flex flex-1 md:flex-2 lg-flex-3 flex-gap" role="list">
+              {%- for address in customer.addresses -%}
+                <li class="order-{% if address == customer.default_address %}0{% else %}{{forloop.index}}{% endif %}" data-address>
+
+                  <div class="card address-card pr">
+                    <div class="card-inner">
+
+                      <div class="address-row">
+                        <span class="address-street-header">{{address.street}}</span>
+                        {%- if address == customer.default_address -%}
+                          <span class="label label-address-default">{{ 'customer.addresses.default' | t }}</span>
+                        {%- endif -%}
+                      </div>
+
+                      <div class="address-detail">
+                        {%- unless address.name == blank -%}
+                          <div class="address-name flex flex-fill">
+                            <span class="address-row-label">{{ 'customer.addresses.full_name' | t }}</span>
+                            <span class="address-row-value">{{  address.name }}</span>
+                          </div>
+                        {%- endunless -%}
+
+                        {%- unless address.phone == blank -%}
+                          <div class="address-phone flex flex-fill">
+                            <span class="address-row-label">{{ 'customer.addresses.phone' | t }}</span>
+                            <span class="address-row-value">{{  address.phone }}</span>
+                          </div>
+                        {%- endunless -%}
+
+                        {%- unless address.street == blank -%}
+                          <div class="address-street flex flex-fill">
+                            <span class="address-row-label">{{ 'customer.addresses.street' | t }}</span>
+                            <span class="address-row-value">{{  address.street }}</span>
+                          </div>
+                        {%- endunless -%}
+
+                        {%- unless address.company == blank -%}
+                          <div class="address-company flex flex-fill">
+                            <span class="address-row-label">{{ 'customer.addresses.company' | t }}</span>
+                            <span class="address-row-value">{{ address.company }}</span>
+                          </div>
+                        {%- endunless -%}
+
+                        {%- unless address.city == blank -%}
+                          <div class="address-city flex flex-fill">
+                            <span class="address-row-label">{{ 'customer.addresses.city' | t }}</span>
+                            <span class="address-row-value">{{  address.city }}</span>
+                          </div>
+                        {%- endunless -%}
+
+                        {%- unless address.country == blank -%}
+                          <div class="address-country flex flex-fill">
+                            <span class="address-row-label">{{ 'customer.addresses.country' | t }}</span>
+                            <span class="address-row-value">{{ address.country }}</span>
+                          </div>
+                        {%- endunless -%}
+
+
+                      </div>
+
+                      <div class="button-group flex flex-2 flex-gap">
+                        <div class="btn-wrapper">
+                          <button type="button" class="{% render 'snippet-section', type: 'button_style', style: settings.cancel_btn_color %} jsTogglePopup" id="EditFormButton_{{ address.id }}" data-control="edit-address-{{address.id}}" aria-label="{{ 'customer.addresses.edit_address' | t }} {{ forloop.index }}" aria-controls="EditAddress_{{ address.id }}" aria-expanded="false" data-address-id="{{ address.id }}">
+                            {{ 'customer.addresses.edit' | t }}
+                          </button>
+                        </div>
+                        <div class="btn-wrapper">
+                          <button type="button" class="{% render 'snippet-section', type: 'button_style', style: settings.submit_btn_color %}" aria-label="{{ 'customer.addresses.delete' | t }} {{ forloop.index }}" data-target="{{ address.url }}" data-confirm-message="{{ 'customer.addresses.delete_confirm' | t }}">
+                            {{ 'customer.addresses.delete' | t }}
+                          </button>
+                        </div>
+                      </div>
+                  </div>
+                </li>
+
+                {%- capture poupEditAddress -%}{{-poupEditAddress-}}
+                  {%- render 'address-item', address: address -%}
+                {%- endcapture -%}
+              {%- endfor -%}
+            </ul>
+
+            {%- if paginate.pages > 1 -%}
+              {%- render 'pagination', paginate: paginate -%}
+            {%- endif -%}
+          </div>
+
+        {%- endpaginate -%}
+      </div>
+    </main>
+  </div>
+</div>
+
+
+{%- comment -%}
+-------------------------------
+ADD NEW ADDRESS POPUP
+-------------------------------
+{%- endcomment -%}
+{%- render 'address-item', address: nil -%}
+
+{%- comment -%}
+-------------------------------
+EDIT ADDRESS
+-------------------------------
+{%- endcomment -%}
+{{poupEditAddress}}
+
+{% schema %}
+{
+   "name": "t:sections.main_account.name",
+   "class": "shopify-section-account shopify-section-account-address",
+   "tag": "section",
+   "settings": [],
+   "blocks": []
+}
+{% endschema %}

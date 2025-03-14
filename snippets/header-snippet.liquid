@@ -1,0 +1,153 @@
+{%- case type -%}
+  {%- when 'link' -%}
+    {% liquid
+      assign megaBlocks = section.blocks | where: 'type', 'mega_menu' | map: 'settings'
+      assign megaItem = megaBlocks | where: 'title', link.title | first
+    %}
+    {%- capture increa_index -%}{%  increment animation_delay %}{%  increment animation_delay %}{%  increment animation_delay %}{%- endcapture -%}
+    {%- capture sublink -%}
+      {%- if megaItem != blank or link.links.size > 0 -%}
+
+        {%- capture sublink_width -%}
+          {%- case megaItem.sublink_width -%}
+            {%- when 1 -%}col-span-1
+            {%- when 2 -%}col-span-2
+            {%- when 3 -%}col-span-3
+          {%- endcase -%}
+        {%- endcapture -%}
+
+        {%- capture sublink_content -%}
+          <div class="grid{% if link.levels > 1 %} items-{{ link.links.size }}{% endif %} {{ sublink_width }}{% if megaItem != blank %} appear-animation appear-delay-{%  increment animation_delay %}{% endif %}">
+            {%- for sublink in link.links -%}
+              <div class="pl-3{% if megaItem == blank %} appear-animation appear-delay-{%  increment animation_delay %}{% endif %}">
+                {%- render 'header-snippet', type: 'sublink', link: sublink -%}
+              </div>
+            {%- endfor -%}
+          </div>
+        {%- endcapture -%}
+
+
+        <div class="group-hover/nav:visible group-focus-visible/nav:bg-[red] appear-delay-{%  increment animation_delay %} overflow-hidden invisible transition-all delay-500 absolute left-0 top-full w-full bg-white z-[999] shadow-[0_0_1px_rgba(0,0,0,0.2)]">
+          <div class="container py-[39px]">
+
+            {%- if megaItem != blank -%}
+              <div class="grid items-{{ megaItem.item_per_row }} items-start">
+
+                {{ sublink_content }}
+
+                {%- for i in (1..4) -%}
+                  {%- liquid
+                    assign megaLinks = 'linklist_' | append: i
+                    assign megaLinks = megaItem[megaLinks]
+                    if megaLinks == blank
+                      continue
+                    endif
+                  -%}
+                  <div class="appear-animation appear-delay-{%  increment animation_delay %}">
+                    {%- if megaItem.show_sublink_title -%}
+                      <div class="h5">
+                        <a
+                          href="{{- megaLinks.url -}}"
+                          class="py-[7.5px]"
+                        >
+                          {{- megaLinks.title -}}
+                        </a>
+                      </div>
+                    {%- endif -%}
+                    {%- for sl in megaLinks.links -%}
+                      <div>
+                        {{ sl.title | link_to: sl.url, class: 'site-nav__dropdown-link' }}
+                      </div>
+                    {%- endfor -%}
+                  </div>
+                {%- endfor -%}
+
+                {%- for i in (1..3) -%}
+                  {%- liquid
+                    assign bannerBlock = 'image_' | append: i
+                    assign bannerTitle = 'text_' | append: i
+                    assign bannerUrl = 'link_' | append: i
+                    assign bannerBlock = megaItem[bannerBlock]
+                    assign bannerTitle = megaItem[bannerTitle]
+                    assign bannerUrl = megaItem[bannerUrl]
+
+                    if bannerBlock == blank
+                      continue
+                    endif
+
+                    assign animation_column = animation_column | plus: 1
+                  -%}
+                  <div class="appear-animation appear-delay-{%  increment animation_delay %} pl-[22px]">
+                    <div class="">
+                      {%- unless bannerUrl == blank -%}<a href="{{- bannerUrl -}}">{%- endunless -%}
+                      {%- render 'image', image: bannerBlock, widths: '360, 540' -%}
+                      {%- unless bannerUrl == blank -%}</a>{%- endunless -%}
+                    </div>
+
+                    <div class="mt-4">
+                      <a href="{{ bannerUrl }}" class="">
+                        {{- bannerTitle -}}
+                      </a>
+                    </div>
+                  </div>
+                {%- endfor -%}
+              </div>
+            {%- else -%}
+              {{ sublink_content }}
+            {%- endif -%}
+
+          </div>
+        </div>
+      {%- endif -%}
+    {%- endcapture -%}
+
+    {%- capture icon -%}
+      <span class="">{%- render 'icons', icon: 'arrow', class: 'expand cursor-pointer' -%}</span>
+    {%- endcapture -%}
+
+    {%- capture hover -%}after:content-[*] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-px after:bg-black after:transition-all after:duration-500 group-hover/nav:after:w-full {%- endcapture -%}
+    <li
+      class="site-nav__link--underline nav-header group/nav"
+      data-title="{{ link.title | escape }}"
+    >
+      <div class="flex items-center gap-1 relative {{hover}}">
+        <a href="{{link.url}}" class="uppercase tracking-[0.2rem] py-[7.5px] whitespace-normal">
+          {{- link.title -}}
+        </a>
+        {%- if sublink != blank -%}
+          {{- icon -}}
+        {%- endif -%}
+      </div>
+
+      {{- sublink -}}
+    </li>
+
+  {%- when 'sublink' -%}
+    {%- liquid
+      assign bannerBlock = section.blocks | where: 'type', 'banner' | map: 'settings' | where: 'text', link.title | first
+    -%}
+
+    {%- unless bannerBlock.image == blank -%}
+      <div class="mb-4">
+        {%- unless bannerBlock.link == blank -%}<a href="{{- bannerBlock.link -}}">{%- endunless -%}
+        {%- render 'image', image: bannerBlock.image, widths: '360, 540' -%}
+        {%- unless bannerBlock.link == blank -%}</a>{%- endunless -%}
+      </div>
+    {%- endunless -%}
+
+    <a href="{{link.url}}" class="block pt-2{% if link.links != blank %} font-bold uppercase{% endif %}">
+      {{- link.title -}}
+    </a>
+
+    {%- if link.links != blank -%}
+      <div class="">
+        <ul class="menu-list" role="list">
+          {%- for sublink in link.links -%}
+            <li>
+              {%- render 'header-snippet', type: 'sublink', link: sublink -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+{%- endcase -%}

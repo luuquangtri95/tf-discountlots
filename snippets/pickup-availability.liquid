@@ -1,0 +1,150 @@
+{%- assign pick_up_availabilities = product_variant.store_availabilities | where: 'pick_up_enabled', true -%}
+
+{%- unless pick_up_availabilities.size > 0 -%}{%- break -%}{%- endunless -%}
+
+{%- liquid
+  assign closest_location = pick_up_availabilities.first
+  assign product = product | default: product_variant.product
+-%}
+
+<style>
+  {%- render 'css-resp', class: '#StoreAvailability', next_class: ' .map-height', css: 'padding-top', value: '500px' -%}
+</style>
+
+<div class="store-availability-container">
+  <div class="store-availability-inner">
+    <div class="store-availability-closest-store">
+      {%- if closest_location.available -%}
+        <p class="closest-store-title">
+          <button class="cursor-pointer jsTogglePopup" data-control="#StoreAvailability" type="button">
+            <span class="flex items-center text-gap">
+              {%- render 'icons', icon: 'ticked' -%}
+              <span>{{ 'products.sections.store_availability.pick_up_available_at' | t }}</span>
+              <strong class="underline">{{ closest_location.location.name }}</strong>
+            </span>
+          </button>
+        </p>
+
+      {%- else -%}
+        <p class="closest-store-title">
+          <button class="cursor-pointer jsTogglePopup" data-control="#StoreAvailability">
+            <span class="flex items-center text-gap">
+              {%- render 'icons', icon: 'error' -%}
+              <span>{{ 'products.sections.store_availability.pick_up_unavailable_at' | t }}</span>
+              <strong class="underline">{{ closest_location.location.name }}</strong>
+            </span>
+          </button>
+        </p>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+<popup-component
+  id="StoreAvailability"
+  class="popup-component store-availabilities-popup popup-right popup-mb-up"
+>
+  <div class="popup-content container store-availability-container relative">
+    <button type="button" class="btn btn-popup-close absolute right-0 jsClose">
+      {%- render 'icons', icon: 'close' -%}
+    </button>
+
+    <div class="popup-body popup-scroller">
+      <div class="store-availabilities-heading flex text-gap">
+        <h2 class="store-availabilities-product-title js-product-title">{{- product.title -}}</h2>
+
+        {%- unless product.has_only_default_variant -%}
+          <small class="store-availabilities-variant-title js-variant-title">({{ product_variant.title }})</small>
+        {%- endunless -%}
+      </div>
+
+      <ul class="store-availabilities-list" role="list">
+        {%- for availability in pick_up_availabilities -%}
+          {%- assign location = availability.location -%}
+
+          <li class="store-item">
+            <div class="store-item-heading flex items-center text-gap">
+              {%- if availability.available -%}
+                {%- render 'icons', icon: 'ticked' -%}
+              {%- else -%}
+                {%- render 'icons', icon: 'error' -%}
+              {%- endif -%}
+
+              <h3 class="store-item-location-name">{{ availability.location.name }}</h3>
+            </div>
+
+            <div class="store-item-pick-time">
+              {%- if availability.available -%}
+                {{ 'products.sections.store_availability.pick_up_available' | t }},
+                {{ availability.pick_up_time | downcase }}
+              {%- else -%}
+                {{ 'products.sections.store_availability.pick_up_currently_unavailable' | t }}
+              {%- endif -%}
+            </div>
+
+            <address class="store-item-address">{{ availability.location.address | format_address }}</address>
+
+            {%- if address.phone.size > 0 -%}
+              <p class="store-item-phone">{{ address.phone }}</p>
+            {%- endif -%}
+
+            {%- unless settings.map_api_key == blank -%}
+              <lazy-script
+                data-tag="accordion-component"
+                data-file="{{ 'accordion-component.js' | asset_url }}"
+                class="map-accordion"
+              >
+                <details>
+                  <summary class="link underline cursor-pointer">
+                    {{- 'products.sections.store_availability.view_on_map' | t -}}
+                  </summary>
+                  <div class="map-wrapper">
+                    <lazy-script
+                      id="map{{availability.location.id}}"
+                      class="block map-block map-height js relative"
+                      data-tag="map-component"
+                      data-file="{{ 'map-component.js' | asset_url }}"
+                      auto-initialized
+                    >
+                      <div id="map{{availability.location.id}}el" class="absolute-important left-0 t0 b0 right-0"></div>
+
+                      <template class="marker">{%- render 'icons', icon: 'location' -%}</template>
+                      <script type="application/json" data-map-config>
+                        {
+                          "accessToken": {{ settings.map_api_key | json }},
+                          "startPoint" : [{{ location.longitude }}, {{ location.latitude }}],
+                          "zoom": 13
+                        }
+                      </script>
+                      <script type="application/json" data-location-list-json>
+                        {
+                          "type": "FeatureCollection",
+                          "features": [
+                            {
+                              "type": "Feature",
+                              "geometry": {
+                                "type": "Point",
+                                "coordinates": [{{location.longitude}},{{location.latitude}}]
+                              },
+                              "properties": {
+                                "Store Name": {{ location.name | json }},
+                                "Country": {{ location.address.country | json }},
+                                "Full Address": {{ location.address.summary | json }},
+                                "Latitude": {{location.latitude}},
+                                "Longitude": {{location.longitude}}
+                              }
+                            }
+                          ]
+                        }
+                      </script>
+                    </lazy-script>
+                  </div>
+                </details>
+              </lazy-script>
+            {%- endunless -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+  </div>
+</popup-component>

@@ -1,0 +1,410 @@
+{%- liquid
+  assign slide_id = '#slideMain-' | append: section.id | append: product.id
+  assign slide_thumb_id = '#slideThumb-' | append: section.id | append: product.id
+  assign img_crop = false
+  assign items_resp = '1.2,2'
+  assign item_spacing = '8px'
+  assign slide_resp = '1,0'
+  assign mobile_thumb_spacing = thumbnail_spacing | default: 15 | append: 'px'
+  assign columns_mobile = items_resp | split: ',' | first | times: 1.0
+  assign media_aspect_ratio = product.media | map: 'preview_image' | map: 'aspect_ratio' | sort | last
+  assign card_image_height = 1.0 | divided_by: media_aspect_ratio | times: 100 | append: '%'
+  assign thumbnail_max_items = 'auto'
+-%}
+
+{%- if row_settings_blocks -%}
+  {%- # Get the rows that will be customized -%}
+  {%- capture custom_rows -%}
+    {%- assign parts = row_settings_blocks | split: '<gallery-row-' -%}
+    {%- if parts.size > 0 -%}
+      {%- for part in parts offset: 1 -%}|{{- part | slice: 0 -}}{%- endfor -%}
+    {%- endif -%}
+  {%- endcapture -%}
+  {%- assign custom_rows = custom_rows | remove_first: '|' | split: '|' -%}
+    {%- if custom_rows.size > 0 -%}
+    {%- # Get the number of columns in the customized rows -%}
+    {%- capture custom_rows_col_num -%}
+      {%- for custom_row in custom_rows -%}
+        {%- assign row_open_tag = '<gallery-row-' | append: custom_row | append: '>' -%}
+        {%- assign row_end_tag = '</gallery-row-' | append: custom_row | append: '>' -%}
+        {%- assign row_content = row_settings_blocks | split: row_open_tag | last | split: row_end_tag | first -%}
+        {%- assign col_num = row_content | split: '<customize-' | size -%}
+        {%- if col_num > 0 -%}
+          {%- assign col_num = col_num | minus: 1 -%}
+        {%- endif -%}
+        |{{- col_num -}}
+      {%- endfor -%}
+    {%- endcapture -%}
+    {%- assign custom_rows_col_num = custom_rows_col_num | remove_first: '|' | split: '|' -%}
+{%- endif -%}
+
+  {%- # Get total number of columns with type custom column (blocks/_pdp-custom-column.liquid) -%}
+  {%- assign total_custom_col = row_settings_blocks | split: '<customize-column' | size -%}
+  {%- if total_custom_col > 0 -%}
+    {%- assign total_custom_col = total_custom_col | minus: 1 -%}
+  {%- endif -%}
+{%- endif -%}
+
+{%- capture gallery -%}
+<div class="gallery-wrapper js-large-vertical">
+  {%- comment -%}
+  -------------------------------
+  MAIN MEDIA
+  -------------------------------
+  {%- endcomment -%}
+  <div class="main-gallery w-full overflow-hidden relative">
+    {%- if product.media.size > 0 -%}
+      <!-- jsFile: product-slider -->
+      {%- capture main_slider_tag -%}product-{% if product.media.size > 1 or total_custom_col > 0 %}slider{% else %}gallery{% endif %}-component{%- endcapture -%}
+      <{{ main_slider_tag }}
+        id="{{ slide_id | remove: '#' }}"
+        class="block overflow-hidden js-slider-main swiper"
+      >
+
+        {%- render 'config-slide',
+          id: slide_id,
+          items: 'auto',
+          dots: dots,
+          controls: false,
+          autoHeight: false,
+          spacing: item_spacing,
+          disable: slide_resp
+        -%}
+
+        <div id="{{ slide_id | remove: '#' }}el" class="main-slider slider-list flex swiper-wrapper">
+          {%- liquid
+            assign element_per_row = 2
+            assign total_media = product.media.size 
+            assign total_col = total_media | plus: total_custom_col
+            assign custom_rows_col_num_sum = custom_rows_col_num | sum
+            assign normal_col = total_col | minus: custom_rows_col_num_sum
+            assign normal_rows_num = normal_col | times: 1.0 | divided_by: element_per_row | ceil
+            assign custom_rows_num = custom_rows | size
+            assign rows = normal_rows_num | plus: custom_rows_num
+            assign incr = 0
+            assign media_index = 0
+          -%}
+
+          {%- if custom_rows.size > 0 -%}
+            {%- for row in (1..rows) -%}
+              <!-- row: {{ row }}-->
+
+              {%- assign row_string = row | append: '' -%}
+              {%- if custom_rows contains row_string -%}
+                {%- assign row_open_tag = '<gallery-row-' | append: row_string | append: '>' -%}
+                {%- assign row_end_tag = '</gallery-row-' | append: row_string | append: '>' -%}
+                {%- assign row_content = row_settings_blocks | split: row_open_tag | last | split: row_end_tag | first -%}
+
+                {%- capture custom_block_type -%}
+                  {%- assign row_parts = row_content | split: '<customize-' -%}
+                  {%- if row_parts.size > 0 -%}
+                    {%- for part in row_parts offset: 1 -%}
+                      {%- if part contains '</customize-media>' -%}
+                        |media
+                      {%- elsif part contains '</customize-column>' -%}
+                        |column
+                      {%- endif -%}
+                    {%- endfor -%}
+                  {%- endif -%}
+                {%- endcapture -%}
+                {%- assign custom_block_type = custom_block_type | remove_first: '|' | split: '|' | compact -%}
+
+                {%- for custom_row in custom_rows -%}
+                  {%- if row_string == custom_row -%}
+                    {%- assign custom_row_idx = forloop.index0 -%}
+                    {%- break -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {%- assign _element_per_row = custom_rows_col_num[custom_row_idx] -%}
+                {%- for i in (1.._element_per_row) -%}
+                   {%- assign _i = i | minus: 1 -%}
+                   {%- if custom_block_type[_i] == 'media' -%}
+                    {%- assign block_col_content = row_content | split: '<customize-media>' | last | split: '</customize-media>' | first -%}
+                    {%- assign desktop_column_width = block_col_content | split: '--desktop-column-width:' | last | split: ';' | first | strip -%}
+                    {%- assign media = product.media[incr] -%}
+
+                    {%- if media -%}
+                      {%- render 'snippet-product-media-item', 
+                        media_index: media_index, 
+                        media: media, 
+                        product: product, 
+                        section: section, 
+                        height: card_image_height, 
+                        crop: img_crop ,
+                        is_custom_block: true,
+                        desktop_column_width: desktop_column_width,
+                        enable_video_looping: enable_video_looping,
+                        muted: muted,
+                        media_size: media_size
+                      -%}
+                      {%- assign incr = incr | plus: 1 -%}
+                      {%- assign media_index = media_index | plus: 1 -%}
+                    {%- endif -%}
+
+                   {%- else -%}
+                    {%- assign block_col_content = row_content | split: '<customize-column>' | last | split: '</customize-column>' | first -%}
+                    {%- assign desktop_column_width = block_col_content | split: '--desktop-column-width:' | last | split: ';' | first | strip -%}
+                    {%- assign media = product.media[incr] -%}
+                    {%- if _i != 0 or media != blank -%}
+                      {%- comment -%}
+                      check if this custom column can be hidden? when in the first column and there is no media left hide this column
+                      {%- endcomment -%}
+                      <div class="media-item media-item-column swiper-slide is-custom-block-true" 
+                        data-media-index="{{media_index | plus: 1}}"
+                        {% if block_col_content contains 'hide_on_mobile' %}
+                          hide_on_mobile
+                        {% endif %}
+                      >
+                        {%- capture section_css -%}{{- section_css -}}
+                          .is-custom-block-true[data-media-index="{{media_index | plus: 1}}"] {
+                            --desk-col-width: {{ desktop_column_width }};
+                          }
+                        {%- endcapture -%}
+                        {{ block_col_content }}
+                      </div>
+                      {%- assign media_index = media_index | plus: 1 -%}
+                    {%- endif -%}
+
+                   {%- endif -%}
+                   
+
+                {%- endfor -%}
+
+              {%- else -%}
+                {%- for i in (1..element_per_row) -%}
+                  {%- assign media = product.media[incr] -%}
+                  {%- if media -%}
+                    {%- render 'snippet-product-media-item', 
+                      media_index: media_index,
+                      media: media, 
+                      product: product, 
+                      section: section, 
+                      height: card_image_height, 
+                      crop: img_crop,
+                      enable_video_looping: enable_video_looping,
+                      muted: muted,
+                      media_size: media_size
+                    -%}
+                    {%- assign media_index = media_index | plus: 1 -%}
+                    {%- assign incr = incr | plus: 1 -%}
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endif -%}
+            {%- endfor -%}
+            
+          {%- else -%}
+            {%- for media in product.media -%}
+              {%- assign media_index = forloop.index0 -%}
+              {%- render 'snippet-product-media-item', 
+                media_index: media_index,
+                media: media, 
+                product: product, 
+                section: section, 
+                height: card_image_height, 
+                crop: img_crop,
+                enable_video_looping: enable_video_looping,
+                muted: muted,
+                media_size: media_size
+              -%}
+            {%- endfor -%}
+  
+          {%- endif -%}
+        </div>
+
+      </{{ main_slider_tag }}>
+    {%- else -%}
+      {%- render 'empty-content', type: 'product' -%}
+    {%- endif -%}
+  </div>
+
+  {%- comment -%}
+  -------------------------------
+  THUMBNAIL
+  -------------------------------
+  {%- endcomment -%}
+  {%- if product.media.size > 0 -%}
+    <div class="thumbnail-gallery js{% if product.media.size < 3 %} hidden-scroll{% endif %} mt-2 pl-4 md:hidden">
+      <product-thumbnail-slider-component id="{{ slide_thumb_id | remove: '#' }}" class="block overflow-hidden swiper">
+
+        {%- render 'config-slide',
+          id: slide_thumb_id,
+          items: thumbnail_max_items,
+          spacing: mobile_thumb_spacing,
+          index: 0,
+          disable: slide_resp
+        -%}
+
+        <div id="{{ slide_thumb_id | remove: '#' }}el" class="thumbnail-slider slider-vertical-list flex flex-nowrap js-slider swiper-wrapper">
+          {%- if custom_rows.size > 0 -%}
+            {%- assign media_index = 1 -%}
+            {%- assign incr = 0 -%}
+            {%- for row in (1..rows) -%}
+              {%- assign row_string = row | append: '' -%}
+              {%- if custom_rows contains row_string -%}
+                {%- assign row_open_tag = '<gallery-row-' | append: row_string | append: '>' -%}
+                {%- assign row_end_tag = '</gallery-row-' | append: row_string | append: '>' -%}
+                {%- assign row_content = row_settings_blocks | split: row_open_tag | last | split: row_end_tag | first -%}
+
+                {%- capture custom_block_type -%}
+                  {%- assign row_parts = row_content | split: '<customize-' -%}
+                  {%- if row_parts.size > 0 -%}
+                    {%- for part in row_parts offset: 1 -%}
+                      {%- if part contains '</customize-media>' -%}
+                        |media
+                      {%- elsif part contains '</customize-column>' -%}
+                        |column
+                      {%- endif -%}
+                    {%- endfor -%}
+                  {%- endif -%}
+                {%- endcapture -%}
+                {%- assign custom_block_type = custom_block_type | remove_first: '|' | split: '|' | compact -%}
+
+                {%- for custom_row in custom_rows -%}
+                  {%- if row_string == custom_row -%}
+                    {%- assign custom_row_idx = forloop.index0 -%}
+                    {%- break -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {%- assign _element_per_row = custom_rows_col_num[custom_row_idx] -%}
+                {%- for i in (1.._element_per_row) -%}
+                   {%- assign _i = i | minus: 1 -%}
+                   {%- if custom_block_type[_i] == 'media' -%}
+                    {%- assign media = product.media[incr] -%}
+                    {%- if media -%}
+                      <div class="media-item cursor-pointer swiper-slide" data-media-index="{{media_index}}">
+                        {%- render 'image', image: media.preview_image, height: card_image_height, crop: img_crop, limit: 65, usePreload: false -%}
+                      </div>
+                      {%- assign incr = incr | plus: 1 -%}
+                      {%- assign media_index = media_index | plus: 1 -%}
+                    {%- endif -%}
+
+                   {%- else -%}
+                    {%- assign media = product.media[incr] -%}
+                    {%- if _i != 0 or media != blank -%}
+                      <div class="media-item cursor-pointer swiper-slide thumb-column-block" data-media-index="{{media_index}}"></div>
+                      {%- assign media_index = media_index | plus: 1 -%}
+                    {%- endif -%}
+                   {%- endif -%}
+
+
+                {%- endfor -%}
+              {%- else -%}
+                {%- for i in (1..element_per_row) -%}
+                  {%- assign media = product.media[incr] -%}
+                  
+                  {%- if media -%}
+                    <div class="media-item cursor-pointer swiper-slide" data-media-index="{{media_index}}">
+                      {%- render 'image', image: media.preview_image, height: card_image_height, crop: img_crop, limit: 65, usePreload: false -%}
+                    </div>
+                    {%- assign media_index = media_index | plus: 1 -%}
+                    {%- assign incr = incr | plus: 1 -%}
+                  {%- endif -%}
+
+                {%- endfor -%}
+              {%- endif -%}
+            {%- endfor -%}
+          {%- else -%}
+            {%- for media in product.media -%}
+              <div class="media-item cursor-pointer swiper-slide" data-media-index="{{media.position}}">
+                {%- render 'image', image: media.preview_image, height: card_image_height, crop: img_crop, limit: 65, usePreload: false -%}
+              </div>
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+      </product-thumbnail-slider-component>
+    </div>
+  {%- endif -%}
+</div>
+{%- endcapture -%}
+
+{%- capture section_css -%}{{- section_css -}}
+  {% comment %} {%- render 'config-grid', value: items_resp, spacing: item_spacing, style: true, id: slide_id, class: 'el' -%} {% endcomment %}      
+  product-slider-component:not(.swiper-initialized) .swiper-wrapper {
+    gap: 8px;
+  }
+
+  @media (max-width: 749px) {
+    product-slider-component .media-item,
+    product-gallery-component .media-item{
+      width: 100%;
+      max-width: {{mobile_media_item_width | default: '100%'}};
+    }
+
+    product-thumbnail-slider-component:not(.swiper-initialized) .swiper-wrapper {
+      gap: {{ mobile_thumb_spacing }};
+    }
+
+    product-thumbnail-slider-component .media-item {
+      width: 100%;
+      max-width: {{thumbnail_image_width | default: '65px'}};
+    }
+  }
+
+  @media (min-width: 750px) {
+    product-slider-component .swiper-wrapper > *,
+    product-gallery-component .swiper-wrapper > * {
+      width: calc(50% - 4px);
+    }
+
+    product-slider-component .swiper-wrapper {
+      flex-wrap: wrap !important;
+    }
+
+    product-slider-component .swiper-wrapper > .is-custom-block-true,
+    product-gallery-component .swiper-wrapper > .is-custom-block-true {
+      width: calc(var(--desk-col-width, 50%) - 4px);
+    }
+  }
+
+  product-thumbnail-slider-component .thumb-column-block {
+    visibility: hidden;
+    width: 0 !important;
+    margin-right: 0 !important;
+    overflow: hidden;
+  }
+  @media (max-width: 749px) {
+    product-slider-component .media-item-column[hide_on_mobile] {
+      visibility: hidden;
+      width: 0 !important;
+      margin-right: 0 !important;
+      overflow: hidden;
+      height: 0 !important;
+    }
+  }
+
+  product-thumbnail-slider-component:not(.swiper-initialized) .thumb-column-block {
+    display: none;
+  }
+
+  product-slider-component .media-item-column {
+    height: auto;
+  }
+
+  .swiper-slide-thumb-active::before {
+    content: "";
+    display: block;
+    left: 0;
+    position: absolute;
+    right: 0;
+    height: 3px;
+    z-index: 1;
+    bottom: 0;
+    background: #008272;
+  }
+
+  .swiper-slide-active .js-trigger-zoom {
+    opacity: 1;
+  }
+
+  {%- if hide_thumbnails_on_mobile -%}
+    .pdp-medias .thumbnail-gallery {
+      display: none !important;
+    }
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- render 'snippet-section'
+  , type: 'css'
+  , value: section_css
+  , default: false -%}
+{{ gallery }}

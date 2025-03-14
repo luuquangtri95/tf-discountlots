@@ -1,0 +1,195 @@
+{%- case type -%}
+  {%- when 'class' -%}
+    {%- if class == blank -%}{%- break -%}{%- endif -%}
+
+    {%- assign object = object | default: section -%}
+
+    {%- assign loop = class | split: '|' -%}
+    {%- capture class -%}{%- for c in loop -%},{{ c | strip }}{%- endfor -%}{%- endcapture -%}
+    {{- class | split: ',' | join: ' ' | strip -}}
+
+  {%- when 'css-file' -%}
+    {%- comment -%}
+      Accepted values:
+      + name: file name (string)
+      + use cssMain for the main layout. It will be replace to css when rendered on the storefront
+    {%- endcomment -%}
+    {%- assign preload = false -%}
+    {%- assign disable_preload = disable_preload | default: false -%}
+    {%- assign section_location = section.location
+      | replace: 'footer', 'nopreload'
+      | replace: 'custom.megamenu', 'nopreload'
+    -%}
+    {%- unless section_location contains 'nopreload' -%}
+      {%- if section.index < 3 and request.design_mode != true and debug != true and disable_preload == false -%}
+        {%- assign preload = true -%}
+      {%- endif -%}
+    {%- endunless -%}
+
+    {%- capture file_name -%}{{ name | handle }}.css{%- endcapture -%}
+    {%- if async -%}
+      <link rel="stylesheet" href="{{ file_name | asset_url }}" media="print" onload="this.media='all'">
+    {%- else -%}
+      {%- if preload -%}<!-- split:preload[ -->{%- endif -%}
+      {{ file_name | asset_url | stylesheet_tag: preload: preload }}
+      {%- if preload -%}<!-- split:preload] -->{%- endif -%}
+    {%- endif -%}
+
+
+  {%- when 'css' -%}
+    {%- liquid
+      assign obj = block | default: section
+      assign defaultID = '#shopify-section-' | append: obj.id
+      unless block == blank
+        assign defaultID = '#shopify-block-' | append: obj.id
+      endunless
+      assign sectionId = sectionId | default: defaultID
+      assign section_flex = obj.settings.section_flex
+      assign padding = obj.settings.padding
+      assign margin = obj.settings.margin
+      assign section_text_color = obj.settings.section_text_color
+      assign section_bg_color = obj.settings.section_bg_color | remove: 'rgba(0,0,0,0)'
+
+      unless prefix == blank
+        assign prefix = prefix | append: '-'
+      endunless
+    -%}
+
+    {%- unless default == false -%}
+      {%- capture css_values -%}
+        {%- unless padding      == blank -%}--{{ prefix }}padding: {{- padding -}};{%- endunless -%}
+        {%- unless margin       == blank -%}--{{ prefix }}margin: {{- margin -}};{%- endunless -%}
+        {%- unless section_text_color   == blank -%}--{{ prefix }}color: {{- section_text_color -}};{%- endunless -%}
+        {%- unless section_bg_color     == blank -%}--{{ prefix }}background-color: {{- section_bg_color -}};{%- endunless -%}
+      {%- endcapture -%}
+    {%- endunless -%}
+
+    {%- capture value -%}{{- value -}}
+      {%- render 'css-resp', class: sectionId, type: 'multi', value: css_values -%}
+
+      {%- if disable_color_schema != true -%}
+        {%- assign color_scheme = color_scheme | default: obj.settings.color_scheme  -%}
+        {%- unless color_scheme == blank -%}
+          {%- assign colorSchema = color_scheme.settings -%}
+
+          {%- capture css_values -%}
+            {%- if colorSchema['background_gradient'] == blank -%}
+            --background: {{ colorSchema['background'] }};
+            {%- else -%}
+            --background: {{ colorSchema['background_gradient'] }};
+            {%- endif -%}
+            --miscellaneous: {{ colorSchema['miscellaneous'] }};
+            --text: {{ colorSchema['text'] }};
+            --subtext: {{ colorSchema['subtext'] }};
+            --link: {{ colorSchema['link'] }};
+            --icon: {{ colorSchema['icon'] }};
+            --input-text-color: {{ colorSchema['input_text_color'] }};
+            --input-background-color: {{ colorSchema['input_background_color'] }};
+            --primary-button-bg: {{ colorSchema['primary_button_bg'] }};
+            --primary-button-text: {{ colorSchema['primary_button_text'] }};
+            --primary-button-border: {{ colorSchema['primary_button_border'] }};
+            --secondary-button-bg: {{ colorSchema['secondary_button_bg'] }};
+            --secondary-button-text: {{ colorSchema['secondary_button_text'] }};
+            --secondary-button-border: {{ colorSchema['secondary_button_border'] }};
+            --primary-button-bg-hover: {{ colorSchema['primary_button_bg_hover'] }};
+            --primary-button-text-hover: {{ colorSchema['primary_button_text_hover'] }};
+            --primary-button-border-hover: {{ colorSchema['primary_button_border_hover'] }};
+            --secondary-button-bg-hover: {{ colorSchema['secondary_button_bg_hover'] }};
+            --secondary-button-text-hover: {{ colorSchema['secondary_button_text_hover'] }};
+            --secondary-button-border-hover: {{ colorSchema['secondary_button_border_hover'] }};
+          {%- endcapture -%}
+          {%- render 'css-resp', class: defaultID, next_class: '', type: 'multi', value: css_values -%}
+        {%- endunless -%}
+      {%- endif -%}
+
+    {%- endcapture -%}
+
+    {%- if value == blank -%}{%- break -%}{%- endif -%}
+
+    {%- assign sectionLocation = section.location
+      | replace: 'footer', 'nopreload'
+      | replace: 'custom.megamenu', 'nopreload'
+    -%}
+    {%- unless sectionLocation contains 'nopreload' -%}
+      {%- if section.index < 3 and request.design_mode != true and debug != true -%}
+        {%- assign preload = true -%}
+      {%- endif -%}
+    {%- endunless -%}
+    {%- assign preload = false -%}
+
+    {%- if preload -%}<!-- split:css[ -->{%- endif -%}
+
+    {%- style -%}
+      {{- value | remove: '<style>' | remove: '<style data-shopify>' | remove: '</style>' | strip_newlines | strip -}}
+    {%- endstyle -%}
+
+    {%- if preload -%}<!-- split:css] -->{%- endif -%}
+
+  {%- when 'svg' -%}
+    {%- liquid
+      assign ID = ' id="' | append: id
+      assign URL = '="url(#' | append: id
+
+      echo svg | replace: ' id="', ID | replace: '="url(#', URL
+    -%}
+
+  {%- when 'heading' -%}
+    {%- comment -%}
+      -------------------------------
+      Section heading
+      -------------------------------
+    {%- endcomment -%}
+    {%- liquid
+      assign object = object | default: section
+      assign align = align | default: object.settings.heading_alignment | default: 'center'
+      assign sectionHeading = section_heading | default: object.settings.section_heading | newline_to_br
+      assign sectionSubheading = section_subheading | default: object.settings.section_subheading | newline_to_br
+      assign sectionDescription = section_description | default: object.settings.section_description
+      assign section_link = section_link | default: object.settings.section_link
+      assign section_text_link = section_text_link | default: object.settings.section_text_link
+      assign headingSectionCheck = sectionHeading | append: sectionSubheading | append: sectionDescription | append: section_text_link
+    -%}
+
+    {%- if headingSectionCheck == blank -%}{%- break -%}{%- endif -%}
+
+    {%- capture content -%}{{- content -}}
+      {%- unless section_text_link == blank -%}
+        <div class="section-link-wrapper">
+          <a class="link underline" href="{{- section_link -}}">{{ section_text_link }}</a>
+        </div>
+      {%- endunless -%}
+    {%- endcapture -%}
+
+    <div class="section-heading-wrapper{% unless align == blank %} text-{{align}}{% endunless %}{% unless class == blank %} {{class}}{% endunless %}">
+      {%- unless content == blank -%}
+        <div class="section-heading-inner">
+      {%- endunless -%}
+
+      {%- unless sectionHeading == blank -%}
+        <h2 class="section-heading">{{ sectionHeading }}</h2>
+      {%- endunless -%}
+      {%- unless sectionSubheading == blank -%}
+        <p class="section-subheading">{{ sectionSubheading }}</p>
+      {%- endunless -%}
+      {%- unless sectionDescription == blank -%}
+        <div class="section-description">{{ sectionDescription }}</div>
+      {%- endunless -%}
+
+      {%- unless content == blank -%}
+        </div>
+        {{ content }}
+      {%- endunless -%}
+    </div>
+
+  {%- when 'button_style' -%}
+    {%- liquid
+      assign style = style | at_least: -1 | prepend: '_' | replace: '_0', 'section' | replace: '_-1', 'link' | remove: '_' | strip
+    -%}
+    {%- if style == 'link' -%}
+      link{% unless size == blank %} size-{{ size }}{% endunless -%}
+    {%- else -%}
+      btn btn-
+      {{- style -}}
+      {%- unless size == blank %} size-{{ size }}{% endunless -%}
+    {%- endif -%}
+{%- endcase -%}

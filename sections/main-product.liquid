@@ -1,0 +1,101 @@
+{%- liquid
+  assign section_id = '#shopify-section-' | append: section.id
+  assign form_id = form_id | default: 'mainProductForm'
+  assign layout = section.settings.section_layout | handle | default: 'wide'
+  assign product_url = product.url | within: collection
+  assign selected_variant = product.selected_or_first_available_variant
+  assign layout = 'boxed'
+  assign product_handle = product.handle
+-%}
+
+{%- capture class -%}
+  |layout-{{layout}}
+  |product-container
+  {%- if selected_variant == blank or product.available != true -%}|variant-soldout{%- endif -%}
+  |m-[var(--margin)]
+  |p-[var(--padding)]
+  {%- unless section.settings.schema_color_name == blank -%}
+    |schema-color-{{- section.settings.schema_color_name | handle -}}
+  {%- endunless -%}
+{%- endcapture -%}
+
+{%- capture content -%}
+<div id="shopify-section-product-template" class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
+  <div class="section-container{% if layout == 'boxed' %} container{% endif %}">
+      <product-container class="section-grid flex flex-wrap gap-[15px] md:gap-[20px] xl:gap-[60px]" data-product-handle="{{ product_handle }}">
+         {%- comment -%}
+         -------------------------------
+         PRODUCT MEDIA
+         -------------------------------
+         {%- endcomment -%}
+         {% content_for 'block', type: 'pdp-medias', id: 'pdp-medias' %}
+
+         {%- comment -%}
+         -------------------------------
+         PRODUCT DETAIL
+         -------------------------------
+         {%- endcomment -%}
+         <div class="product-infor-wrapper basis-full max-w-full h-auto md:flex-1">
+            <div class="product-info pdp-info">
+              <product-form class="product-info-detail" data-url="{{ product_url }}" data-form-id="{{ form_id }}">
+                  {% content_for 'block', type: 'pdp-info', id: 'pdp-info' %}
+
+                  <script type="application/json" class="object-product">{ "product" : {{ product | json }} }</script>
+               </product-form>
+            </div>
+         </div>
+        </product-container>
+  </div>
+</div>
+{%- render 'pdp-select-addons-popup' -%}
+{%- endcapture -%}
+
+{%- capture section_css -%}{{ section_css }}
+
+{%- endcapture -%}
+
+{%- liquid
+  render 'snippet-section', type: 'css-file', name: 'page-product', disable_preload: true
+  render 'snippet-section', type: 'css-file', name: 'component-slider', disable_preload: true
+  render 'snippet-section', type: 'css', value: section_css
+  echo content
+-%}
+
+<script type="application/ld+json">
+  {{ product | structured_data }}
+</script>
+
+<!-- jsFile: product-page -->
+<!-- jsFile: product-form -->
+
+{%- schema -%}
+{
+  "name": "t:sections.main_product.name",
+  "tag": "section",
+  "class": "shopify-section-main-product",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:general.styles.header"
+    },
+    {
+      "type": "text",
+      "id": "schema_color_name",
+      "label": "Schema color name"
+    },
+    {
+      "type": "text",
+      "id": "padding",
+      "label": "t:general.styles.padding.label",
+      "info": "t:general.styles.padding.info"
+    },
+    {
+      "type": "text",
+      "id": "margin",
+      "label": "t:general.styles.margin.label",
+      "info": "t:general.styles.margin.info"
+    }
+  ],
+  "blocks": [{ "type": "@theme" }]
+}
+{%- endschema -%}

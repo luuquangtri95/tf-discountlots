@@ -1,0 +1,45 @@
+{%- liquid
+  assign section_id = '#shopify-section-' | append: section.id
+  assign logo_id = '#logo-' | append: section.id
+  assign object = object | default: settings
+  assign logo = object.logo | default: settings.logo
+  assign default_width = logo.width | append: 'px'
+
+  assign loading = 'lazy'
+  if section.location contains 'header'
+    assign loading = 'eager'
+  endif
+-%}
+
+<a
+  id="{{logo_id | remove: '#'}}"
+  class="block w-full"
+  href="{{ routes.root_url }}"
+  class="{% if logoSVG != blank %}inline-{% endif %}block"
+  aria-label="{{ shop.name | escape }}"
+>
+  {%- if logo != blank -%}
+    <div class="logo relative" style="padding-top: {{1 | divided_by: logo.aspect_ratio | times: 100 }}%;">
+      {%- liquid
+        assign width = logo.width
+        assign widths = object.logo_width | remove: 'px' | remove: 'em' | remove: 'rem' | remove: 'cm' | remove: ' ' | split: ','
+      -%}
+
+      {% capture widths %}{{ width }}, {{ width | times: 1.5 | round }}, {{ width | times: 2 }}{% endcapture %}
+      {% capture sizes %}(max-width: {{ width | times: 2 }}px) 50vw, {{ width }}px{% endcapture %}
+      {%- capture alt -%}{{ logo.alt | default: shop.name }}{%- endcapture -%}
+      {{-
+        logo
+        | image_url: width: logo.width
+        | image_tag:
+          widths: widths,
+          sizes: sizes,
+          alt: alt,
+          class: 'absolute left-0 top-0 w-full h-full object-contain',
+          loading: loading
+      -}}
+    </div>
+  {%- else -%}
+    <span class="h2">{{ shop.name }}</span>
+  {%- endif -%}
+</a>

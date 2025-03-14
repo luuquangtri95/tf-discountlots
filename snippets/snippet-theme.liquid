@@ -1,0 +1,39 @@
+{%- capture sameAs -%}
+  {%- unless settings.social_pinterest_link   == blank -%}|{{ settings.social_pinterest_link | json }}{%- endunless -%}
+  {%- unless settings.social_facebook_link    == blank -%}|{{ settings.social_facebook_link | json }}{%- endunless -%}
+  {%- unless settings.social_instagram_link   == blank -%}|{{ settings.social_instagram_link | json }}{%- endunless -%}
+  {%- unless settings.social_twitter_link     == blank -%}|{{ settings.social_twitter_link | json }}{%- endunless -%}
+  {%- unless settings.social_youtube_link     == blank -%}|{{ settings.social_youtube_link | json }}{%- endunless -%}
+  {%- unless settings.social_discord_link     == blank -%}|{{ settings.social_discord_link | json }}{%- endunless -%}
+{%- endcapture -%}
+
+{%- assign logo = settings.logo -%}
+<script type="application/ld+json">
+  {
+  	"@context": "http://schema.org",
+  	"@type": "Organization",
+  	"name": {{ shop.name | json }},
+  	{%- if logo -%}
+  	"logo": {{ logo | image_url: width: logo.width | prepend: "https:" | json }},
+  	{%- endif -%}
+  	"sameAs": [{{ sameAs | remove_first: '|' | split: '|' | join: ',' }}],
+  	"url": {{ shop.url | append: page.url | json }}
+  }
+</script>
+
+{%- if request.page_type == 'index' -%}
+  {% assign potential_action_target = shop.url | append: routes.search_url | append: '?q={search_term_string}' %}
+  <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "WebSite",
+      "name": {{ shop.name | json }},
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {{ potential_action_target | json }},
+        "query-input": "required name=search_term_string"
+      },
+      "url": {{ shop.url | append: page.url | json }}
+    }
+  </script>
+{%- endif -%}

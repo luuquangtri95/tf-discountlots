@@ -1,0 +1,75 @@
+{%- capture jsFiles -%}
+  |theme
+  {%- if request.design_mode -%}|theme-editor{%- endif -%}
+
+  {%- unless html == blank -%}
+    {%- assign parts = html | split: '<!-- jsFile:' -%}
+    {%- if parts.size > 0 -%}
+      {%- for part in parts offset: 1 -%}|{{- part | split: '-->' | first | strip -}}{%- endfor -%}
+    {%- endif -%}
+  {%- endunless -%}
+
+{%- endcapture -%}
+{%- assign jsFiles = jsFiles | strip_newlines | remove: ' ' | remove_first: '|' | split: '|' | uniq -%}
+
+<script type="application/javascript" data-theme-script>
+  document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+  document.documentElement.classList.toggle('mobile-interact', /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+
+  window.theme = Object.assign( window.theme || {}, {
+    fetch: window.fetch,
+    routes: {
+      cartUrl: {{ routes.cart_url | json }},
+      pageType: {{request.page_type | json }},
+      searchUrl: {{ routes.search_url | json }},
+      collectionAllUrl: {{ routes.all_products_collection_url | json }},
+    },
+    settings: {
+      themeLayout: {{settings['theme_layout'] | default: 'ltr' | downcase | json}},
+      currency: {{shop.currency | json}},
+      currencyFormat: {{settings['currency_format'] | json}},
+      moneyFormat: {{shop.money_format | json}},
+      cartStyle: {{ settings.cart_styles | json}},
+    },
+    string:{
+      unavailable : {{-'products.product.unavailable' | t | json -}}
+    },
+  });
+
+  let jsResources = [
+    {%- for file in jsFiles -%}
+      {%- if file contains '.js' -%}
+        {{- file | json -}}
+      {%- else -%}
+        {%- capture fileName -%}{{- file | strip -}}.js{%- endcapture -%}
+        {{- fileName | asset_url | json  -}}
+      {%- endif -%}
+        {%- unless forloop.last -%},{%- endunless -%}
+    {%- endfor -%}
+  ];
+
+  jsPreload();
+
+  document.addEventListener('DOMContentLoaded', jsLoad, {once: true});
+
+  function jsPreload(){
+    jsResources.forEach( resource =>{
+      let link = document.createElement('link');
+      link.href = resource;
+      link.rel = 'preload';
+      link.as = 'script';
+      document.head.append(link);
+    })
+  }
+
+  async function jsLoad(){
+    for (const resource of jsResources) {
+      await new Promise((reslove, rejcet) => {
+        let script = document.createElement("script");
+        script.src = resource;
+        document.body.append(script);
+        reslove(1);
+      })
+    }
+  }
+</script>

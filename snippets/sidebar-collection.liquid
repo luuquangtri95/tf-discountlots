@@ -1,0 +1,296 @@
+{%- liquid
+  assign sectionId      = '#shopify-section-' | append: section.id
+  assign formId         = 'mainCollectionAjax' | append: section.id
+  assign formReset      = 'mainFormReset' | append: section.id
+  assign toggleStyle    = section.settings.filter_style_toggle
+  assign filterColor    = section.settings.filter_color | split: ','
+  assign filterButton   = section.settings.filter_button | split: ','
+
+  if request.page_type == 'collection'
+  assign object = collection
+  else
+  assign object = search
+  endif
+-%}
+
+{%- capture filterColor -%}{%- for item in filterColor -%}{{- item | strip | handle -}}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}{%- endcapture -%}
+{%- capture filterButton -%}{%- for item in filterButton -%}{{- item | strip | handle -}}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}{%- endcapture -%}
+
+{%- liquid
+  assign filterColor = filterColor | split: ','
+  assign filterButton = filterButton | split: ','
+-%}
+
+{%- # RENDER FILTER LIST -%}
+
+{%- capture filterContent -%}
+
+{%- capture heading -%}{{- 'collection.general.sort_by' | t -}}&nbsp;{%- endcapture -%}
+  {%- capture body -%}
+    <div class="collection__filter-wrapper">
+      <ul class="sort-list" role="list">
+        {%- assign currentSort = object.sort_by | default: collection.default_sort_by -%}
+
+        {%- for option in object.sort_options -%}
+          {%- assign sortValue = option.value -%}
+
+          {%- capture label -%}collection.sorting.{{sortValue}}{%- endcapture -%}
+
+          <li class="{{sortValue}} collection__filter-list-item relative">
+            <input type="radio" name="sort_by" value="{{sortValue | escape}}" id="mobile-sort{{sortValue | md5}}" form="{{formId}}" class="input-hidden js-auto-submit"{% if currentSort == sortValue %} checked{% endif %}>
+            <label for="mobile-sort{{sortValue | md5}}" class="cursor-pointer checkbox child-event-none">
+              <span class="input-state-default">{% render 'icons', icon: 'checkbox' %}</span>
+              <span class="input-state-active">
+                {%- render 'icons', icon: 'checkbox-checked' -%}
+              </span>
+              <span class="text">{{- label | t -}}</span>
+            </label>
+          </li>
+
+        {%- endfor -%}
+      </ul>
+    </div>
+  {%- endcapture -%}
+
+  {%- render 'sidebar-block', class: 'sort-by__block md:none', toggleStyle: toggleStyle, heading: heading, body: body -%}
+
+  
+  {%- for filterItem in object.filters -%}
+    {%- if filterItem.param_name == 'filter.p.tag' -%}{%- continue -%}{%- endif -%}
+
+    {%- liquid
+      assign filterHandle = filterItem.label | handle
+      assign filterType = filterItem.type | replace: '_', '-' | replace: 'boolean', 'list'
+
+      if filterColor contains filterHandle
+        assign filterType = 'color'
+
+      elsif filterButton contains filterHandle
+        assign filterType = 'button'
+      endif
+
+      assign filterClass = 'filter__type-' | append: filterType
+    -%}
+
+    {%- capture heading -%}{{- filterItem.label -}}{%- endcapture -%}
+
+    {%- capture body -%}
+      <div class="collection__filter-wrapper">
+        {%-
+          # ####################
+          #
+          # PRICE RANGE
+          #
+          #####################
+        -%}
+        {%- if filterItem.type == 'price_range' -%}
+          {%- liquid
+            assign currencies_using_comma_decimals = 'ANG,ARS,BRL,BYN,BYR,CLF,CLP,COP,CRC,CZK,DKK,EUR,HRK,HUF,IDR,ISK,MZN,NOK,PLN,RON,RUB,SEK,UYU,VES,VND' | split: ','
+            assign uses_comma_decimals = false
+
+            if currencies_using_comma_decimals contains cart.currency.iso_code
+              assign uses_comma_decimals = true
+            endif
+
+            assign rangeMin = 0
+            assign rangeMax = filterItem.range_max
+
+            assign minValue = rangeMin
+            assign maxValue = rangeMax
+
+            if filterItem.min_value.value != blank
+              assign minValue = filterItem.min_value.value
+            endif
+
+            if filterItem.max_value.value != blank and filterItem.max_value.value > 0
+              assign maxValue = filterItem.max_value.value
+            endif
+          -%}
+
+          {%- liquid
+            if uses_comma_decimals
+              assign rangeMin = rangeMin | money_without_currency  | replace: '.', '' | replace: ',', '.'
+              assign rangeMax = rangeMax | money_without_currency  | replace: '.', '' | replace: ',', '.'
+              assign minValue = minValue | money_without_currency  | replace: '.', '' | replace: ',', '.'
+              assign maxValue = maxValue | money_without_currency  | replace: '.', '' | replace: ',', '.'
+            else
+              assign rangeMin = rangeMin | money_without_currency  | replace: ',', ''
+              assign rangeMax = rangeMax | money_without_currency  | replace: ',', ''
+              assign minValue = minValue | money_without_currency  | replace: ',', ''
+              assign maxValue = maxValue | money_without_currency  | replace: ',', ''
+            endif
+          -%}
+
+          {%- render 'snippet-section', type: 'css-file', name: 'component-range-slider' -%}
+
+          <lazy-script
+            data-min="{{ rangeMin }}"
+            data-max="{{ rangeMax }}"
+            data-min-value="{{ minValue }}"
+            data-max-value="{{ maxValue }}"
+            data-tag="price-range"
+            data-file="{{ 'price-range-slider-component.js' | asset_url }}"
+          >
+            <div class="range-price-slider js">
+              <div class="range-price-slider js-range-slider"></div>
+            </div>
+
+            <div class="range-price-textbox flex items-center">
+              <div class="price-min inline-flex">
+                <span class="field-currency js-currency-symbol">{{ cart.currency.symbol }}</span>
+                <input
+                  type="number"
+                  name="{{ filterItem.min_value.param_name }}"
+                  form="{{formId}}"
+                  min="{{ rangeMin }}"
+                  max="{{ rangeMax }}"
+                  class="field-price"
+                  value="{{ minValue | round: 0 }}"
+                >
+              </div>
+
+              <div class="price-dash inline-flex">&nbsp;&ndash;&nbsp;</div>
+
+              <div class="price-max inline-flex">
+                <span class="field-currency js-currency-symbol">{{ cart.currency.symbol }}</span>
+                <input
+                  type="number"
+                  name="{{ filterItem.max_value.param_name }}"
+                  form="{{formId}}"
+                  min="{{ rangeMin }}"
+                  max="{{ rangeMax }}"
+                  class="field-price"
+                  value="{{ maxValue | round: 0 }}"
+                >
+              </div>
+            </div>
+            <button type="submit" form="{{formId}}" class="link underline cursor-pointer btn-interact js-filter-submit">
+              {{- 'collection.filter.filter' | t -}}
+            </button>
+          </lazy-script>
+        {% else %}
+        {%-
+          # ####################
+          #
+          # FILTERS
+          #
+          #####################
+        -%}
+        <ul class="collection__filter-list" role="list">
+          {% assign activeFilterCount = 0 %}
+          {%- for filter in filterItem.values -%}
+            {% if filter.active %}
+              {%- assign activeFilterCount = activeFilterCount | plus: 1 -%}
+            {% endif %}
+            {%- capture inputID -%}inputId{{ filterItem.label|  append: filter.label | append: filter.value | md5 }}{%- endcapture -%}
+            <li class="collection__filter-list-item relative flex justify-between jsFilterToggle {% if forloop.index > 5 %} none{% endif %}">
+              <input
+                type="checkbox"
+                id="{{inputID}}"
+                class="input-hidden js-auto-submit{{class}}"
+                form="{{formId}}"
+                name="{{ filter.param_name }}"
+                value="{{ filter.value | escape }}"
+                {% if filter.active %}
+                  checked
+                {% endif %}
+              >
+
+              <label for="{{inputID}}" class="cursor-pointer checkbox{% if filterType == 'button' %} btn-interact{% endif %} child-event-none">
+                <span class="input-state-default">{% render 'icons', icon: 'checkbox' %}</span>
+                <span class="input-state-active">
+                  {%- render 'icons', icon: 'checkbox-checked' -%}
+                </span>
+
+                {%- case filterType -%}
+                  {%- when 'color' -%}
+                    <span class="swt-color swt-bg-{{ filter.value | handle }} border-radius"></span>
+                  {%- else -%}
+                {%- endcase -%}
+                <span class="text">{{ filter.label }}</span>
+              </label>
+              <div class="filter-count">
+               ({{ filter.count }})
+              </div>
+            </li>
+          {%- endfor -%}
+        </ul>
+        {%- if filterItem.values.size > 5 -%}
+        {%- capture filterCount -%}<span class="attr-count empty-hide" data-count="{{- filterItem.values.size | minus: 5 | at_most: 10 -}}"></span>{%- endcapture -%}
+        <button class="link highlight c-pointer jsFilterShowMore" type="button">{{- 'collection.filter.show_more_html' | t: count: filterCount -}}</button>
+        <button class="link highlight c-pointer jsFilterShowLess" type="button">{{- 'collection.filter.show_less_html' | t: count: filterCount -}}</button>
+        {%- endif -%}
+        {%- endif -%}
+      </div>
+    {%- endcapture -%}
+
+    {%- render 'sidebar-block', class: filterClass, toggleStyle: toggleStyle, heading: heading, body: body , activeFilterCount : activeFilterCount -%}
+
+
+    {%- # RENDER FILTER ACTIVE -%}
+    {% comment %} {%- capture activeFilterContent -%}
+      {{ activeFilterContent }}
+      {%- for filter in filterItem.active_values -%}
+        {%- assign activeFilterCount = activeFilterCount | plus: 1 -%}
+        <li>
+          <a
+            href="{{ filter.url_to_remove }}"
+            class="btn-interact jsFilterRemove"
+          >
+            <span class="jsValue" data-value="{{- filter.value | escape -}}">{{- filter.label -}}</span>
+            {%- render 'icons', icon: 'close' -%}
+          </a>
+        </li>
+      {%- endfor -%}
+    {%- endcapture -%} {% endcomment %}
+  {%- endfor -%}
+
+{%- endcapture -%}
+
+
+{% capture filterBlockContent %}
+    {% render 'filter-item' , title:'Color' , value : settings.color_filter , object : object , formId : formId%}
+    {% render 'filter-item' , title:'Farbic' , value : settings.farbic_filter , object : object , formId : formId %}
+{% endcapture %}
+
+
+<div class="collection__sidebar">
+  <div class="collection__sidebar-filter">
+    <div class="popup-body collection__filter">
+
+      
+      {%- # RENDER FILTER ACTIVE -%}
+      {% comment %} <div class="filter-active jsFilterUpdate empty-hidden">
+        {%- unless activeFilterContent == blank -%}
+          <div class="filter-active-list">
+            <ul class="flex flex-gap" role="list">
+              {{- activeFilterContent -}}
+            </ul>
+          </div>
+          <div class="filter-active-header flex justify-between">
+            <button
+              type="button"
+              class="btn-filter-reset cursor-pointer jsFilterReset"
+              form="{{formId}}"
+            >
+              {{- 'collection.filter.clear_all' | t -}}
+            </button>
+          </div>
+        {%- endunless -%}
+      </div> {% endcomment %}
+
+      {%- unless section.settings.categories == blank -%}
+        <div class="collection__sidebar-categories"> 
+           <div class="title">Collections</div>         
+           <ul class="menu-list" role="list">
+            {%- render 'link' for section.settings.categories.links as link, showSubLink: true, type: 'accordion' -%}
+          </ul>
+        </div>
+      {%- endunless -%}
+      <div class="sidebar-scroll">
+        {{- filterBlockContent -}}
+        {{- filterContent -}}
+      </div>
+    </div>
+  </div>
+</div>

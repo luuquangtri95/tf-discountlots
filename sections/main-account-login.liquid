@@ -1,0 +1,276 @@
+{%- liquid
+  render 'snippet-section', type: 'css-file', name: 'customer'
+
+  assign sectionId = '#shopify-section-' | append: section.id
+  assign layout = settings.account_section_layout | handle
+-%}
+
+{%- style -%}
+  {{sectionId}}{
+    --padding: {{settings.account_section_padding}};
+    --margin: {{settings.account_section_margin}};
+  }
+{%- endstyle -%}
+
+{%- capture pageURL -%}{%- render 'page-url' -%}{%- endcapture -%}
+
+<style>
+  {%- if pageURL contains 'page=reset' -%}
+    {{ sectionId }}
+    #login {
+      display: none;
+    }
+  {%- else -%}
+    {{ sectionId }}#recover:not(:target) {
+      display: none;
+    }
+  {%- endif -%}
+  #recover:target {
+    display: block
+  }
+
+  #recover,
+  #recover:target~#login {
+    display: none
+  }
+</style>
+{%- liquid
+  assign pageTitle = 'customer.login.title' | t
+  assign pageSubtitle = 'customer.login.heading' | t
+  assign emailAddress = 'customer.login.email_address' | t
+  assign password = 'customer.login.password' | t
+  assign forgottenPassword = 'customer.login.forgot_password' | t
+  assign submitButton = 'customer.login.submit' | t
+
+  assign resetTitle = 'customer.forgot_password.title' | t
+  assign resetContent = 'customer.forgot_password.subtitle' | t
+  assign resetButton = 'customer.forgot_password.submit' | t
+  assign resetSuccess = 'customer.forgot_password.message' | t
+
+  assign errorTitle = 'form.general.error_title' | t
+  assign cancelButton = 'customer.general.cancel' | t
+  assign guestButton = 'customer.general.guest_login' | t
+
+  assign registerText1 = 'customer.login.dont_have_account' | t
+  assign registerText2 = 'customer.login.create_an_account' | t
+-%}
+
+<div class="layout-{{layout}}" data-test="{{ request.page_type}}">
+  <div class="main-page section-container{% if layout == 'boxed' %} container{% endif %}">
+    <div class="block-item">
+      <div class="block-inner">
+        {%- comment -%}
+          -------------------------------
+          Recover form
+          -------------------------------
+        {%- endcomment -%}
+        {%- capture recoverForm -%}
+          <div class="form-wrapper recover-form none" id="recover" tabindex="-1">
+            <div class="page-title text-center">
+            <div class="h1">{{resetTitle}}</div>
+            <p>{{ resetContent }}</p>
+
+            </div>
+
+            {%- form 'recover_customer_password' -%}
+
+              {% assign recover_success = form.posted_successfully? %}
+              {%- if recover_success -%}
+                {%- assign hideSubmitBtn = true -%}
+                <div class="recover-successfully">
+                  <div class="recover-msg-wrapper">
+                    <svg width="38" height="30" viewBox="0 0 38 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M36.0625 0.5625H1.9375C1.21152 0.5625 0.625 1.14902 0.625 1.875V28.125C0.625 28.851 1.21152 29.4375 1.9375 29.4375H36.0625C36.7885 29.4375 37.375 28.851 37.375 28.125V1.875C37.375 1.14902 36.7885 0.5625 36.0625 0.5625ZM34.4219 5.10703V26.4844H3.57812V5.10703L2.44609 4.2252L4.05801 2.15391L5.81348 3.51973H32.1906L33.9461 2.15391L35.558 4.2252L34.4219 5.10703ZM32.1906 3.51562L19 13.7695L5.80937 3.51562L4.05391 2.1498L2.44199 4.22109L3.57402 5.10293L17.585 15.9967C17.9879 16.3097 18.4836 16.4796 18.9938 16.4796C19.5041 16.4796 19.9998 16.3097 20.4027 15.9967L34.4219 5.10703L35.5539 4.2252L33.942 2.15391L32.1906 3.51562Z" fill="#393939"/>
+                    </svg>
+                    <span class="recover-msg">
+                     {{resetSuccess}}
+                    </span>
+                  </div>
+                </div>
+
+              {%- else -%}
+                <div class="form-field">
+                  <label class="label-field" for="RecoverEmail">{{ emailAddress }}</label>
+                  <input
+                    type="email"
+                    name="email"
+                    id="RecoverEmail"
+                    class="input-field"
+                    value=""
+                    autocorrect="off"
+                    autocapitalize="off"
+                    autocomplete="email"
+                    placeholder="{{- 'customer.login.email_placeholder' | t -}}"
+                    {% if form.errors %}
+                    aria-invalid="true"
+                    aria-describedby="RecoverEmail-email-error"
+                    autofocus
+                    {% endif %}
+                    required
+                  >
+                  {%- if form.errors -%}
+                    <p class="form-error--msg">
+                      {{ form.errors.messages['form'] }}
+                    </p>
+                  {%- endif -%}
+                </div>
+
+                {%- if form.errors -%}
+                  {%- assign recover_success = true -%}
+                {%- endif -%}
+              {%- endif -%}
+
+              <div class="form-field form-button-group">
+                {%- unless hideSubmitBtn -%}
+                <button type="submit" class="{% render 'snippet-section', type: 'button_style', style: settings.submit_btn_color %}">{{ resetButton }}</button>
+                {%- endunless -%}
+                <a href="#login" class="{% render 'snippet-section', type: 'button_style', style: settings.submit_btn_color %}">{{ cancelButton }}</a>
+              </div>
+            {%- endform -%}
+          </div>
+        {%- endcapture -%}
+
+        {%- if recover_success -%}
+          {{ recoverForm | remove: ' none' }}
+
+        {%- else -%}
+          {{ recoverForm }}
+        {%- endif -%}
+
+        {%- comment -%}
+          -------------------------------
+          Login form
+          -------------------------------
+        {%- endcomment -%}
+        <div class="form-wrapper login-form" id="login" tabindex="-1">
+          <div class="page-title text-center">
+            <h1>{{ pageTitle }}</h1>
+            <p>{{ pageSubtitle }}</p>
+          </div>
+
+          {%- if recover_success == true -%}
+            <h3 class="form__message" tabindex="-1" autofocus>
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 13 13">
+                <path d="M6.5 12.35C9.73087 12.35 12.35 9.73086 12.35 6.5C12.35 3.26913 9.73087 0.65 6.5 0.65C3.26913 0.65 0.65 3.26913 0.65 6.5C0.65 9.73086 3.26913 12.35 6.5 12.35Z" fill="#428445" stroke="white" stroke-width="0.7"/>
+                <path d="M5.53271 8.66357L9.25213 4.68197" stroke="white"/>
+                <path d="M4.10645 6.7688L6.13766 8.62553" stroke="white">
+              </svg>
+              <span class="recover-msg">
+                {{ resetSuccess }}
+              </span>
+            </h3>
+          {%- endif -%}
+
+          {%- form 'customer_login', novalidate: 'novalidate' -%}
+            {%- unless form.posted_successfully? -%}
+              <ul class="form-error--list">
+                {% for error in form.errors %}
+                  {%- assign loginFail = true -%}
+                  <li>
+                    {% if error == 'form' %}
+                      {{ form.errors.messages[error] }}
+                    {% else %}
+                      {{ form.errors.translated_fields[error] }} - {{ form.errors.messages[error] }}
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            {%- endunless -%}
+            {%- comment -%} Email {%- endcomment -%}
+            <div class="form-field{% if loginFail %} form-error{% endif %}">
+              <label class="label-field" for="CustomerEmail">{{ emailAddress }}</label>
+              <input
+                type="email"
+                name="customer[email]"
+                id="CustomerEmail"
+                class="input-field"
+                autocomplete="email"
+                autocorrect="off"
+                autocapitalize="off"
+                placeholder="{{- 'customer.login.email_placeholder' | t -}}"
+                aria-invalid="{{loginFail | default: false}}"
+                required
+              >
+            </div>
+
+            {%- comment -%} Password {%- endcomment -%}
+            {%- if form.password_needed -%}
+              <div class="form-field hide-password{% if loginFail %} form-error{% endif %}">
+                <label class="label-field" for="CustomerPassword">{{ password }}</label>
+                <div class="password-wrapper hide-password">
+                  <input
+                    type="password"
+                    value=""
+                    name="customer[password]"
+                    id="CustomerPassword"
+                    class="input-field"
+                    autocomplete="current-password"
+                    placeholder="{{- 'customer.login.password_placeholder' | t -}}"
+                    aria-invalid="{{loginFail | default: false}}"
+                    required
+                  >
+
+                  <button class="btn-password-toggle cursor-pointer js-password-toggle" type="button">
+                    {%- render 'icons', icon: 'hide_password' -%}
+                    {%- render 'icons', icon: 'show_password' -%}
+                  </button>
+                </div>
+              </div>
+            {%- endif -%}
+
+            <div class="form-field form-button-group">
+              <button
+                type="submit"
+                class="{% render 'snippet-section', type: 'button_style', style: settings.submit_btn_color %}"
+              >
+                {{ submitButton }}
+              </button>
+            </div>
+          {%- endform -%}
+
+          <div class="redirect-block text-center">
+            <p class="register-text text-center">{{ registerText1 }}</p>
+            <p>
+              <a href="{{routes.account_register_url}}" class="highlight link underline">{{ registerText2 }}</a>
+            </p>
+            <p>
+              <a href="#recover" class="link-recover">{{ forgottenPassword }}</a>
+            </p>
+          </div>
+        </div>
+
+        {%- comment -%}
+          -------------------------------
+          Shopify guest login
+          -------------------------------
+        {%- endcomment -%}
+        {%- if shop.checkout.guest_login -%}
+          <div class="form-wrapper guest-login-form">
+            <p class="page-heading">{{ pageTitle }}</p>
+
+            {%- form 'guest_login' -%}
+              <div class="form-field form-button-group">
+                <button
+                  type="submit"
+                  class="{% render 'snippet-section', type: 'button_style', style: settings.submit_btn_color %}"
+                >
+                  {{ guestButton }}
+                </button>
+              </div>
+            {%- endform -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.main_account.name",
+  "class": "shopify-section-account shopify-section-account-login",
+  "tag": "section",
+  "settings": [],
+  "blocks": []
+}
+{% endschema %}

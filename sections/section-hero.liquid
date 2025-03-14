@@ -1,0 +1,335 @@
+{% liquid
+  assign section_id = '#shopify-section-' | append: section.id
+  assign sub_description = section.settings.sub_description
+  assign rating = section.settings.rating_range
+  assign rating_text = section.settings.rating_text
+  assign layout = section.settings.section_layout | handle
+%}
+
+{% capture css_variables %}
+    --section-padding: {{ section.settings.padding }};    
+    --section-heading-color: {{ section.settings.section_heading_color }};
+    --section-background-image: url({{ section.settings.background_image | image_url }});
+    --overlay-color: rgba(21,72,116,0.77); 
+    --star-color: #f7cf2f;
+    --text-color: #489cd8;
+{% endcapture %}
+
+{%- capture class -%}
+  |section-container relative
+  {% if layout == 'boxed' %}|container{% endif %}
+  {%- if section.settings.show_background -%}|[background:var(--background)] {%- endif -%}
+{%- endcapture -%}
+{%- render 'snippet-section', type: 'css' -%}
+
+{% style %}
+  {% render 'css-resp'
+  , class: section_id
+  , type: 'multi'
+  , value: css_variables %}
+{% endstyle %}
+
+<div class="relative p-[10px] bg-cover bg-center" style="background-image: var(--section-background-image);">
+  <div class="absolute inset-0 bg-[var(--overlay-color)]"></div>
+  <div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
+    <div class=" p-[var(--padding)]">
+      <div class="relative grid grid-cols-1 gap-2 lg:grid-cols-2 lg:gap-[60px] xl:grid-cols-2 xl:gap-[80px]">
+        <div class="text-white">
+          <div>
+            <div class="rating">
+              <p class="text-[12px] leading-[1.6]">
+                {%- for i in (1..5) -%}
+                  <span class="inline-block w-[14px] {% if i <= rating %}text-[var(--star-color)]{% else %}text-gray-300{% endif %}">
+                    {{ 'star-rating.svg' | inline_asset_content }}
+                  </span>
+                {%- endfor -%}
+                {{ rating_text }}
+              </p>
+            </div>
+
+            {%- for block in section.blocks -%}
+              {%- case block.type -%}
+                {%- when 'title' -%}
+                  <div class="title text-[30px] mb-[20px]">
+                    <h1>{{ block.settings.title }}</h1>
+                  </div>
+
+                {%- when 'sub_title' -%}
+                  <div class="sub-title text-[30px] mb-[20px]">{{ block.settings.sub_title }}</div>
+
+                {%- when 'text' -%}
+                  <div class="text-[18px] mb-[20px]">{{ block.settings.text }}</div>
+              {%- endcase -%}
+            {%- endfor -%}
+
+            <div class="popup-video mb-[20px]">
+              <div class="w-[230px] h-[150px] bg-white"></div>
+            </div>
+
+            <div class="mb-[20px]">
+              <p>
+                Discount Lots Reviews
+                {%- for i in (1..5) -%}
+                  <span class="inline-block w-[18px] {% if i <= rating %}text-[var(--star-color)]{% else %}text-gray-300{% endif %}">
+                    {{ 'star-rating.svg' | inline_asset_content }}
+                  </span>
+                {%- endfor -%}
+              </p>
+            </div>
+
+            <div class="mb-[20px] text-[12px]">
+              <p class="mb-[10px]">
+                We've made the land buying process simple and hassle-free for 3000+ happy clients.
+              </p>
+              <span class="text-[var(--text-color)]">Watch the video to learn more</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-xl w-full bg-white overflow-hidden">
+          <div class="form-heading h-[120px] bg-[var(--text-color)] font-bold text-[18px] flex justify-center items-center text-center">
+            <p class="text-white px-[20px]">Fill In Our Form And We'll Help You Find The Right Property For You</p>
+          </div>
+
+          <div class="form-body py-[40px] px-[10px]">
+            <div class="form-control">
+              <div class="mb-2">
+                <label class="text-[#124f92] text-[14px] font-[200]"
+                  >Your Name
+                  <span class="text-[#ff0000]">*</span>
+                </label>
+              </div>
+
+              <input
+                class="border border-[#b2bed4] w-full p-2 rounded-md mb-2"
+                type="text"
+                value=""
+                placeholder="First"
+                name="firstname"
+              >
+
+              <input
+                class="border border-[#b2bed4] w-full p-2 rounded-md"
+                type="text"
+                value=""
+                placeholder="Last"
+                name="lastname"
+              >
+
+              <div class="mb-2 mt-2">
+                <label class="text-[#124f92] text-[14px] font-[200]"
+                  >Best Email Address
+                  <span class="text-[#ff0000]">*</span>
+                </label>
+              </div>
+
+              <input
+                class="border border-[#b2bed4] w-full p-2 rounded-md mb-2"
+                type="text"
+                value=""
+                placeholder=""
+                name="email"
+              >
+
+              <div class="mb-2">
+                <label class="text-[#124f92] text-[14px] font-[200]"
+                  >Phone
+                  <span class="text-[#ff0000]">*</span>
+                </label>
+              </div>
+
+              <input
+                class="border border-[#b2bed4] w-full p-2 rounded-md mb-2"
+                type="text"
+                value=""
+                placeholder=""
+                name="phone"
+              >
+
+              <div class="mb-2">
+                <label class="text-[#124f92] text-[14px] font-[200]"
+                  >Property Location
+                  <span class="text-[#ff0000]">*</span>
+                </label>
+              </div>
+
+              <select
+                id="AddressCountry"
+                name="address[country]"
+                data-default="{{ form.country }}"
+                class="border border-[#b2bed4] w-full p-2 rounded-md mb-2 text-[#124f92]"
+                autocomplete="country"
+                {% if address %}
+                  data-address-country-select
+                  data-form-id="{{ form.id }}"
+                {% endif %}
+              >
+                {{ all_country_option_tags }}
+              </select>
+
+              <select
+                id="AddressProvince"
+                name="address[province]"
+                data-default="{{ form.country }}"
+                class="border border-[#b2bed4] w-full p-2 rounded-md mb-2 text-[#124f92]"
+                autocomplete="address-level1"
+              >
+                <option value="">Select a country first</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- jsFile: shopify-common -->
+<!-- jsFile: pick-province -->
+
+{%- schema -%}
+{
+  "name": "Hero Section",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "General settings"
+    },
+    {
+      "type": "select",
+      "id": "section_layout",
+      "label": "t:general.styles.section_layout.label",
+      "options": [
+        {
+          "value": "boxed",
+          "label": "t:general.styles.section_layout.options.option_1"
+        },
+        {
+          "value": "wide",
+          "label": "t:general.styles.section_layout.options.option_2"
+        }
+      ],
+      "default": "boxed"
+    },
+    {
+      "type": "text",
+      "id": "padding",
+      "label": "Section Padding",
+      "default": "50px 20px",
+      "info": "Define the padding for the section. Format: Top Right Bottom Left (e.g., 50px 20px)."
+    },
+    {
+      "type": "text",
+      "id": "margin",
+      "label": "Margin",
+      "info": "t:blocks.block_style.settings.block_margin.info"
+    },
+    {
+      "type": "header",
+      "content": "Section settings"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image"
+    },
+    {
+      "type": "range",
+      "id": "rating_range",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "label": "Star Rating",
+      "default": 5,
+      "info": "Set the star rating value (from 1 to 5 stars)."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "rating_text",
+      "label": "Rating Text",
+      "default": "Rated <strong>5</strong> stars By <strong>3,000+</strong> Clients",
+      "info": "Customize the text displayed alongside the star rating. Use HTML tags like <strong> for emphasis."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "Title",
+      "default": "Lots for Sale Across the USA"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "sub_title",
+      "label": "Sub Title",
+      "default": "Become a landowner for as little as $500 down , in less than 5 minutes"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "sub_description",
+      "label": "Sub Description",
+      "default": "Buy Land & Vacant Lots on Easy Monthly Payment Plans"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "name": "Title",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "title",
+          "label": "Title",
+          "default": "Lots for Sale Across the USA"
+        },
+        {
+          "type": "color",
+          "id": "title_color",
+          "label": "Color",
+          "default": "#ffffff"
+        }
+      ]
+    },
+    {
+      "type": "sub_title",
+      "name": "Sub Title",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "sub_title",
+          "label": "Sub Title",
+          "default": "Become a landowner for as little as $500 down, in less than 5 minutes."
+        },
+        {
+          "type": "color",
+          "id": "sub_color",
+          "label": "Color",
+          "default": "#ffffff"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text Block",
+          "default": "Buy Land & Vacant Lots on Easy Monthly Payment Plans"
+        },
+        {
+          "type": "color",
+          "id": "title_color",
+          "label": "Color",
+          "default": "#ffffff"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Section"
+    }
+  ]
+}
+{%- endschema -%}

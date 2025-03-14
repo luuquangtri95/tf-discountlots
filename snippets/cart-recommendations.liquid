@@ -1,0 +1,95 @@
+{%- liquid
+  assign object = object | default: section
+  assign slider_id = '#cartRecommendSlide-' | append: object.id
+  assign item_spacing = object.settings.items_spacing
+  assign items_resp = object.settings.items_resp
+  assign disable = object.settings.disable
+  assign navs = object.settings.navs
+  assign loop = object.settings.loop
+  assign dots = object.settings.dots
+  assign autoplay = object.settings.autoplay
+  assign limit = object.settings.limit | default: 5
+  assign enable_slider = object.settings.enable_slider | default: true, allow_false: true
+-%}
+
+{%- capture data_url -%}
+  {{ routes.product_recommendations_url }}?section_id=cart-recommendations&product_id={{PRODUCTID | default: 'PRODUCTID' }}&limit={{ limit }}{%- if section.id == 'cart-section' -%}&in_cart_drawer=true{%- endif -%}
+{%- endcapture -%}
+
+<cart-recommendation
+  class="show"
+  data-url="{{ data_url | strip }}"
+  {%- if PRODUCTID == blank -%}
+    data-list-id="{%- for item in cart.items limit: 4 -%}{{item.product.id}}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}"
+  {%- endif -%}
+  data-limit="{{ limit }}"
+>
+  <div class="cart-recommend-container js-container hide">
+    {%- capture items_class -%}{%- render 'config-grid', value: items_resp , line_break: enable_slider , spacing: item_spacing %}{%- endcapture -%}
+    {%- capture section_css -%}{{- section_css -}}
+      {%- render 'config-grid', value: items_resp, style: true, id: slider_id, spacing: item_spacing -%}
+    {%- endcapture -%}
+    {%- render 'snippet-section', type: 'css', value: section_css -%}
+
+    {%- capture class_slider -%}
+      {%- case object.settings.show_next_pre -%}
+        {%- when 'default' -%}
+          |show_next_prev
+          {%- when 'desktop' -%}
+          |show_next_prev_desktop
+          {%- when 'mobile' -%}
+          |show_next_prev_mobile
+      {%- endcase -%}
+
+      {%- case object.settings.show_dot -%}
+        {%- when 'default' -%}
+          |show_dot
+          {%- when 'desktop' -%}
+          |show_dot_desktop
+          {%- when 'mobile' -%}
+          |show_dot_mobile
+      {%- endcase -%}
+
+      {%- case object.settings.style_button -%}
+      {%- when 'style_1' -%}
+        |button-style-1 
+      {%- endcase -%}
+      |cart-recommdations-slide block overflow-hidden
+    {%- endcapture -%}
+
+    {%- if enable_slider -%}
+      <lazy-script
+        id="{{ slider_id | remove: '#' }}"
+        data-tag="slider-component"
+        data-file="{{ 'slider-component.js' | asset_url }}"
+        class="swiper block {{ class_slider | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}"
+        slide-wait
+      >
+        <div
+          id="{{ slider_id | remove: '#' }}el"
+          class="js-slider slider-list js-recommend-items {{items_class}} swiper-wrapper"
+        ></div>
+        {%- render 'config-slide',
+          id: slider_id,
+          items: items_resp,
+          spacing: item_spacing,
+          controls: navs,
+          loop: loop,
+          dots: dots,
+          autoPlay: autoplay,
+          gridClass: items_class,
+          disable: disable
+        -%}
+      </lazy-script>
+    {%- else -%}
+      <div
+        id="{{ slider_id | remove: '#' }}"
+        class="block">
+        <div
+          id="{{ slider_id | remove: '#' }}el"
+          class="cr-grid-items js-recommend-items {{items_class}}" 
+        ></div>
+      </div>
+    {%- endif -%}
+  </div>
+</cart-recommendation>

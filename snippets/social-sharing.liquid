@@ -1,0 +1,74 @@
+{%- unless settings.enable_social_share -%}{%- break -%}{%- endunless -%}
+
+{%- if request.design_mode -%}
+  <div class="social-placeholder text-center" style="border: 1px dashed #000000; font-style: italic;">
+    Social sharing
+  </div>
+{%- else -%}
+  <!-- [socialShare] -->
+{%- endif -%}
+
+{%- comment -%}
+{%- break -%}
+
+{%- if settings.share_facebook or settings.share_twitter or settings.share_pinterest -%}
+  {%- case request.page_type -%}
+    {%- when 'article', 'blog' -%}
+      {%- capture share_permalink -%}{{ shop.url }}{{ article.url }}{%- endcapture -%}
+      {%- capture share_title -%}{{ article.title }}{%- endcapture -%}
+      {%- capture shareHandle -%}{{ article.handle }}{%- endcapture -%}
+    {%- when 'product' -%}
+      {%- capture share_permalink -%}{{ shop.url }}{{ product.url }}{%- endcapture -%}
+      {%- capture share_title -%}{{ product.title }}{%- endcapture -%}
+      {%- capture shareHandle -%}{{ product.handle }}{%- endcapture -%}
+
+    {%- when 'password' -%}
+      {%- capture share_permalink -%}{{ shop.url }}{%- endcapture -%}
+      {%- capture share_title -%}{% unless shop.description == blank %}{{ shop.description | url_param_escape }}{% else %}{{ shop.name | url_param_escape }}{% endunless %}{%- endcapture -%}
+  {%- endcase -%}
+
+  <ul class="social-sharing active">
+    {%- if settings.share_facebook -%}
+      <li>
+        <a
+          target="_blank"
+          href="//www.facebook.com/sharer.php?u={{ share_permalink }}"
+          class="btn btn--small btn--share share-facebook"
+          title="{{ 'general.social.facebook' | t }}"
+        >
+          {%- render 'icons', icon: 'facebook' -%}
+          <span class="share-title">{{ 'general.social.facebook' | t }}</span>
+        </a>
+      </li>
+    {%- endif -%}
+
+    {%- if settings.share_twitter -%}
+      <li>
+        <a
+          target="_blank"
+          href="//twitter.com/share?text={{ share_title | url_param_escape }}&amp;url={{ share_permalink }}"
+          class="btn btn--small btn--share share-twitter"
+          title="{{ 'general.social.twitter' | t }}"
+        >
+          {%- render 'icons', icon: 'twitter' -%}
+          <span class="share-title">{{ 'general.social.twitter' | t }}</span>
+        </a>
+      </li>
+    {%- endif -%}
+
+    {%- if settings.share_pinterest -%}
+      <li>
+        <a
+          target="_blank"
+          href="//pinterest.com/pin/create/button/?url={{ share_permalink }}&amp;media={{ share_image | img_url: '1024x1024' }}&amp;description={{ share_title | url_param_escape }}"
+          class="btn btn--small btn--share share-pinterest"
+          title="{{ 'general.social.pinterest' | t }}"
+        >
+          {%- render 'icons', icon: 'pinterest' -%}
+          <span class="share-title">{{ 'general.social.pinterest' | t }}</span>
+        </a>
+      </li>
+    {%- endif -%}
+  </ul>
+{%- endif -%}
+{%- endcomment -%}

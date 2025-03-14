@@ -1,0 +1,108 @@
+{%- comment -%}
+  # crop: 'cover', 'contain', 'default'
+  # height: px or %
+  # limit: set max width values for image size
+  # customHeight :  true or false
+  # wrapperClass
+{%- endcomment -%}
+
+{%- liquid
+  assign placeholder = placeholder | default: true, allow_false: true
+  if image == blank
+    if placeholder
+      assign type = type | default: 'image'
+      render 'empty-content', type: type, index: index, height: height, customHeight: customHeight
+    endif 
+    break
+  endif
+
+  assign crop = crop | append: '' | replace: 'true', 'cover' | replace: 'false', 'contain'
+  assign widths = width | default: '180,375,412,535,750,1024,1280,1366,1440,1920,2880' | split: ','
+  assign limit = limit | default: image.width | times: 1
+  assign imageRatio = ratio | default: image.aspect_ratio | default: 1
+  assign heightDefault = 1 | divided_by: imageRatio | times: 100 | append: '%'
+  assign imageWidth = image.width | default: 10
+  assign imageHeight = image.height | default: 10
+  assign initWidth = initWidth | default: imageWidth
+  assign imageAlt = alt | default: image.alt | default: image.title | escape | strip_newlines
+  assign focalPoint = focalPoint | default: image.presentation.focal_point
+  assign loading = loading | default: 'lazy'
+  assign fetchpriority = fetchpriority | default: 'auto'
+  assign usePreload = usePreload | default: true, allow_false: true
+-%}
+
+{%- assign sectionLocation = section.location
+  | replace: 'footer', 'nopreload'
+  | replace: 'custom.megamenu', 'nopreload'
+-%}
+{%- unless sectionLocation contains 'nopreload' -%}
+  {%- if section.index == 1 and request.design_mode != true and preload == blank -%}
+    {%- assign preload = true -%}
+  {%- endif -%}
+{%- endunless -%}
+{%- comment -%} Sources {%- endcomment -%}
+
+{%- capture widths -%}
+  {%- for width in widths -%}
+    {%- assign number = width | strip | times: 1 -%}
+    {%- if number > limit -%}
+      {%- if limit != number -%},{{ limit }}{%- endif -%}
+      {%- break -%}
+    {%- endif -%}
+    ,{{- number -}}
+  {%- endfor -%}
+{%- endcapture -%}
+{%- assign widths = widths | remove_first: ',' | default: image.width | append: '' -%}
+
+{%- capture srcset -%}
+  {{- image | image_url: width: image.width | image_tag: widths: widths -}}
+{%- endcapture -%}
+
+{%- if srcset contains 'srcset' -%}
+  {%- assign srcset = srcset | split: 'srcset="' | last | split: '"' | first -%}
+{%- else -%}
+  {%- assign srcset = srcset | split: 'src="' | last | split: '"' | first -%}
+{%- endif -%}
+
+{%- capture source -%}<source media="{{ media | default: 'all' }}" srcset="{{srcset}}"/>{%- endcapture -%}
+
+{%- if getSource -%}
+  {{- source -}}
+  {%- break -%}
+{%- endif -%}
+
+{%- unless customHeight == true -%}
+  {%- capture styles -%}
+    --imgHeight: {{ height | default: heightDefault }};
+    {%- unless focalPoint == blank -%}
+      --imgPoint: {{ focalPoint }};
+    {%- endunless -%}
+  {%- endcapture -%}
+{%- endunless -%}
+
+{%- capture class -%}absolute left-0 top-0{% unless realwidth %} w-full{% endunless %} h-full [object-fit:var(--object-fit)] [object-position:var(--imgPoint)]{%- endcapture -%}
+
+{%- capture imageTag -%}
+  {{- image | image_url: width: image.width | image_tag: class: class, alt: imageAlt, srcset: srcset, sizes: sizes, loading: loading, fetchpriority: fetchpriority -}}
+{%- endcapture -%}
+
+<picture-component class="picture-component block overflow-hidden{% unless wrapperClass == blank %} {{ wrapperClass }}{% endunless %}">
+  <picture
+    class="block image__style pt-[var(--imgHeight)] relative overflow-hidden"
+    style="{{ styles | strip_newlines }}"
+  >
+    {{ sources }}
+
+    {%- if lazyload -%}
+      {{-
+        imageTag
+        | replace: 'src=', 'data-src='
+        | replace: 'srcset=', 'data-srcset='
+        | replace: 'sizes=', 'data-sizes='
+      -}}
+      <noscript>{{- imageTag -}}</noscript>
+    {%- else -%}
+      {{- imageTag -}}
+    {%- endif -%}
+  </picture>
+</picture-component>

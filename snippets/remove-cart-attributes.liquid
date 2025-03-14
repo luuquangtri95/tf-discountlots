@@ -1,0 +1,6 @@
+{%- assign removeAttr = '_paginate,_viewMode' | split: ',' -%}
+
+{%- for attr in cart.attributes -%}
+	{%- unless removeAttr contains attr.first -%}{%- continue -%}{%- endunless -%}
+	<input type="hidden" name="attributes[{{attr.first}}]" value="" form="{{id}}">
+{%- endfor -%}

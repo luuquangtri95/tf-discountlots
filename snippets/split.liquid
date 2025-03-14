@@ -1,0 +1,28 @@
+{%- if content == blank -%}{%- break -%}{%- endif -%}
+
+{%- capture splitStart -%}<!-- split:{{key}}[ -->{%- endcapture -%}
+{%- capture splitEnd -%}<!-- split:{{key}}] -->{%- endcapture -%}
+
+{%- if content contains splitStart -%}
+  {%- assign parts = content | split: splitStart -%}
+
+  {%- for part in parts -%}
+    {%- unless part contains splitEnd -%}
+      {%- assign lastContent = lastContent | append: part -%}
+      {%- continue -%}
+    {%- endunless -%}
+
+    {%- liquid
+      assign arr = part | split: splitEnd
+      assign firstContent = firstContent | append: arr[0]
+      assign lastContent = lastContent | append: arr[1]
+    -%}
+  {%- endfor -%}
+
+  {{- firstContent -}}
+  {{- splitKey -}}
+  {{- lastContent -}}
+
+{%- else -%}
+  {{- splitKey | append: content -}}
+{%- endif -%}

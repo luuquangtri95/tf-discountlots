@@ -1,0 +1,16 @@
+{%- if type == 'payment' -%}
+  {{- icon | payment_type_svg_tag: class: class -}}
+  {%- break -%}
+{%- endif -%}
+
+{%- if icon contains '<path' -%}
+  {%- assign class = '<svg class="' | append: class | append: '"' -%}
+  {{- icon | replace: '<svg', class -}}
+
+{%- else -%}
+  {%- assign icon = icon | downcase | strip -%}
+  {%- render 'svg'
+    , type: icon
+    , fillColor: true
+    , class: class -%}
+{%- endif -%}

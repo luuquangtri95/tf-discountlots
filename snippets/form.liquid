@@ -1,0 +1,134 @@
+{%- case type -%}
+  {%- when 'search' -%}
+    {%- capture placeholder -%}{{- 'search.general.placeholder' | t -}}{%- endcapture -%}
+
+    <form action="{{ routes.search_url }}" class="flex-1 bg-white {{class}}">
+      <input type="hidden" name="type" value="product,page,article">
+      <input type="hidden" name="options[unavailable_products]" value="last">
+      <input type="hidden" name="options[prefix]" value="last">
+
+      <div class="relative rounded overflow-hidden flex items-center">
+        <button
+          type="submit"
+          class="flex items-center absolute left-[12px] top-0 h-full"
+          title="{{- 'search.general.submit' | t -}}"
+        >
+          {%- render 'icons', icon: 'search', class: icon_class -%}
+        </button>
+        <input
+          id="search-field-{{ section.id }}"
+          name="q"
+          value="{{value}}"
+          type="text"
+          placeholder="{{ placeholder }}"
+          class="block bg-transparent pl-[50px] w-full h-[50px] {{ input_class }}"
+          role="search"
+          aria-label="{{ placeholder }}"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          {% if focus %}
+            auto-focus
+          {% endif %}
+        >
+        <label for="search-field-{{ section.id }}" class="hidden">{{- placeholder -}}</label>
+      </div>
+    </form>
+
+  {%- when 'newsletter' -%}
+    {%- liquid
+      assign inputPlaceholder = 'sections.newsletter.label' | t
+      assign defaultLabel = 'sections.newsletter.button_label' | t
+    -%}
+    {%- capture formId -%}{{ type | append: section.id }}{%- endcapture -%}
+
+    {% form 'customer', class: 'newsletter-form', id: formId %}
+      <input type="hidden" name="contact[tags]" value="newsletter">
+
+      <div>
+        <div class="flex">
+          <input
+            id="NewsletterForm--{{ section.id }}"
+            type="email"
+            name="contact[email]"
+            class="overflow-hidden"
+            value="{{ form.email }}"
+            aria-required="true"
+            autocorrect="off"
+            autocapitalize="off"
+            autocomplete="email"
+            {% if form.errors %}
+              autofocus
+              aria-invalid="true"
+              aria-describedby="Newsletter-error--{{ section.id }}"
+            {% elsif form.posted_successfully? %}
+              aria-describedby="Newsletter-success--{{ section.id }}"
+            {% endif %}
+            placeholder="{{ placeholder | default: inputPlaceholder }}"
+            required
+          >
+
+          <label class="hidden" for="NewsletterForm--{{ section.id }}">
+            {{- 'sections.newsletter.label' | t -}}
+          </label>
+
+          <button
+            type="submit"
+            class="{%- render 'snippet-section', type: 'button_style', style: btnStyle -%}"
+            name="commit"
+          >
+            {{ label | default: defaultLabel }}
+          </button>
+        </div>
+
+        {%- if form.errors -%}
+          <small class="error-msg">
+            {{- form.errors.translated_fields.email | capitalize }}
+            {{ form.errors.messages.email -}}
+          </small>
+        {%- endif -%}
+      </div>
+
+      {%- if form.posted_successfully? -%}
+        <h3 class="success-msg" tabindex="-1" autofocus>{{ 'sections.newsletter.success' | t }}</h3>
+      {%- endif -%}
+    {% endform %}
+
+  {%- when 'contact' -%}
+    {%- capture formId -%}{{ type | append: block.id }}{%- endcapture -%}
+
+    {% form 'contact', id: formId %}
+      {{ form.errors | default_errors }}
+
+      <div class="first-name">
+        <input
+          type="text"
+          name="contact[first_name]"
+          id="first-name"
+          placeholder="{{ block.settings.name_label |  default: 'Name'  }}"
+        >
+      </div>
+
+      <div class="email">
+        <input
+          type="email"
+          name="contact[email]"
+          id="email"
+          placeholder="{{ block.settings.email_label |  default: 'Email'  }}"
+        >
+      </div>
+
+      <div class="message">
+        <textarea
+          name="contact[body]"
+          id="message"
+          placeholder="{{ block.settings.message_label |  default: 'Message' }}"
+        ></textarea>
+      </div>
+
+      <div class="submit">
+        <button type="submit">{{ block.settings.button_label | default: 'Send' }}</button>
+      </div>
+    {% endform %}
+{%- endcase -%}

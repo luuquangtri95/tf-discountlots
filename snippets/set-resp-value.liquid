@@ -1,0 +1,93 @@
+{%- case type -%}
+  {%- when 'css' -%}
+    {%- case value.size -%}
+      {%- when 1 -%}
+        {{- '0' -}}
+      {%- when 2 -%}
+        {{- '0,750px' -}}
+      {%- when 3 -%}
+        {{- '0,750px,990px' -}}
+      {%- when 4 -%}
+        {{- '0,575px,750px,1400px' -}}
+      {%- when 5 -%}
+        {{- '0,575px,750px,990px,1400px' -}}
+      {%- else -%}
+        {{- '0,575px,750px,990px,1400px,1600px' -}}
+    {%- endcase -%}
+
+  {%- else -%}
+    {%- case value.size -%}
+      {%- when 1 -%}
+        {{- value -}}
+        ,
+        {{- value -}}
+        ,
+        {{- value -}}
+        ,
+        {{- value -}}
+        ,
+        {{- value -}}
+        ,
+        {{- value -}}
+      {%- when 2 -%}
+        {{- value[0] -}}
+        ,
+        {{- value[0] -}}
+        ,
+        {{- value[0] -}}
+        ,
+        {{- value[1] -}}
+        ,
+        {{- value[1] -}}
+        ,
+        {{- value[1] -}}
+      {%- when 3 -%}
+        {{- value[0] -}}
+        ,
+        {{- value[0] -}}
+        ,
+        {{- value[1] -}}
+        ,
+        {{- value[1] -}}
+        ,
+        {{- value[2] -}}
+        ,
+        {{- value[2] -}}
+      {%- when 4 -%}
+        {{- value[0] -}}
+        ,
+        {{- value[1] -}}
+        ,
+        {{- value[2] -}}
+        ,
+        {{- value[2] -}}
+        ,
+        {{- value[3] -}}
+        ,
+        {{- value[3] -}}
+      {%- when 5 -%}
+        {{- value[0] -}}
+        ,
+        {{- value[1] -}}
+        ,
+        {{- value[2] -}}
+        ,
+        {{- value[3] -}}
+        ,
+        {{- value[4] -}}
+        ,
+        {{- value[4] -}}
+      {%- else -%}
+        {{- value[0] -}}
+        ,
+        {{- value[1] -}}
+        ,
+        {{- value[2] -}}
+        ,
+        {{- value[3] -}}
+        ,
+        {{- value[4] -}}
+        ,
+        {{- value[5] -}}
+    {%- endcase -%}
+{%- endcase -%}

@@ -1,0 +1,64 @@
+{%- liquid
+  assign sectionId = '#shopify-section-' | append: section.id
+  assign layout = section.settings.section_layout | handle
+-%}
+
+{%- capture content -%}
+<div class="page-section layout-{{layout}}">
+  <div class="section-container{% if layout == 'boxed' %} container{% endif %}">
+    <div class="section-content-inner">
+
+      {%- render 'snippet-section', type: 'heading' , class: class, section_heading: page.title -%}
+      {%- if page.content != blank -%}
+        <div class="page-content">{{ page.content}}</div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+{%- endcapture -%}
+
+{%- render 'snippet-section', type: 'css-file', name: 'section-main-page' -%}
+{%- render 'snippet-section', type: 'css', value: section_css -%}
+{{ content }}
+
+{% schema %}
+{
+  "name": "t:sections.main_page.name",
+  "class": "shopify-section-main-page",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:general.styles.header"
+    },
+    {
+      "type": "select",
+      "id": "section_layout",
+      "label": "t:general.styles.section_layout.label",
+      "options": [
+        {
+          "value": "boxed",
+          "label": "t:general.styles.section_layout.options.option_1"
+        },
+        {
+          "value": "wide",
+          "label": "t:general.styles.section_layout.options.option_2"
+        }
+      ],
+      "default": "boxed"
+    },
+    {
+      "type": "text",
+      "id": "padding",
+      "label": "t:general.styles.padding.label",
+      "info": "t:general.styles.padding.info"
+    },
+    {
+      "type": "text",
+      "id": "margin",
+      "label": "t:general.styles.margin.label",
+      "info": "t:general.styles.margin.info"
+    }
+  ]
+}
+{% endschema %}

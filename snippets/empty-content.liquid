@@ -1,0 +1,112 @@
+{%- if type == blank -%}{%- break -%}{%- endif -%}
+
+{%- case type -%}
+  {%- when 'product-card' -%}
+    {%- assign limit = limit | default: 6 -%}
+
+    {%- for i in (1..limit) -%}
+      {%- if index == blank -%}
+        {%- capture index -%}{% cycle 1,2,3,4,5,6 %}{%- endcapture -%}
+      {%- endif -%}
+
+      <div class="card product-card {{ class }}">
+        <product-card>
+          <head>
+            {%- render 'empty-content', type: 'product', index: index -%}
+          </head>
+          <main>
+            <div class="card-body text-center">
+              <h4 class="card-title">{{- 'products.product.sample_title' | t -}}</h4>
+              {%- render 'money', value: 999 -%}
+            </div>
+          </main>
+        </product-card>
+      </div>
+    {%- endfor -%}
+
+  {%- when 'article-card' -%}
+    {%- assign limit = limit | default: 3 -%}
+
+    {%- for i in (1..limit) -%}
+      {%- capture index -%}{% cycle 1,2,3 %}{%- endcapture -%}
+
+      <div class="empty-card card-article">
+        <div class="card-inner">
+          <div class="empty-card-media">
+            {%- render 'empty-content', type: 'blog-apparel', index: index -%}
+          </div>
+
+          <div class="empty-card-info">
+            <h4 class="card-article-title">{{- 'general.text.sample_title' | t -}}</h4>
+            <div class="card-article-content">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+              dolore magna aliqua.
+            </div>
+            <div class="card-article-footer">
+              <div class="card-article-publish-date text-right">{{ 'now' | date | time_tag: '%B, %Y' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {%- endfor -%}
+
+  {%- when 'article-card-only' -%}
+    <div class="empty-card card-article-only">
+      <div class="card-inner flex">
+        <div class="empty-card-info">
+          <div class="card-article-publish-date text-right">{{ 'now' | date | time_tag: '%B, %Y' }}</div>
+          <h4 class="card-article-title">{{- 'general.text.sample_title' | t -}}</h4>
+          <div class="card-article-content">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+            dolore magna aliqua.
+          </div>
+        </div>
+        <div class="empty-card-media">
+          {%- render 'empty-content', type: 'blog-apparel', index: 1 -%}
+        </div>
+      </div>
+    </div>
+
+  {%- when 'collection-card' -%}
+    {%- assign limit = limit | default: 6 -%}
+
+    {%- for i in (1..limit) -%}
+      {%- capture index -%}{% cycle 1,2,3,4,5,6 %}{%- endcapture -%}
+
+      <div class="collection-item">
+        <div class="collection-image">
+          {%- render 'empty-content', type: 'collection', index: index -%}
+        </div>
+
+        <div class="collection-information">
+          <h4 class="collection-title">{{- 'general.text.sample_title' | t -}}</h4>
+        </div>
+      </div>
+    {%- endfor -%}
+
+  {%- else -%}
+    {%- if customHeight == true or height != blank -%}
+      {%- capture class -%}relative image__style pt-[var(--imgHeight,100%)]" style="{% if customHeight == false %}--imgHeight: {{height}};{% endif %}{%- endcapture -%}
+
+      {%- assign svgClass = 'absolute left-0 top-0 w-full h-full' -%}
+    {%- endif -%}
+
+    <div class="empty-placeholder empty-{{type}} pointer-events-none relative flex{{class}}">
+      {%- capture index -%}-{{index | default: 1 | at_least: 1 }}{%- endcapture -%}
+      {%- case type -%}
+        {%- when 'banner' -%}
+          {{ 'lifestyle' | append: index | placeholder_svg_tag: svgClass }}
+        {%- when 'image' -%}
+          {{ type | placeholder_svg_tag: svgClass }}
+        {%- when 'product',
+          'collection',
+          'product-apparel',
+          'collection-apparel',
+          'hero-apparel',
+          'blog-apparel',
+          'detailed-apparel'
+        -%}
+          {{- type | append: index | placeholder_svg_tag: svgClass -}}
+      {%- endcase -%}
+    </div>
+{%- endcase -%}

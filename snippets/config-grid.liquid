@@ -1,0 +1,93 @@
+{%- comment -%}
+  @params:
+  + value(number): item per row
+  + line_break(true/false): accept line items break or not
+{%- endcomment -%}
+
+{%- liquid
+  assign mediaScreens = '0|575px|750px|992px|1200px|1500px' | split: '|'
+  assign objectId = objectId | default: object.id | default: block.id | default: section.id
+  assign defaultId = '[id*=' | append: objectId | append: ']'
+  assign values = value | strip | remove: ' ' | split: ','
+-%}
+
+{%- if style and id == blank -%}{%- break -%}{%- endif -%}
+
+{%- for screen in mediaScreens -%}
+  {%- capture media_screen -%}{{- media_screen -}}
+    {%- unless screen == '0' -%}min-width:{%- endunless -%}{{ screen }}{%- unless forloop.last -%},{%- endunless -%}
+  {%- endcapture -%}
+  {%- capture mediaClass -%}{{- mediaClass -}}
+    {%- unless screen == '0' -%}
+      {%- case forloop.index0 -%}
+      {%- when 1 -%}sm:
+      {%- when 2 -%}md:
+      {%- when 3 -%}lg:
+      {%- when 4 -%}xl:
+      {%- when 5 -%}xxl:
+      {%- else -%}
+      {%- endcase -%}
+    {%- endunless -%}items-{%- unless forloop.last -%},{%- endunless -%}
+  {%- endcapture -%}
+{%- endfor -%}
+{%- assign media_screen = media_screen | split: ',' -%}
+{%- assign mediaClass = mediaClass | split: ',' -%}
+
+{%- capture slideClass -%}{{ id }}:not(.slider-loaded){%- endcapture -%}
+{%- capture values -%}{%- render 'set-resp-value', value: values -%}{%- endcapture -%}
+{%- assign values = values | split: ',' -%}
+
+{%- unless style -%}
+  grid{% if line_break == true %} items-nobreak grid-flow-col{% endif -%}
+  {%- if spacing != blank %} gap-[var(--items-gap)]{% endif -%}
+{%- endunless -%}
+
+{%- for i in values -%}
+  {%- if forloop.index0 > mediaClass.size -%}{%- break -%}{%- endif -%}
+
+  {%- assign value = i | strip | handle -%}
+
+  {%- if value == blank -%}{%- continue -%}{%- endif -%}
+
+  {%- if style -%}
+    {%- comment -%} Media query {%- endcomment -%}
+    {%- capture mediaScreenValue -%}{% if forloop.first and values.size > 1 %}{{- 'max-width: 749px' -}}{% else %}{{- media_screen[forloop.index0] -}}{% endif %}{%- endcapture -%}
+
+    {%- comment -%} Calculate width for decimal value {%- endcomment -%}
+    {%- unless i contains '.' -%}
+      {%- unless hasDecimalValue == true -%}
+        {%- continue -%}
+      {%- endunless -%}
+    {%- endunless -%}
+
+    {%- assign valuePercent = 100.0 | divided_by: i -%}
+    {%- assign hasDecimalValue = true -%}
+
+    {%- unless mediaScreenValue == '0' -%}
+      @media (
+      {{- mediaScreenValue -}}
+      ){
+    {%- endunless -%}
+
+    {{- slideClass -}}
+    .
+    {{- mediaClass[forloop.index0] | replace: ':', '\:' -}}
+    {{- value -}}
+    {
+    {%- if line_break == true -%}
+      grid-auto-columns: calc({{ valuePercent }}% - var(--items-gap));
+    {%- else -%}
+      grid-template-columns: repeat({{ value | split: '-' | first }}, calc({{ valuePercent }}% - var(--items-gap)));
+    {%- endif -%}
+    }
+
+    {%- unless mediaScreenValue == '0' -%}}{%- endunless -%}
+
+  {%- elsif value != blank -%}
+    {{- ' ' | append: mediaClass[forloop.index0] | append: value -}}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if style and spacing != blank -%}
+  {%- render 'css-resp', class: slideClass, css: '--items-gap', value: spacing -%}
+{%- endif -%}

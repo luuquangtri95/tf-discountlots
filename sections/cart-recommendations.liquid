@@ -1,0 +1,37 @@
+{% liquid
+  assign limit = section.settings.limit
+%}
+{%- capture page_url -%}{%- render 'page-url', full: true -%}{%- endcapture -%}
+{%- if page_url contains 'in_cart_drawer' -%}
+  {% assign in_cart_drawer = true %}
+{%- else -%}
+  {% assign in_cart_drawer = false %}
+{%- endif -%}
+
+{%- for product in recommendations.products -%}
+  {%- unless limit > 0 -%}{%- break -%}{%- endunless -%}
+
+  {%- liquid
+    render 'product-item', product: product, class: 'swiper-slide', show_view: true, show_price: true, show_add_to_cart: true, in_cart_drawer: in_cart_drawer, card_title_length: 'disable'
+    assign limit = limit | minus: 1
+  -%}
+{%- endfor -%}
+
+{% schema %}
+{
+  "name": "Recommendation",
+  "tag": "section",
+  "class": "shopify-section-recommendation shopify-section-featured-collection overflow-hidden",
+  "settings": [
+    {
+      "type": "range",
+      "id": "limit",
+      "label": "t:sections.general.limit.label",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "default": 6
+    }
+  ]
+}
+{% endschema %}

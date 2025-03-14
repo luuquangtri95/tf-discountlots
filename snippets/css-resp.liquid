@@ -1,0 +1,323 @@
+{%- liquid
+  assign root = root | default: false
+  assign media_screen = media_screen | default: '0,575px,750px,990px,1400px,1600px' | split: ','
+-%}
+
+{%- case type -%}
+  {%- when 'breakpoint' -%}
+    {%- case value.size -%}
+      {%- when 1 -%}
+        {{- '0' -}}
+      {%- when 2 -%}
+        {{- '0,750px' -}}
+      {%- when 3 -%}
+        {{- '0,750px,990px' -}}
+      {%- when 4 -%}
+        {{- '0,575px,750px,1400px' -}}
+      {%- when 5 -%}
+        {{- '0,575px,750px,990px,1400px' -}}
+      {%- else -%}
+        {{- '0,575px,750px,990px,1400px,1600px' -}}
+    {%- endcase -%}
+
+  {%- when 'breakpoint-values' -%}
+    {%- case value.size -%}
+      {%- when 1 -%}
+        {{- value -}}
+        ,
+        {{- value -}}
+        ,
+        {{- value -}}
+        ,
+        {{- value -}}
+        ,
+        {{- value -}}
+        ,
+        {{- value -}}
+      {%- when 2 -%}
+        {{- value[0] -}}
+        ,
+        {{- value[0] -}}
+        ,
+        {{- value[0] -}}
+        ,
+        {{- value[1] -}}
+        ,
+        {{- value[1] -}}
+        ,
+        {{- value[1] -}}
+      {%- when 3 -%}
+        {{- value[0] -}}
+        ,
+        {{- value[0] -}}
+        ,
+        {{- value[1] -}}
+        ,
+        {{- value[1] -}}
+        ,
+        {{- value[2] -}}
+        ,
+        {{- value[2] -}}
+      {%- when 4 -%}
+        {{- value[0] -}}
+        ,
+        {{- value[1] -}}
+        ,
+        {{- value[2] -}}
+        ,
+        {{- value[2] -}}
+        ,
+        {{- value[3] -}}
+        ,
+        {{- value[3] -}}
+      {%- when 5 -%}
+        {{- value[0] -}}
+        ,
+        {{- value[1] -}}
+        ,
+        {{- value[2] -}}
+        ,
+        {{- value[3] -}}
+        ,
+        {{- value[4] -}}
+        ,
+        {{- value[4] -}}
+      {%- else -%}
+        {{- value[0] -}}
+        ,
+        {{- value[1] -}}
+        ,
+        {{- value[2] -}}
+        ,
+        {{- value[3] -}}
+        ,
+        {{- value[4] -}}
+        ,
+        {{- value[5] -}}
+    {%- endcase -%}
+
+  {%- when 'value' -%}
+    {%- if value.size > 0 -%}
+      {%- if css_revert_value -%}{%- assign css_revert = '-' -%}{%- endif -%}
+
+      {%- liquid
+        if showFirst
+          assign split_by = split_by | default: ','
+          assign value = value | split: split_by | first | strip
+        endif
+        if value_before != blank
+          assign value_before = value_before | append: '('
+          assign value_after = ')'
+        endif
+        assign value_out = value | strip | prepend: css_revert | prepend: value_before | append: value_after
+        assign value = value_out
+      -%}
+
+      {{- css -}}
+      :
+      {{- value -}}
+      {% if important %}!important{% endif %};
+    {%- endif -%}
+
+  {%- when 'media' -%}
+    {%- capture __value -%}{{ value | remove: 'null' | strip }}{%- endcapture -%}
+    {%- if __value.size > 0 -%}
+      {%- if media_value != blank -%}
+        @media(
+        {{- media_value -}}
+        ){
+      {%- endif -%}
+
+      {%- unless root -%}
+        {{- CLASS -}}
+        {
+      {%- endunless -%}
+
+      {%- render 'css-resp',
+        type: 'value',
+        important: important,
+        css: css,
+        css_revert_value: css_revert_value,
+        value_before: value_before,
+        value: __value,
+        root: root
+      -%}
+      {%- unless root -%}
+        }
+      {%- endunless -%}
+
+      {%- if media_value != blank -%}}{%- endif -%}
+    {%- endif -%}
+
+  {%- when 'position' -%}
+    {%- if value == blank -%}{%- break -%}{%- endif -%}
+
+    {%- assign class = prev_class | append: join | append: class | append: join | append: next_class -%}
+    {%- liquid
+      assign array_value = value | replace: ':', '%:' | replace: ',', '%,' | append: '%' | split: ','
+      assign array_value = value | split: ','
+    -%}
+
+    {%- for value in array_value -%}
+      {%- assign temp = value | split: ':' -%}
+      {%- capture left -%}{{- left -}},{{temp.first | strip }}{%- endcapture -%}
+      {%- capture top -%}{{- top -}},{{temp.last | strip }}{%- endcapture -%}
+      {%- capture translate -%}{{- translate -}}|-{{ temp.first | strip }},-{{ temp.last | strip }}{%- endcapture -%}
+    {%- endfor -%}
+
+    {%- liquid
+      assign left = left | remove_first: ','
+      assign top = top | remove_first: ','
+      assign translate = translate | remove_first: '|' | remove: '--'
+    -%}
+
+    {%- capture values -%}
+			left: {{- left -}}{% if important %}!important{% endif %};
+			top: {{- top -}}{% if important %}!important{% endif %};
+			transform: translate({{- translate | replace: '|', ')|translate(' -}}){% if important %}!important{% endif %};
+		{%- endcapture -%}
+
+    {%- render 'css-resp', type: 'multi', class: class, value: values -%}
+
+  {%- when 'multi' -%}
+    {%- assign class = prev_class | append: join | append: class | append: join | append: next_class -%}
+
+    {%- liquid
+      assign list_styles = value | split: ';'
+      assign value = null
+    -%}
+
+    {%- for item in list_styles -%}
+      {%- liquid
+        assign split = item | strip_newlines | strip | split: ':'
+        assign css = split[0] | strip
+        assign values = split[1] | strip
+        assign important = null
+      -%}
+      {%- if values == blank -%}{%- continue -%}{%- endif -%}
+
+      {%- if values contains '!important' -%}
+        {%- assign values = values | remove: '!important' -%}
+        {%- assign important = '!important' -%}
+      {%- endif -%}
+
+      {%- if values contains 'rgb'
+        or values contains 'translate'
+        or values contains 'gradient'
+        or values contains 'var('
+      -%}
+        {%- assign values = values | strip | split: '|' -%}
+      {%- else -%}
+        {%- assign values = values | strip | split: ',' -%}
+      {%- endif -%}
+
+      {%- capture breakpoints -%}{%- render 'css-resp', type: 'breakpoint', value: values -%}{%- endcapture -%}
+      {%- assign breakpoints = breakpoints | split: ',' -%}
+
+      {%- for media in breakpoints -%}
+        {%- liquid
+          assign value = values[forloop.index0] | strip
+
+          if value == blank
+            continue
+          endif
+        -%}
+
+        {%- capture content -%}{{- css -}}: {{- value | append: important -}};{%- endcapture -%}
+
+        {%- case media -%}
+          {%- when media_screen[1] -%}
+            {%- assign resp_content_2 = resp_content_2 | append: content -%}
+          {%- when media_screen[2] -%}
+            {%- assign resp_content_3 = resp_content_3 | append: content -%}
+          {%- when media_screen[3] -%}
+            {%- assign resp_content_4 = resp_content_4 | append: content -%}
+          {%- when media_screen[4] -%}
+            {%- assign resp_content_5 = resp_content_5 | append: content -%}
+          {%- when media_screen[5] -%}
+            {%- assign resp_content_6 = resp_content_6 | append: content -%}
+          {%- else -%}
+            {%- assign resp_content_1 = resp_content_1 | append: content -%}
+        {%- endcase -%}
+      {%- endfor -%}
+    {%- endfor -%}
+
+    {%- for media in media_screen -%}
+      {%- capture value -%}
+				{%- case forloop.index -%}
+					{%- when 1 	-%}{{- resp_content_1 -}}
+					{%- when 2 	-%}{{- resp_content_2 -}}
+					{%- when 3 	-%}{{- resp_content_3 -}}
+					{%- when 4 	-%}{{- resp_content_4 -}}
+					{%- when 5 	-%}{{- resp_content_5 -}}
+					{%- else 	-%}{{- resp_content_6 -}}
+				{%- endcase -%}
+			{%- endcapture -%}
+
+      {%- if prev_value == value -%}{%- continue -%}{%- endif -%}
+
+      {%- assign prev_value = value -%}
+
+      {%- if value == blank -%}{%- continue -%}{%- endif -%}
+
+      {%- unless forloop.first -%}
+        @media(min-width: {{ media }}){
+      {%- endunless -%}
+      {{- class -}}
+      {
+      {{- value -}}
+      }
+      {%- unless forloop.first -%}
+        }
+      {%- endunless -%}
+    {%- endfor -%}
+
+  {%- else -%}
+    {%- unless remove_default == blank -%}
+      {%- assign value = value | remove: remove_default | strip -%}
+    {%- endunless -%}
+
+    {%- assign CLASS = prev_class | append: join | append: class | append: join | append: next_class -%}
+
+    {%- unless value == blank -%}
+      {%- liquid
+        assign split_by = split_by | default: ','
+        assign arr_value = value | split: split_by
+        assign css = css | default: 'padding'
+      -%}
+      {%- capture media_screens -%}{%- render 'css-resp', type: 'breakpoint', value: arr_value -%}{%- endcapture -%}
+      {%- assign media_screens = media_screens | split: ',' -%}
+
+      {%- for i in (1..arr_value.size) limit: media_screens.size -%}
+        {%- capture media_value -%}
+					{%- unless media_screens[forloop.index0] == '0' -%}min-width: {{ media_screens[forloop.index0] }}{%- endunless -%}
+				{%- endcapture -%}
+
+        {%- render 'css-resp',
+          type: 'media',
+          CLASS: CLASS,
+          value: arr_value[forloop.index0],
+          important: important,
+          css: css,
+          css_revert_value: css_revert_value,
+          value_before: value_before,
+          media_value: media_value,
+          root: root
+        -%}
+      {%- endfor -%}
+
+    {%- elsif values != blank -%}
+      {%- assign css_ar = values | strip_newlines | split: ';' -%}
+      {{- CLASS -}}
+      {
+      {%- for css_item in css_ar -%}
+        {%- liquid
+          assign _css_content = css_item | split: ':'
+          assign _css = _css_content[0] | strip
+          assign _value = _css_content[1] | strip
+        -%}
+        {%- if _value.size > 0 -%}{{ _css }}:{{ _value }};{%- endif -%}
+      {%- endfor -%}
+      }
+    {%- endunless -%}
+{%- endcase -%}

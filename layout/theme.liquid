@@ -1,0 +1,121 @@
+{%- # FAVICON -%}
+{%- capture favicon -%}
+  {%- if settings.favicon != blank -%}
+    {{ settings.favicon | image_url: width: 32, height: 32 }}
+  {%- else -%}
+    {{- 'favicon.png' | asset_img_url: '32x32' -}}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- # SEO -%}
+{%- capture pageTitle -%}
+  {%- if request.page_type == 'search' and search.performed == true -%}
+    {{ 'search.general.heading' | t: count: search.results_count }}: {{ 'search.general.results_with_count_and_term' | t: terms: search.terms, count: search.results_count }}
+  {%- else -%}
+    {{ page_title }}
+  {%- endif -%}
+  {%- if current_tags -%}
+    {%- assign meta_tags = current_tags | join: ', ' -%} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags -}}
+  {%- endif -%}
+  {%- if current_page != 1 -%}
+    &ndash; {{ 'general.meta.page' | t: page: current_page }}
+  {%- endif -%}
+  {%- assign escaped_page_title = page_title | escape -%}
+  {%- unless escaped_page_title contains shop.name -%}
+    &ndash; {{ shop.name }}
+  {%- endunless -%}
+{%- endcapture -%}
+
+{%- # THEME CONTENT -%}
+{%- capture themeStructure -%}
+
+  {%- capture headerGroup -%}{%- sections 'group-header' -%}{%- endcapture -%}
+  {%- render 'header-group', headerGroup: headerGroup -%}
+
+
+  <main id="main-content">
+    {{ content_for_layout }}
+  </main>
+
+  <footer>
+    {%- sections 'group-footer' -%}
+  </footer>
+
+  {%- liquid
+    render 'snippet-theme'
+    section 'mini-cart'
+  -%}
+
+  {%- capture schema_colors -%}{%- sections 'group-schema-colors' -%}{%- endcapture -%}
+  {%- render 'schema-colors', content: schema_colors -%}
+
+{%- endcapture -%}
+
+{%- comment -%} BODY CLASS {%- endcomment -%}
+{%- capture bodyClass -%}
+|group/body template{{- request.page_type | split: '/' | first | capitalize -}}
+{%- if request.page_type contains '/' -%}|template{{- request.page_type | handle | capitalize -}}{%- endif -%}
+{%- if request.page_type == 'page' or request.page_type == 'product' -%}|{{request.page_type}}-{{- template.suffix | default: 'default' -}}{%- endif -%}
+{%- endcapture -%}
+
+<!doctype html>
+<html class="no-js" lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="cleartype" content="on">
+    <meta name="theme-color" content="">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=2, user-scalable=0, viewport-fit=cover"
+    >
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="360">
+
+    <link rel="canonical" href="{{canonical_url}}">
+    <link rel="icon" type="image/png" href="{{ favicon }}">
+    <link rel="preconnect dns-prefetch" href="https://cdn.shopify.com">
+    <link rel="preload" as="font" href="{{ settings.body_shopify_font | font_url }}" type="font/woff2" crossorigin>
+    <title>{{ pageTitle | strip }}</title>
+    <meta name="description" content="{{ page_description | escape }}">
+
+    {%- render 'social-meta-tags' -%}
+    {%- render 'css-resources' -%}
+    {%- render 'js-resources', html: themeStructure -%}
+
+    {%- unless request.design_mode -%}
+      {%- assign keyList = 'preload,css' | split: ',' -%}
+
+      {%- for key in keyList -%}
+        {%- assign splitKey = '<!-- aKeyToSplitContent -->' -%}
+        {%- capture contentSplit -%}{%- render 'split', content: themeStructure, key: key, splitKey: splitKey -%}{%- endcapture -%}
+
+        {%- liquid
+          assign contentSplit = contentSplit | split: splitKey
+          assign themeStructure = contentSplit[1]
+          assign headContent = headContent | append: contentSplit[0]
+        -%}
+      {%- endfor -%}
+
+      <!-- Preload -->
+      {%- liquid
+        echo headContent | split: '<!-- | -->' | uniq
+
+        unless cssInline == blank
+          style
+            echo cssInline | remove: '<style>' | remove: '<style data-shopify>' | remove: '</style>' | strip_newlines | strip
+          endstyle
+        endunless
+      -%}
+      <!-- end Preload -->
+    {%- endunless -%}
+
+    {{ content_for_header }}
+  </head>
+
+  <body
+    class="{{ bodyClass | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}"
+    dir="{{ settings.theme_layout | default: 'ltr' | downcase }}"
+  >
+    {{- themeStructure | remove: '<!-- | -->' | remove: '<!-- split:[ -->' | remove: '<!-- split:] -->' -}}
+  </body>
+</html>

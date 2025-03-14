@@ -1,0 +1,180 @@
+{%- liquid
+  assign card_title_length = card_title_length | default: settings.card_title_length
+  assign productLink = product.url | within: collection
+  assign productSelect = productSelect | default: product.selected_or_first_available_variant
+  assign formId = 'f' | append: product.id | append: section.id
+  assign limitImageSize = limitImageSize | default: 700
+-%}
+
+{%- assign imgCrop = imgCrop | default: settings.card_image_mode -%}
+{%- assign cardImageHeight = settings.card_image_ratio | remove: 'auto' | strip -%}
+{%- if settings.card_ratio_custom != blank -%}
+  {%- assign cardImageHeight = 1.0 | divided_by: settings.card_ratio_custom.aspect_ratio | times: 100 | append: '%' -%}
+  {%- assign focalPoint = settings.card_ratio_custom.presentation.focal_point -%}
+{%- endif -%}
+{%- if cardImageHeight == blank -%}
+  {%- assign imageRatio = product.featured_image.aspect_ratio | default: 1 -%}
+  {%- assign cardImageHeight = 1.0 | divided_by: imageRatio | times: 100 | append: '%' -%}
+{%- endif -%}
+
+{%- if product.available != true -%}
+  {%- assign hideATC = true -%}
+{%- endif -%}
+
+{%- unless product.has_only_default_variant and product.variants.size == 1 -%}
+  {%- assign productSelect = null -%}
+{%- endunless -%}
+
+{%- capture alt -%}{{ product.title | escape }}{%- endcapture -%}
+
+{% comment %} {% assign cardImageHeight = '141.4%' %} {% endcomment %}
+<!-- {{variable}} -- {{ color_metaobj.value }} -->
+<product-card class="card card-product  color-{{ settings.product_card_colors }}{% if section.id == 'cart-recommendations' %} no-hover{% endif %}{% unless product.available %} card-soldout{% endunless %}{% unless class == blank %} {{class}}{% endunless %}">
+  <div class="card-inner relative">
+    <header class="card-image relative overflow-hidden card-hover--{{ settings.product_card_hover }}">
+      <a href="{{productLink}}">
+        {%- if product.media.size > 1 and settings.product_card_hover == 'swipe' -%}
+          {%- render 'image',
+            image: product.featured_image,
+            alt: alt,
+            crop: imgCrop,
+            focalPoint: focalPoint,
+            height: cardImageHeight,
+            type: 'product',
+            index: placeHolderIndex,
+            limit: limitImageSize,
+            wrapperClass: 'primary-media'
+          -%}
+          {%- render 'image',
+            image: product.media[1].preview_image,
+            alt: alt,
+            crop: imgCrop,
+            focalPoint: focalPoint,
+            height: cardImageHeight,
+            type: 'product',
+            index: placeHolderIndex,
+            limit: limitImageSize,
+            wrapperClass: 'secondary-media absolute top-0 left-0 right-0 bottom-0'
+          -%}
+        {%- else -%}
+          {%- render 'image',
+            image: product.featured_image,
+            alt: alt,
+            crop: imgCrop,
+            focalPoint: focalPoint,
+            height: cardImageHeight,
+            type: 'product',
+            index: placeHolderIndex,
+            limit: limitImageSize,
+            wrapperClass: ''
+          -%}
+        {%- endif -%}
+
+        {% assign farbic_media = product.media | where: 'media_type', 'image' | last %}
+
+        {% comment %} farbic-image  {% endcomment %}
+        {%- if farbic_media != blank and request.page_type == 'collection' or request.page_type == 'search' -%}
+          {%- render 'image',
+            image: farbic_media.preview_image,
+            alt: alt,
+            crop: imgCrop,
+            focalPoint: focalPoint,
+            height: cardImageHeight,
+            type: 'product',
+            index: placeHolderIndex,
+            limit: limitImageSize,
+            wrapperClass: 'farbic-media absolute top-0 left-0 right-0 bottom-0'
+          -%}
+        {%- endif -%}
+      </a>
+      {%- render 'snippet-product-item', type: 'label', product: product, tagName: tagName -%}
+      <div class="card-buttons style-{{ settings.card_button_shape }} absolute right-0 t0 opacity-0">
+        {%- if hideATC != true -%}
+          <product-cart-form
+            class="product-form block"
+            data-url="{{product.url}}"
+          >
+            {%- form 'product', product, id: formId -%}
+              <input type="hidden" name="id" value="{{ productSelect.id }}">
+              <lazy-script
+                class="quick-view-wrapper btn-interact btn btn-1 btn-interact block w100 quick-view"
+                data-url="{{ product.url }}"
+                data-tag="component-quickview"
+                data-file="{{'quickview-component.js' | asset_url }}"
+              >
+                <button
+                  type="button"
+                  class="jsClick cursor-pointer btn-quick-view"
+                  aria-label="{{- 'products.product.quick_view' | t | escape -}}"
+                >
+                  {{- 'products.product.quick_view' | t -}}
+                </button>
+              </lazy-script>
+
+              <button type="submit" name="add" class="btn btn-1 btn-interact block w100 add-to-cart">
+                <span class="text none md:block">{{- 'products.product.add_to_cart' | t -}}</span>
+              </button>
+            {%- endform -%}
+          </product-cart-form>
+        {%- endif -%}
+      </div>
+    </header>
+
+    <div class="card-info relative">
+      {% comment %}
+        {%- case settings.product_card_subheading -%}
+          {%- when 'type' -%}
+            <p class="card-subheading">{{- product.type | default: '&nbsp;' -}}</p>
+          {%- when 'vendor' -%}
+            <p class="card-subheading">{{- product.vendor | default: '&nbsp;' -}}</p>
+        {%- endcase -%}
+      {% endcomment %}
+      <div class="card-bottom flex">
+        <div class="card-bottom-heading">
+          <h3 class="card-title{% unless card_title_length == 'disable' %} limit-line-{{card_title_length}}{% endunless %} w-4/5">
+            <a href="{{productLink}}">
+              {{ product.title }}
+              {%- if in_cart_drawer -%}
+                <span> - </span>
+                {%- render 'snippet-product-item',
+                  type: 'price',
+                  class: 'card-price inline-block',
+                  product: product,
+                  productSelect: productSelect
+                -%}
+              {%- endif -%}
+            </a>
+          </h3>
+          {%- unless in_cart_drawer -%}
+            <!-- Stamped - Begin Star Rating Badge -->
+            <span
+              class="stamped-product-reviews-badge"
+              data-id="{{ product.id }}"
+              data-product-sku="{{ product.handle }}"
+              data-product-type="{{product.type}}"
+              data-product-title="{{product.title}}"
+              style="display:block;"
+            >
+            </span>
+            <!-- Stamped - End Star Rating Badge -->
+          {%- endunless -%}
+        </div>
+
+        {%- unless in_cart_drawer -%}
+          <div class="card-description">
+            {{ product.description | strip_html }}
+          </div>
+
+          <div class="card-price w-1/5 flex">
+            {%- render 'snippet-product-item',
+              type: 'price',
+              class: 'card-price',
+              product: product,
+              productSelect: productSelect
+            -%}
+          </div>
+        {%- endunless -%}
+      </div>
+    </div>
+  </div>
+</product-card>

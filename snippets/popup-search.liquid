@@ -1,0 +1,20 @@
+<popup-component
+  id="headerSearchPopup"
+  class="popup-component group [color:var(--text)] top-0 right-0 h-full w-full fixed color-{{ settings.header_color_scheme.id }}"
+  data-body-class="show-search-popup"
+  style="--popupContentBg: #e6e6e6;"
+>
+  <div class="popup-content h-full drawer-transition -translate-y-full group-[.active]:translate-y-[0]">
+    <div class="popup-body pt-8 appear-animation appear-delay-{% increment appear_delay %}">
+      <div class="container">
+        <div class="relative flex justify-center max-w-[850px] mx-auto bg-white">
+          {%- render 'form', type: 'search', focus: true -%}
+
+          <button class="flex items-center absolute top-0 right-2 h-full jsClose px-3">
+            {%- render 'icons', icon: 'close' -%}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</popup-component>

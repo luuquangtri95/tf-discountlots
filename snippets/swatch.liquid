@@ -1,0 +1,134 @@
+{%- if option == blank -%}{%- break -%}{%- endif -%}
+
+{%- liquid
+    assign type = type | default: settings.card_swatch_style 
+    
+    assign swatchColorList = settings.card_swatch_color | split: ','
+    capture swatchColorList
+      for item in swatchColorList
+        echo item | strip | handle | prepend: ','
+      endfor
+    endcapture 
+    assign swatchColorList = swatchColorList | remove_first: ',' | split: ','
+
+    assign swatchImgList = settings.card_swatch_image | split: ','
+    capture swatchImgList
+      for item in swatchImgList
+        echo item | strip | handle | prepend: ','
+      endfor
+    endcapture
+    assign swatchImgList = swatchImgList | remove_first: ',' | split: ','
+-%}
+
+{%- liquid
+    assign sectionId    = '#shopify-section-' | append: section.id
+    assign optionIndex  = 'option' | append: option.position
+    assign optionId     = section.id | append: product.title | append: option.name | md5 | prepend: '.swt'
+    assign optionName   = option.name | handle
+
+    if swatchImgList contains optionName
+        assign type = 'image'
+    endif
+
+    if swatchColorList contains optionName
+        assign type = 'color'
+    endif
+-%}
+
+{%- if block.settings.size_chart_options != blank -%}
+    {%- assign optionSizeChartName = block.settings.size_chart_options | split: ',' -%}
+    {%- capture sizeChartOptions -%}{%- for option in optionSizeChartName -%}+++\\+++{{ option | strip | handle }}+++\\+++{%- endfor -%}{%- endcapture -%}
+    {%- capture currentOptionName -%}+++\\+++{{ optionName }}+++\\+++{%- endcapture -%}
+{%- endif -%}
+
+{%- case type -%}
+    {%- when 'variant' -%}
+        <span class="swt-current-value jsVariantUpdate" data-update-id="{{ 'Option' | append: forloop.index }}">
+            <span class="swt-circle swt-bg-{{option | handle}}" tooltip="{{ option | escape }}" aria-label="{{ 'accessibility.text.current_color' | t: name: option | escape }}"></span>
+        </span>
+
+
+    {%- when 'button' or 'image' or 'color' -%}
+        {%- capture swtClass -%}
+            {%- case type -%}
+                {%- when 'color' -%}{{- 'swt-shape-' | append: settings.swt_color_shape }}{{ ' swt-size-' | append: settings.swt_color_size -}}
+                {%- when 'image' -%}{{- 'swt-shape-' | append: settings.swt_img_shape }}{{ ' swt-size-' | append: settings.swt_img_size -}}
+                {%- else -%}{{- 'swt-shape-' | append: settings.swt_btn_shape }}{{ ' swt-size-' | append: settings.swt_btn_size -}}
+            {%- endcase -%}
+        {%- endcapture -%}
+
+        <div class="variant-options option-type-swatch {{ optionId | remove: '.' }}">
+            <div class="flex items-center justify-between">
+                <span class="swt-header-label">
+                    <span class="text">{{  'products.product.select_option_with_name' | t: name: option.name }}: </span>
+                    <span class="js-variant-update-label" data-option="{{optionIndex}}">{{product.selected_or_first_available_variant[optionIndex]}}</span>
+                </span>
+
+                {%- if sizeChartOptions contains currentOptionName -%}
+                    <button class="size-chart highlight underline link cursor-pointer jsTogglePopup" data-control="#sizeChart">{{- 'products.product.size_guide' | t -}}</button>
+                {%- endif -%}
+            </div>
+
+            <div class="swt-container flex flex-gap color-{{ settings.swt_colors }} flex-wrap">
+                {%- for value in option.values -%}
+                    {%- capture swtID -%}{{ optionId | remove: '.' | remove: '#' }}_swt{{option.position}}_{{value|handle}}{%- endcapture -%}
+                    {%- assign variantSelect = product.variants | where: optionIndex, value | first -%}
+
+                    {%- capture swatchLabel -%}{%- endcapture -%}
+
+                    <div class="swt-item swt-type-{{type}} {{swtClass}}">
+                        <input
+                            type="radio"
+                            id="{{ swtID }}"
+                            class="js-variant-change{% unless variantSelect.available %} disabled{% endunless %} input-hidden"
+                            name="option{{ option.position }}"
+                            form="{{formId}}"
+                            value="{{value | escape}}"
+                            {% if option.selected_value == value %}checked{% endif %}
+                        >
+
+                        <label for="{{ swtID }}" class="cursor-pointer swt-bg-{{value |  downcase}} border-radius" aria-label="{{ value | escape }}">
+                            {%- if type == 'button' -%}
+                                {{- value -}}
+                            {%- else -%}
+                                {%- liquid
+                                    assign imgSelected = product.variants | where: optionIndex, value | map: 'image' | first | default: product.featured_image
+                                -%}
+                                <span class="swt-tooltip absolute event-none border-radius">{{- value -}}</span>
+                                <span class="swt-{{type}} swt-bg-{{ value | handle }} border-radius"></span>
+                                {% render 'icons', icon: 'checkbox-checked', class: 'border-radius' %}
+
+                                {%- if imgSelected != blank and type == 'image' -%}
+                                    {%- capture section_css -%}{{section_css}}
+                                        {{sectionId}} {{optionId}} .swt-bg-{{ value | handle }}{--swt-bg: url({{ imgSelected | image_url: width: 150 }})}
+                                        popup-component .swt-bg-{{ value | handle }}{--swt-bg: url({{ imgSelected | image_url: width: 150 }})}
+                                    {%- endcapture -%}
+                                {%- endif -%}
+                            {%- endif -%}
+                        </label>
+                    </div>
+                {%- endfor -%}
+            </div>
+        </div>
+
+
+    {%- when 'select' -%}
+
+        <div class="variant-options option-type-select">
+            <div class="flex">
+
+                <label class="variant-options-header" for="{{ optionId | remove: '.' }}">{{ 'products.product.select_option_with_name' | t: name: option.name }}</label>
+
+                <div class="select-wrapper color-{{ settings.swt_colors }}">
+                    <select id="{{ optionId | remove: '.' }}" class="js-variant-change" name="option{{ option.position }}" form="{{formId}}">
+                        {%- for value in option.values -%}
+                            <option value="{{ value | escape }}"{%- if option.selected_value == value %} selected{% endif -%}>{{- value -}}</option>
+                        {%- endfor -%}
+                    </select>
+                    {%- render 'icons', icon: 'arrow' -%}
+                </div>
+            </div>
+        </div>
+{%- endcase -%}
+
+{%- render 'snippet-section', type: 'css', value: section_css, default: false -%}

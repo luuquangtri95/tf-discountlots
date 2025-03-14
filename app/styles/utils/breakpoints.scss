@@ -1,0 +1,55 @@
+$smScreen: 575px;
+$mdScreen: 750px;
+$lgScreen: 992px;
+$xlScreen: 1200px;
+$xxlScreen: 1500px;
+
+@mixin sm_up {
+  @media (min-width: #{$smScreen}) {
+    @content;
+  }
+}
+@mixin md_up {
+  @media (min-width: #{$mdScreen}) {
+    @content;
+  }
+}
+@mixin lg_up {
+  @media (min-width: #{$lgScreen}) {
+    @content;
+  }
+}
+@mixin xl_up {
+  @media (min-width: #{$xlScreen}) {
+    @content;
+  }
+}
+@mixin xxl_up {
+  @media (min-width: #{$xxlScreen}) {
+    @content;
+  }
+}
+
+@mixin only_sm {
+  @media (max-width: #{$smScreen - 1px}) {
+    @content;
+  }
+}
+
+@mixin only_md {
+  @media (max-width: #{$mdScreen - 1px}) {
+    @content;
+  }
+}
+
+@mixin only_lg {
+  @media (min-width: #{$mdScreen}) and (max-width: #{$lgScreen - 1px}) {
+    @content;
+  }
+}
+
+@mixin only_xl {
+  @media (min-width: #{$lgScreen}) and (max-width: #{$xlScreen - 1px}) {
+    @content;
+  }
+}

@@ -1,0 +1,462 @@
+{%- liquid
+  assign sectionId = '#shopify-section-' | append: section.id
+  assign formId = 'mainCollectionAjax' | append: section.id
+
+  assign pageType = request.page_type
+
+  assign productContainer = 'mainProduct' | append: section.id
+  assign paginateContainer = 'paginate' | append: section.id
+
+  assign layout = section.settings.section_layout | handle
+  assign enableSortAndFilter = section.settings.enable_sort_and_filter
+  assign items_resp = section.settings.items_resp
+  assign total = section.settings.total
+  assign viewMode = section.settings.view_mode
+  assign item_spacing = section.settings.items_spacing
+
+  assign availableFilter = collection.filters | where: 'param_name', 'filter.v.availability' | first
+
+  assign collectionInfoCards = collection.metafields.custom.info_cards
+
+  assign frist_product = collection.products | first
+  assign firstImageRatio = frist_product.featured_image.aspect_ratio | default: 1
+
+  assign collection_categories = collection.metafields.custom.categories
+-%}
+{%- capture custom_schema_color -%}
+  {%- unless section.settings.schema_color_name == blank -%}
+    schema-color-{{- section.settings.schema_color_name | handle -}}
+  {%- endunless -%}
+{%- endcapture -%}
+
+{% comment %} Classname {% endcomment %}
+{%- capture wrapper_class -%}
+  |section-container relative block
+  {%- unless custom_schema_color == blank -%}|{{custom_schema_color}}{%- endunless -%}
+  {% if section.settings.margin != blank %}
+  |m-[var(--margin)]
+  {% endif %}
+{%- endcapture -%}
+
+{%- capture gridClass -%}{%- render 'config-grid', value: items_resp  , spacing : item_spacing %} {%- endcapture -%}
+
+{%- capture section_css -%}
+  {%- render 'css-resp', class: sectionId , css: '--items-gap', value: item_spacing -%}
+{%- endcapture -%}
+
+{%- render 'snippet-section', type: 'css', value: section_css -%}
+
+{% comment %} {%- capture section_css -%}{{- section_css -}}{%- render 'config-grid', value: items_resp, spacing: '10px' style: true, id: slideID, class: 'el' -%}{%- endcapture -%} {% endcomment %}
+
+{% comment %} {%- capture btnStyle -%}{% render 'snippet-section', type: 'button_style', style: section.settings.section_btn_style, size:  %}{%- endcapture -%} {% endcomment %}
+
+{% comment %}
+  {%- capture CLASS -%}
+    |layout-{{layout}}
+    |block
+    |section-wrapper
+    |show-desk-{% if viewMode == 'list' %}1{% else %}4{% endif %}
+    {% if section.settings.enableSortAndFilter %}|has-sort-and-filter{% endif %}
+    {% if section.settings.show_filter_by_default %}|show-filter{% endif %}
+  {%- endcapture -%}
+{% endcomment %}
+
+{%- paginate collection.products by total -%}
+  {%- capture content -%}
+<lazy-script
+  id="{{ sectionId | remove: '#' }}el"
+  class="{%- render 'snippet-section', type: 'class', class: wrapper_class -%}"
+  data-section-id="{{ section.id }}"
+  data-tag="filter-component"
+  data-file="{{'filter-component.js' | asset_url}}"
+  data-sb-width="300px"
+>
+
+  <form action="{{collection.url}}" id="{{formId}}" class="none"></form>
+
+  <div class="section-container section-spacing ">
+
+  <sticky-component class="sticky-toolbar" data-sticky-point="#sticky-{{ section.id }}">
+    <div class="{{pageType}}-toolbar flex items-center{% if layout == 'boxed' %} container{% endif %}">
+      {% comment %} <h1 class="collection-title text-left flex100{% if section.settings.hide_title %} none{% endif %}">{{ collection.title }}</h1> {% endcomment %}
+
+      <div class="{{pageType}}-filter">
+        <div class="jsFilter flex jsTogglePopup" data-control="#filterPopup">
+          <div class="text">Filter</div>
+          <div class="icon-filter">
+              {%- render 'icons' , icon: 'filter' -%}
+              {%- render 'icons', icon: 'close' -%}
+          </div>
+        </div>
+      </div>
+
+      <div class="{{pageType}}-farbic-switch flex">
+          <div class="switch">
+            <input type="checkbox" class="js-switch-farbic">
+            <span class="slider round"></span>
+          </div>
+          <div class="text">
+            Farbics
+          </div>
+          {% render 'icons' , icon :'farbic' %}
+      </div>
+      {%- unless collection_categories == blank -%}
+        <div class="{{pageType}}-categories">
+
+          {%- liquid
+            assign items_resp = '1.7,3,8'
+            assign slideID = '#categoriesSlide' | append: section.id
+          -%}
+         {%- capture slider_gridClass -%}{%- render 'config-grid', value: items_resp %}{%- endcapture -%}
+            <lazy-script
+              id="{{ slideID | remove: '#' }}"
+              data-tag="slider-component"
+              data-file="{{ 'slider-component.js' | asset_url }}"
+              class="swiper block"
+            >
+            {%- render 'config-slide', id: slideID, items: items_resp, spacing: '10px' , disable:"1,0"-%}
+            <div
+              id="{{ slideID | remove: '#' }}el"
+              class="{{pageType}}-categories-list slider-list grid {{slider_gridClass}} js-slider swiper-wrapper"
+            >
+            {% for link in linklists[collection_categories].links -%}
+              <div class="category-item swiper-slide">
+                <a href="{{ link.url }}">{{ link.title }}</a>
+              </div>
+            {%- endfor %}
+           </div>
+        </lazy-script>
+        </div>
+      {%- endunless -%}
+
+      <div class="{{pageType}}-view flex">
+        <div class="view-item view-2-item" data-view="2">
+            {% render 'icons' , icon :'view-2' , class :'default' %}
+            {% render 'icons' , icon :'view-2-active' , class :'active' %}
+        </div>
+        <div class="view-item view-3-item active" data-view="3">
+            {% render 'icons' , icon :'view-3' , class :'default'%}
+            {% render 'icons' , icon :'view-3-active' , class :'active' %}
+        </div>
+        <div class="view-item view-4-item" data-view="4">
+            {% render 'icons' , icon :'view-4' , class :'default'%}
+            {% render 'icons' , icon :'view-4-active', class :'active' %}
+        </div>
+      </div>
+      {% comment %} <div class="collection-sort">
+        {%- render 'sort-section' , formID : formId -%}
+      </div> {% endcomment %}
+      {% comment %} {%- if enableSortAndFilter -%}
+        <div class="collection__toolbar-col collection__toolbar--filter-wrapper md:flex-w-1/6">
+          <button type="button" class="flex lg-none items-center cursor-pointer jsTogglePopup" data-control="#filterPopup">
+            {%- render 'icons', icon: 'filter' -%}
+            <span class="">{{- 'collection.general.sort_and_filter' | t -}}</span>
+          </button>
+          <button type="button" class="none lg-flex items-center cursor-pointer jsToggleClass jsToggleFilter" data-target="{{ sectionId }}el" data-class-name="show-filter">
+            {%- render 'icons', icon: 'filter' -%}
+            <span class="none lg-block btn-show">{{- 'collection.filter.button.show' | t -}}</span>
+            <span class="none lg-block btn-hide">{{- 'collection.filter.button.hide' | t -}}</span>
+          </button>
+        </div>
+      {%- endif -%} {% endcomment %}
+
+      {% comment %} <div class="collection__toolbar-col md:flex-w-1">
+        <div class="collection__toolbar-col-inner flex justify-between items-center">
+
+          {%- ######################### Sale filter -%}
+          {%- unless availableFilter == blank -%}
+            {%- assign filter = availableFilter.values | where: 'value', '1' | first -%}
+
+            {%- capture inputID -%}inputId{{ availableFilter.label|  append: filter.label | append: filter.value | md5 }}{%- endcapture -%}
+            <div class="collection__toolbar--available-filter relative">
+              <input
+                type="checkbox"
+                id="{{inputID}}"
+                class="input-hidden js-auto-submit{{class}}"
+                form="{{formId}}"
+                name="{{ filter.param_name }}"
+                value="{{ filter.value | escape }}"
+                {% if filter.active %}checked{% endif %}
+              >
+              <label for="{{inputID}}" class="cursor-pointer checkbox flex items-center child-event-none">
+                <span class="input-state-default">{% render 'icons', icon: 'checkbox' %}</span>
+                <span class="input-state-active">{%- render 'icons', icon: 'checkbox-checked' -%}</span>
+                <span class="text">{{ 'collection.general.hide_out_of_stock' | t }}</span>
+              </label>
+            </div>
+          {%- endunless -%}
+
+
+          {%- ######################### SORT -%}
+
+          {%- if enableSortAndFilter -%}
+            {%- capture label -%}collection.sorting.{{ collection.sort_by | default: collection.default_sort_by }}{%- endcapture -%}
+            <div class="collection__toolbar--sort relative inline-block">
+              <div class="dropdown-component relative collection-sort-wrapper">
+                <div class="dropdown-component-trigger">
+                  <div class="btn-filter flex items-center cursor-pointer">
+                    <span class="text">{{- 'collection.general.sort_by' | t -}}&nbsp;</span>
+                    <span class="sort-value js-filter-update">{{- label | t -}}</span>
+                    {%- render 'icons', icon: 'arrow' -%}
+                  </div>
+                </div>
+
+                <div class="dropdown-component-content absolute left-0 sort-popup">
+                  <div class="dropdown-component-inner">
+                    <ul class="sort-list" role="list">
+                      {%- assign currentSort = collection.sort_by | default: collection.default_sort_by -%}
+
+                      {%- for option in collection.sort_options -%}
+                        {%- assign sortValue = option.value -%}
+                        {%- capture label -%}collection.sorting.{{sortValue}}{%- endcapture -%}
+                        <li class="{{sortValue}}">
+                          <input type="radio" name="sort_by_clone" value="{{sortValue | escape}}" id="sort{{sortValue | md5}}" form="{{formId}}" class="input-hidden js-auto-submit"{% if currentSort == sortValue %} checked{% endif %}>
+                          <label for="sort{{sortValue | md5}}" class="cursor-pointer needsclick">{{- label | t -}}</label>
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {%- endif -%}
+        </div>
+      </div> {% endcomment %}
+    </div>
+  </sticky-component>
+    <div class="{{pageType}}__main{% if layout == 'boxed' %} container{% endif %}">
+      <div class="{{pageType}}__main-inner">
+          <hr id="sticky-{{ section.id }}" class="opacity-0">
+          <div class="{{pageType}}__main-filter main-filter">
+            <popup-component
+              id="filterPopup"
+              class="sidebar-filter popup-component popup-right"
+            >
+              <div class="popup-layer jsClose"></div>
+              <div class="popup-content-wrapper">
+              <button type="button" class="btn btn-popup-close absolute right-0 jsClose">
+                  {%- render 'icons', icon: 'close' -%}
+              </button>
+
+              <div class="popup-content container relative">
+                <div class="popup-body popup-scroller">
+                  {%- render 'sidebar-collection' -%}
+                </div>
+              </div>
+              </div>
+            </popup-component>
+          </div>
+        <div class="{{pageType}}__main-products main-products">
+          <div class="list-products  {{gridClass}} jsFilterUpdate" id="{{productContainer}}">
+            {%- if collection.products_count > 0 -%}
+              {% for product in collection.products %}
+                {%- render 'product-item'
+                , product : product
+                imageRatio: firstImageRatio,
+                btnStyle: btnStyle,
+                index : forloop.index
+              -%}
+              {% endfor %}
+            {%- else -%}
+              <p class="flex100-important">{{- 'collection.general.no_products' | t -}}</p>
+            {%- endif -%}
+          </div>
+
+          {%- render 'pagination', paginate: paginate , paginateContainer : paginateContainer , type: section.settings.pagination_style , productContainer: productContainer -%}
+
+        </div>
+      </div>
+    </div>
+  </div>
+</lazy-script>
+{%- endcapture -%}
+{%- endpaginate -%}
+{% comment %} collection-banner {% endcomment %}
+<template id="{{ pageType }}-banner">
+  {%- unless collectionInfoCards == blank -%}
+    {%- for item in collectionInfoCards.value -%}
+      {% liquid
+        assign card_name = item.card_name
+        assign card_position = item.card_position
+        assign card_width = item.card_width
+        assign card_header = item.card_header
+        assign card_subtext = item.card_subtext
+        assign card_button = item.card_button
+        assign card_file = item.card_file
+      %}
+      <div class="info-card col-span-{{ card_width }}" data-position="{{ card_position }}">
+        <div class="info-card-content">
+          {%- unless card_header == blank -%}
+            <div class="info-card-header">{{ card_header }}</div>
+          {%- endunless -%}
+          {%- unless card_subtext == blank -%}
+            <div class="info-card-subtext">{{ card_subtext }}</div>
+          {%- endunless -%}
+          {%- unless card_button == blank -%}
+            <a href="{{ card_button.value.url }}" class="button">{{ card_button.value.text }}</a>
+          {%- endunless -%}
+        </div>
+        <div class="info-card-background">
+          {% render 'image', image: card_file %}
+        </div>
+      </div>
+    {%- endfor -%}
+  {%- endunless -%}
+</template>
+
+{% comment %}
+  {%- capture section_css -%}{{- section_css -}}
+    {%- render 'css-resp', class: sectionId, css: '--filter-max-height', value: '270' -%}
+  {%- endcapture -%}
+{% endcomment %}
+
+<!-- jsFile: filter-page -->
+
+{%- render 'snippet-section', type: 'css-file', name: 'component-product-card' -%}
+{%- render 'snippet-section', type: 'css-file', name: 'component-pagination' -%}
+{%- render 'snippet-section', type: 'css-file', name: 'page-collection' -%}
+{%- render 'snippet-section', type: 'css-file', name: 'component-slider' -%}
+
+{%- render 'snippet-section', type: 'css', value: section_css -%}
+
+{{- content -}}
+
+{%- schema -%}
+{
+  "name": "t:sections.main_collection.name",
+  "class": "shopify-section-main-collection",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "range",
+      "id": "total",
+      "label": "t:sections.main_collection.settings.limit.info",
+      "min": 1,
+      "max": 50,
+      "step": 1,
+      "default": 24
+    },
+    {
+      "type": "text",
+      "id": "schema_color_name",
+      "label": "Schema color name",
+      "info": "Apply heading"
+    },
+    {
+      "type": "select",
+      "id": "pagination_style",
+      "label": "Pagination style",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "infinite",
+          "label": "Infinite"
+        }
+      ],
+      "default": "infinite"
+    },
+    {
+      "type": "checkbox",
+      "id": "filter_style_toggle",
+      "label": "Filer dropdown style",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "items_resp",
+      "label": "t:general.text.max_items.label",
+      "info": "t:sections.main_collection.settings.items_resp.info",
+      "default": "2,3,4,5,6"
+    },
+    {
+      "type": "text",
+      "id": "items_spacing",
+      "label": "t:general.text.items_spacing.label",
+      "info": "e.g: 0.5rem or 8px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_collection.settings.header_1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_collection.settings.header_2"
+    },
+    {
+      "type": "link_list",
+      "id": "categories",
+      "label": "t:sections.main_collection.settings.categories.label"
+    },
+    {
+      "type": "header",
+      "content": "t:general.styles.header"
+    },
+    {
+      "type": "select",
+      "id": "section_layout",
+      "label": "t:general.styles.section_layout.label",
+      "options": [
+        {
+          "value": "boxed",
+          "label": "t:general.styles.section_layout.options.option_1"
+        },
+        {
+          "value": "wide",
+          "label": "t:general.styles.section_layout.options.option_2"
+        }
+      ],
+      "default": "boxed"
+    },
+    {
+      "type": "text",
+      "id": "padding",
+      "label": "t:general.styles.padding.label",
+      "info": "t:general.styles.padding.info"
+    },
+    {
+      "type": "text",
+      "id": "margin",
+      "label": "t:general.styles.margin.label",
+      "info": "t:general.styles.margin.info"
+    }
+  ],
+  "blocks": [
+    {
+      "name": "Filter item",
+      "type": "filter_item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "item_title",
+          "label": "Filter title"
+        },
+        {
+          "type": "textarea",
+          "id": "item_value",
+          "label": "Filter value"
+        }
+      ]
+    },
+    {
+      "name": "Info Card",
+      "limit": 2,
+      "type": "info_card",
+      "settings": [
+        {
+          "type": "text",
+          "id": "item_title",
+          "label": "Header text"
+        },
+        {
+          "type": "textarea",
+          "id": "item_value",
+          "label": "Sub text"
+        }
+      ]
+    }
+  ]
+}
+{%- endschema -%}

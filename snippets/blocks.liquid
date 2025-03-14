@@ -1,0 +1,13 @@
+{%- case type -%}
+  {%- when 'style_text' -%}
+    <p style="color: {{ block.settings.color }};">Group style: {{ block.settings.color }}</p>
+
+  {%- when 'group_element_text' -%}
+    <p>Group Elements: Text</p>
+
+    {%- unless blocks == blank -%}
+      <ul>
+        <li class="pl-2">{{ blocks }}</li>
+      </ul>
+    {%- endunless -%}
+{%- endcase -%}

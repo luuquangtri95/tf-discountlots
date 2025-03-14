@@ -1,0 +1,181 @@
+{% liquid
+  assign section_id = '#shopify-section-' | append: section.id
+  assign video_source = section.settings.video_source
+  assign external_video_url = section.settings.external_video_url
+  assign hosted_video = section.settings.hosted_video
+  assign heading = section.settings.heading
+%}
+
+{% capture css_variables %}
+    --section-padding: {{ section.settings.padding }};    
+    --section-heading-color : {{ section.settings.heading_color }};
+    --section-background: {{ section.settings.background }};
+    --video-aspect-ratio: {{ section.settings.video_aspect_ratio | default: "56.25%" }};
+{% endcapture %}
+{% style %}
+  {% render 'css-resp'
+      , class: section_id
+      , type: 'multi'
+      , value: css_variables %}
+{% endstyle %}
+
+<div class="bg-[#f7f9fb]">
+  <div class="container grid grid-cols-1 bg-[var(--section-background)] p-[var(--section-padding)] lg:grid-cols-2 lg:gap-[40px] xl:grid-cols-2 xl:w-[1100px]">
+    <div>
+      {%- if video_source == 'external' and external_video_url != blank -%}
+        {%- capture video_id -%}video-player-{{ section.id | append: block.id | append: external_video_url.external_id }}{%- endcapture -%}
+        {%- assign external_video_id = external_video_url.id -%}
+
+        {%- capture video_embed_url -%}
+          {%- if external_video_url.type == 'youtube' -%}
+            https://www.youtube.com/embed/{{ external_video_id }}?playsinline=1&playlist={{ external_video_id }}&enablejsapi=1&rel=0&modestbranding=1
+          {%- else -%}
+            https://player.vimeo.com/video/{{ external_video_id }}
+          {%- endif -%}
+        {%- endcapture -%}
+        <lazy-script
+          class="video-wrapper relative block pt-[var(--video-aspect-ratio)]"
+          data-type="{{ external_video_url.type }}"
+          play-in-view
+          data-tag="video-component"
+          data-file="{{ 'video-component.js' | asset_url }}"
+        >
+          <iframe
+            src="{{ video_embed_url }}"
+            allow="autoplay; encrypted-media"
+            width="100%"
+            height="100%"
+            allowfullscreen
+            title="Video"
+            class="video-iframe absolute left-0 top-0 w-full h-full"
+            id="{{ video_id }}"
+            data-video-id="{{ external_video_id }}"
+          ></iframe>
+        </lazy-script>
+
+      {%- elsif video_source == 'hosted' and hosted_video != blank -%}
+        <div class="video-wrapper relative block pt-[var(--video-aspect-ratio)]">
+          {{
+            hosted_video
+            | video_tag:
+              autoplay: true,
+              loop: true,
+              muted: true,
+              controls: true,
+              class: 'absolute left-0 top-0 w-full h-full'
+          }}
+        </div>
+      {%- endif -%}
+    </div>
+    <div>
+      <h2 class="text-[28px] text-[#124f92] mb-[20px] mt-[14px] lg:mt-0">{{ heading }}</h2>
+
+      {%- for block in section.blocks -%}
+        <div class="mb-[20px]">
+          {{ block.settings.subtitle }}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+{%- schema -%}
+{
+  "name": "About Us Section",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Section Heading",
+      "default": "Discount Lots - Making Land Ownership Easy and Affordable"
+    },
+    {
+      "type": "color_background",
+      "id": "background",
+      "label": "Section Background",
+      "default": "linear-gradient(#ffffff, #000000)"
+    },
+    {
+      "type": "text",
+      "id": "padding",
+      "label": "Section Padding",
+      "default": "50px 20px",
+      "info": "Format: Top Right Bottom Left (e.g., 50px 20px)"
+    },
+    {
+      "type": "video_url",
+      "id": "external_video_url",
+      "label": "External Video URL",
+      "accept": ["youtube", "vimeo"],
+      "info": "Paste a YouTube or Vimeo video link."
+    },
+    {
+      "type": "video",
+      "id": "hosted_video",
+      "label": "Shopify Hosted Video",
+      "info": "Upload a video directly to Shopify."
+    },
+    {
+      "type": "select",
+      "id": "video_source",
+      "label": "Video Source",
+      "options": [
+        {
+          "value": "external",
+          "label": "External Video (YouTube/Vimeo)"
+        },
+        {
+          "value": "hosted",
+          "label": "Shopify Hosted Video"
+        }
+      ],
+      "default": "external",
+      "info": "Select 'External Video' to use a YouTube or Vimeo link, or 'Shopify Hosted Video' to upload a video directly to Shopify."
+    },
+    {
+      "type": "select",
+      "id": "video_aspect_ratio",
+      "label": "Video Aspect Ratio",
+      "options": [
+        {
+          "value": "100%",
+          "label": "1:1"
+        },
+        {
+          "value": "56.25%",
+          "label": "16:9"
+        },
+        {
+          "value": "177.78%",
+          "label": "9:16"
+        },
+        {
+          "value": "75%",
+          "label": "4:3"
+        }
+      ],
+      "default": "56.25%"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "subtitle",
+      "name": "Subtitle Block",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "subtitle",
+          "label": "Subtitle Text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "About Us Section",
+      "category": "Custom Sections"
+    }
+  ]
+}
+{%- endschema -%}

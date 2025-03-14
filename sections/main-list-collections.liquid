@@ -1,0 +1,124 @@
+{%- liquid
+  assign sectionId = '#shopify-section-' | append: section.id
+  assign layout = section.settings.section_layout | handle
+  assign collections = section.settings.collection_list | default: collections
+  assign imgCrop = settings.card_image_mode
+-%}
+
+{%- capture gridClass -%}{%- render 'config-grid', value: section.settings.items_resp %} flex-gap{%- endcapture -%}
+{%- capture section_css -%}{{- section_css -}}{%- render 'config-grid', value: section.settings.items_resp, style: true -%}{%- endcapture -%}
+
+{%- capture content -%}
+{%- paginate collections by section.settings.limit -%}
+
+<div class="layout-{{layout}}">
+  <div class="section-container{% if layout == 'boxed' %} container{% endif %}">
+    <div class="section-content">
+
+      <ul class="list-collections {{ gridClass }}" role="list">
+        {%- for collection in collections -%}
+
+          {%- assign cardImageHeight = cardImageHeight | remove: 'default' | strip | default: settings.card_image_ratio | remove: 'auto' | strip -%}
+          {%- if settings.card_ratio_custom != blank -%}
+            {%- assign cardImageHeight =  1.0 | divided_by: settings.card_ratio_custom.aspect_ratio | times: 100 | append: '%' -%}
+            {%- assign focalPoint = settings.card_ratio_custom.presentation.focal_point -%}
+          {%- endif -%}
+          {%- if cardImageHeight == blank -%}
+            {%- assign imageRatio = collection.image.aspect_ratio | default: 1 -%}
+            {%- assign cardImageHeight =  1.0 | divided_by: imageRatio | times: 100 | append: '%' -%}
+          {%- endif -%}
+
+          {%- liquid
+            assign image            = collection.image
+            assign collectionTitle  = collection.title
+          -%}
+
+          {%- capture index -%}{%- cycle 1,2,3,4,5,6 -%}{%- endcapture -%}
+
+          <li class="collection-item">
+            <a href="{{- collection.url -}}" class="block">
+              <div class="collection-image">
+                {%- render 'image', image: image, height: cardImageHeight, crop: imgCrop, focalPoint: focalPoint, type: 'collection', index: index -%}
+              </div>
+
+              <div class="collection-information">
+                <h4 class="collection-title">{{collectionTitle}}</h4>
+                <span class="link underline">{{- 'collection.general.shop_all' | t -}}</span>
+              </div>
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+
+      {%- render 'pagination', paginate: paginate, type: '' -%}
+
+    </div>
+  </div>
+</div>
+{%- endpaginate -%}
+{%- endcapture -%}
+
+{%- render 'snippet-section', type: 'css-file', name: 'component-pagination' -%}
+{%- render 'snippet-section', type: 'css-file', name: 'page-list-collections' -%}
+{%- render 'snippet-section', type: 'css', value: section_css -%}
+{{- content -}}
+
+{% schema %}
+{
+  "name": "t:sections.list_collections.name",
+  "tag": "section",
+  "class": "shopify-section-list-collections",
+  "settings": [
+    {
+      "type": "text",
+      "id": "items_resp",
+      "label": "t:general.text.max_items.label",
+      "default": "1.2,3"
+    },
+    {
+      "type": "collection_list",
+      "id": "collection_list",
+      "label": "t:sections.list_collections.settings.collection_list.label"
+    },
+    {
+      "type": "number",
+      "id": "limit",
+      "label": "t:sections.general.limit.label",
+      "default": 9
+    },
+    {
+      "type": "header",
+      "content": "t:general.styles.header"
+    },
+    {
+      "type": "select",
+      "id": "section_layout",
+      "label": "t:general.styles.section_layout.label",
+      "options": [
+        {
+          "value": "boxed",
+          "label": "t:general.styles.section_layout.options.option_1"
+        },
+        {
+          "value": "wide",
+          "label": "t:general.styles.section_layout.options.option_2"
+        }
+      ],
+      "default": "boxed"
+    },
+    {
+      "type": "text",
+      "id": "padding",
+      "label": "t:general.styles.padding.label",
+      "info": "t:general.styles.padding.info"
+    },
+    {
+      "type": "text",
+      "id": "margin",
+      "label": "t:general.styles.margin.label",
+      "info": "t:general.styles.margin.info"
+    }
+  ],
+  "blocks": []
+}
+{% endschema %}

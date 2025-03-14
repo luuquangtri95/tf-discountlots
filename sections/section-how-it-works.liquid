@@ -1,0 +1,232 @@
+{% liquid
+  assign section_id = '#shopify-section-' | append: section.id
+  assign rating = section.settings.rating_range
+  assign text_rating = section.settings.text_rating
+  assign layout = section.settings.section_layout | handle
+%}
+
+{% capture css_variables %}
+--section-padding: {{ section.settings.padding }};    
+--section-heading-color : {{ section.settings.section_heading_color }};
+{% endcapture %}
+{% comment %} Classname {% endcomment %}
+{%- capture class -%}
+  |section-container relative
+  {% if layout == 'boxed' %}|container{% endif %}
+  {%- if section.settings.show_background -%}|[background:var(--background)] {%- endif -%}
+{%- endcapture -%}
+{%- render 'snippet-section'
+  , type: 'css'
+-%}
+
+{% style %}
+  {% render 'css-resp'
+  , class: section_id
+  , type: 'multi'
+  , value: css_variables %}
+{% endstyle %}
+
+<div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
+  <div class="p-[var(--padding)]">
+    <div class="heading text-[30px] mb-[30px] text-center">
+      <p class="text-[var(--section-heading-color)]">{{ section.settings.section_heading }}</p>
+      <span class="sub-heading text-[var(--section-heading-color)]">{{ section.settings.section_subheading }}</span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-[60px]">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'step' -%}
+            <div class="flex flex-col justify-center items-center gap-[20px]">
+              <div class="image-wrapper relative w-full">
+                <div class="rounded-[50%] bg-[#489cd8] w-[100px] h-[100px] flex justify-center items-center m-auto">
+                  <div class="w-[50px] text-[#fff]">{{ block.settings.select_icon | inline_asset_content }}</div>
+                </div>
+                <div class="hidden lg:block absolute right-[-70px] top-[50%] translate-y-[-50%]">
+                  <div class="flex justify-center items-center my-[20px]">
+                    {%- if forloop.last == false -%}
+                      <div class=" w-[70px] text-[#489cd8]">
+                        {{ "arrow-right.svg" | inline_asset_content }}
+                      </div>
+                    {%- endif -%}
+                  </div>
+                </div>
+              </div>
+
+              <div class="content flex-1 text-center text-[#114273]">
+                <h3 class="text-[22px] mb-[20px] xl:text-[26px]" style="color:{{ block.settings.section_heading_color }}">{{ block.settings.title }}</h3>
+                <p class="text-[14px] mb-[20px] xl:text-[18px]">{{ block.settings.description }}</p>
+              </div>
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+
+    {% comment %} button get started {% endcomment %}
+    <div class="w-[250px] max-w-full mx-auto mt-[50px]">
+      <button class="w-full text-[#fff] bg-[#f76d2f] px-[24px] py-[14px] text-[16px] rounded-lg border border-[#000] mb-4">
+        GET STARTED</button>
+
+      <p class="text-[12px] leading-[1.6]">
+        {%- for i in (1..5) -%}
+          <span class="inline-block w-[14px] text-[#f7cf2f] align-text-top {% if i <= rating %}text-[#f7cf2f]{% else %}text-gray-300{% endif %}">
+            {{ "star-rating.svg" | inline_asset_content }}
+          </span>
+        {%- endfor -%}
+
+        {{ text_rating }}
+      </p>
+    </div>
+  </div>
+</div>
+
+
+{%- schema -%}
+  {
+    "name": "How It Works Section",
+    "tag": "section",
+    "settings": [
+      {
+        "type": "header",
+        "content": "General settings"
+      },
+      {
+        "type": "select",
+        "id": "section_layout",
+        "label": "t:general.styles.section_layout.label",
+        "options": [
+          {
+            "value": "boxed",
+            "label": "t:general.styles.section_layout.options.option_1"
+          }, {
+            "value": "wide",
+            "label": "t:general.styles.section_layout.options.option_2"
+          }
+        ],
+        "default": "boxed"
+      },
+      {
+        "type": "text",
+        "id": "padding",
+        "label": "Section Padding",
+        "default": "50px 20px",
+        "info": "Define the padding for the section. Format: Top Right Bottom Left (e.g., 50px 20px)."
+      },
+      {
+        "type": "text",
+        "id": "margin",
+        "label": "Margin",
+        "info": "t:blocks.block_style.settings.block_margin.info"
+      }, {
+        "type": "header",
+        "content": "Section settings"
+      }, {
+        "type": "inline_richtext",
+        "id": "section_heading",
+        "label": "Section Heading",
+        "default": "Buying Your Dream Land Is As Easy As 1, 2, 3",
+        "info": "Main heading text for the section. Keep it concise and engaging."
+      }, {
+        "type": "inline_richtext",
+        "id": "section_subheading",
+        "label": "Section Subheading",
+        "info": "Optional subheading text to provide additional context or details."
+      }, {
+        "type": "color",
+        "id": "section_heading_color",
+        "label": "Heading Text Color",
+        "default": "#114273",
+        "info": "Choose the color for the heading and subheading text."
+      }, {
+        "type": "range",
+        "id": "rating_range",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "label": "Star Rating",
+        "default": 5,
+        "info": "Set the star rating value (from 1 to 5 stars)."
+      }, {
+        "type": "inline_richtext",
+        "id": "text_rating",
+        "label": "Rating Text",
+        "default": "Rated <strong>5</strong> stars By <strong>3,000+</strong> Clients",
+        "info": "Customize the text displayed alongside the star rating. Use HTML tags like <strong> for emphasis."
+      }
+    ],
+    "blocks": [
+      {
+        "type": "step",
+        "name": "Step Block",
+        "limit": 3,
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "icon",
+            "label": "Step Icon (Image)",
+            "info": "Upload a custom icon/image for this step. Recommended size: 100x100px."
+          }, {
+            "type": "select",
+            "id": "select_icon",
+            "label": "Step Icon (SVG)",
+            "options": [
+              {
+                "value": "map-marker.svg",
+                "label": "Map Marker Icon"
+              }, {
+                "value": "list-ol.svg",
+                "label": "List Icon"
+              }, {
+                "value": "cart.svg",
+                "label": "Cart Icon"
+              }
+            ],
+            "default": "map-marker.svg",
+            "info": "Choose a pre-defined SVG icon for this step."
+          }, {
+            "type": "inline_richtext",
+            "id": "title",
+            "label": "Step Title",
+            "default": "Fill In Our Form To Find Your Property",
+            "info": "Title for this step. Keep it short and descriptive."
+          }, {
+            "type": "inline_richtext",
+            "id": "description",
+            "label": "Step Description",
+            "default": "Fill in our short form and based on the results you can browse our extensive listings or talk directly with a buying specialist!",
+            "info": "Description for this step. Provide clear and concise instructions."
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "How It Works Section",
+        "blocks": [
+          {
+            "type": "step",
+            "settings": {
+              "title": "Step 1: Fill In Our Form",
+              "description": "Fill in our short form and browse our listings!",
+              "select_icon": "map-marker.svg"
+            }
+          }, {
+            "type": "step",
+            "settings": {
+              "title": "Step 2: Speak With A Specialist",
+              "description": "Our team will assist you in finding the best option.",
+              "select_icon": "list-ol.svg"
+            }
+          }, {
+            "type": "step",
+            "settings": {
+              "title": "Step 3: Purchase Your Dream Land",
+              "description": "Complete the purchase with our trusted process.",
+              "select_icon": "cart.svg"
+            }
+          }
+        ]
+      }
+    ]
+  }
+{%- endschema -%}

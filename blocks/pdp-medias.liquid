@@ -1,0 +1,174 @@
+{%- liquid
+  assign enable_image_zoom = block.settings.enable_image_zoom
+  assign enable_video_looping = block.settings.enable_video_looping
+  assign mobile_media_item_width = block.settings.mobile_media_item_width
+  assign thumbnail_image_width = block.settings.thumbnail_image_width
+  assign thumbnail_spacing = block.settings.thumbnail_spacing
+  assign hide_thumbnails_on_mobile = block.settings.hide_thumbnails_on_mobile
+  assign video_style = block.settings.video_style
+  if video_style == 'video_with_sound'
+    assign muted = false
+  else
+    assign muted = true
+  endif
+  assign media_size = block.settings.media_size
+-%}
+
+{%- case media_size -%}
+  {%- when 'small' -%}
+    {%- assign tw_media_size = 'md:basis-5/12' -%}
+  {%- when 'medium' -%}
+    {%- assign tw_media_size = 'md:basis-6/12' -%}
+  {%- else -%}
+    {%- assign tw_media_size = 'md:basis-8/12 md:max-w-[calc(66.666667%-60px)]' -%}
+{%- endcase -%}
+
+{%- capture row_settings_blocks -%}{%- content_for 'blocks' -%}{%- endcapture -%}
+{%- capture content -%}
+<div class="pdp-medias basis-full max-w-full h-auto {{ tw_media_size }}" {{ block.shopify_attributes }}>
+  {%- if row_settings_blocks != blank and row_settings_blocks contains 'shopify-block' -%}
+    {%- render 'snippet-product-media',
+      product: product,
+      section: section,
+      row_settings_blocks: row_settings_blocks,
+      enable_video_looping: enable_video_looping,
+      enable_image_zoom: enable_image_zoom,
+      mobile_media_item_width: mobile_media_item_width,
+      thumbnail_image_width: thumbnail_image_width,
+      thumbnail_spacing: thumbnail_spacing,
+      hide_thumbnails_on_mobile: hide_thumbnails_on_mobile,
+      muted: muted,
+      media_size: media_size
+    -%}
+  {%- else -%}
+    {%- render 'snippet-product-media',
+      product: product,
+      section: section,
+      enable_video_looping: enable_video_looping,
+      enable_image_zoom: enable_image_zoom,
+      mobile_media_item_width: mobile_media_item_width,
+      thumbnail_image_width: thumbnail_image_width,
+      thumbnail_spacing: thumbnail_spacing,
+      hide_thumbnails_on_mobile: hide_thumbnails_on_mobile,
+      muted: muted,
+      media_size: media_size
+    -%}
+  {%- endif -%}
+</div>
+{%- endcapture -%}
+{%- if block.settings.image_border_radius != blank -%}{%- capture section_css -%}{{ section_css }}
+    {%- render 'css-resp', class: 'product-slider-component', next_class: 'picture-component', join: ' ', css: 'border-radius', value: block.settings.image_border_radius -%}
+  {%- endcapture -%}
+{%- endif -%}
+
+  {%- if enable_image_zoom -%}
+  {%- capture section_css -%}{{ section_css }}
+    @media (min-width: 750px) {
+      .media-type-image img { cursor: zoom-in; }
+    }
+  {%- endcapture -%}
+{%- render 'snippet-section'
+  , type: 'css-file'
+  , name: 'product-image-zoom'
+  , async: true -%}
+{%- endif -%}
+
+{%- render 'snippet-section'
+  , type: 'css'
+  , value: section_css -%}
+{{ content }}
+
+  {% schema %}
+{
+  "name": "Media",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Learn more about [media types.](https://help.shopify.com/manual/products/product-media)"
+    },
+    {
+      "type": "select",
+      "id": "media_size",
+      "options": [
+        {
+          "value": "small",
+          "label": "Small"
+        }, {
+          "value": "medium",
+          "label": "Medium"
+        }, {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "large",
+      "label": "Desktop media width"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_image_zoom",
+      "label": "Enable image zoom",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_video_looping",
+      "label": "Enable video looping",
+      "default": true
+    }, {
+      "type": "select",
+      "id": "video_style",
+      "label": "Video style",
+      "options": [
+        {
+          "label": "Video with sound",
+          "value": "video_with_sound"
+        }, {
+          "label": "Video without sound",
+          "value": "video_without_sound"
+        }
+      ],
+      "default": "video_without_sound"
+    }, {
+      "type": "text",
+      "id": "image_border_radius",
+      "label": "Image corner radius",
+      "default": "0px, 8px",
+      "info": "E.g: 0px, 8px"
+    }, {
+      "type": "header",
+      "content": "Mobile settings"
+    }, {
+      "type": "text",
+      "id": "mobile_media_item_width",
+      "default": "83%",
+      "label": "Main image width",
+      "info": "E.g: 83%"
+    }, {
+      "type": "text",
+      "id": "thumbnail_image_width",
+      "default": "65px",
+      "label": "Thumbnail image width",
+      "info": "E.g: 65px"
+    }, {
+      "type": "range",
+      "id": "thumbnail_spacing",
+      "min": 5,
+      "max": 25,
+      "step": 1,
+      "unit": "px",
+      "default": 15,
+      "label": "Spacing between thumbnail image"
+    }, {
+      "type": "checkbox",
+      "id": "hide_thumbnails_on_mobile",
+      "label": "Hide thumbnails on mobile"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "_pdp-gallery-row-settings"
+    }
+  ]
+}{% endschema %}

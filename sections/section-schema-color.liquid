@@ -1,0 +1,412 @@
+{%- capture page_url -%}{%- render 'page-url' -%}{%- endcapture -%}
+{%- liquid
+  assign dev_mode = request.design_mode
+  assign section_schema_class = section.settings.title | handle | prepend: 'schema-color-'
+
+  assign background = section.settings.background
+  assign transparent = section.settings.transparent | divided_by: 100.0
+  assign background_gradient = section.settings.background_gradient
+  assign miscellaneous = section.settings.miscellaneous
+  assign text_count = 0
+-%}
+{%- capture page_url -%}{%- render 'page-url' -%}{%- endcapture -%}
+{%- if page_url contains 'view=schema-colors' -%}
+  {%- assign dev_mode = true -%}
+{%- endif -%}
+
+{% comment %} {%- assign dev_mode = true -%} {% endcomment %}
+
+{%- capture background_value -%}
+  {%- if background_gradient != blank -%}
+    {{- background_gradient -}}
+  {%- elsif transparent < 100 -%}
+    {{- background | color_modify: 'alpha', transparent -}}
+  {%- else -%}
+    {{- background -}}
+  {%- endif -%}
+{%- endcapture -%}
+{%- capture styles -%}{{ styles }}
+  .{{ section_schema_class }}{
+    --background: {{ background_value }};
+    --miscellaneous: {{ miscellaneous | default: 'transparent' }};
+    --input-text-color: {{ section.settings.input_text_color }};
+    --input-background-color: {{ section.settings.input_background_color  }};
+  }
+{%- endcapture -%}
+{%- for block in section.blocks -%}
+  {%- liquid
+    case block.type
+      when 'text'
+        assign text_counter = text_counter | plus: 1
+        assign block_counter = text_counter
+      when 'link'
+        assign link_counter = link_counter | plus: 1
+        assign block_counter = link_counter
+      when 'button'
+        assign button_counter = button_counter | plus: 1
+        assign block_counter = button_counter
+    endcase
+
+    assign unique_block = 'block ' | append: block_counter
+    assign block_class = block.settings.title | default: unique_block | handle
+    assign block_short_class = block_class | prepend: 'schema-color-'
+    assign block_full_class = section_schema_class | append: '-' | append: block_class
+  -%}
+
+  {%- case block.type -%}
+    {%- when 'text' -%}
+      {% comment %} TEXT COLOR {% endcomment %}
+      {%- capture styles -%}{{styles}}
+        .{{ section_schema_class }} .{{block_short_class}},
+        .{{ block_full_class }}{
+          --text: {{ block.settings.color }};
+          }
+          {%- if text_counter == 1 -%}
+            .{{ section_schema_class }}{
+                --text: {{ block.settings.color }};
+                {% comment %} color: {{ block.settings.color }}; {% endcomment %}
+              }
+          {%- endif -%}
+      {%- endcapture -%}
+      {%- capture texts -%}{{texts}}
+        <button {{ block.shopify_attributes }} class="![color:var(--text)] {{block_short_class}} flex justify-between w-full text-left cursor-sell mt-2 {% if text_counter > 1 %}text-md{% else %}font-bold text-2xl{% endif %}" type="button" data-class="{{block.settings.title| escape}}" onclick="copyToClipboard(this)">
+          <span>{{block.settings.title}}</span>
+          <span class="uppercase">{{block.settings.color}}</span>
+          </button>
+      {%- endcapture -%}
+    {%- when 'icon' -%}
+      {% comment %} ICON COLOR {% endcomment %}
+      {%- capture styles -%}{{styles}}
+        .{{ section_schema_class }} .{{block_short_class}},
+        .{{ block_full_class }}{
+          --icon: {{ block.settings.color }};
+          }
+          {%- if has_icon != true -%}
+            .{{ section_schema_class }}{
+                --icon: {{ block.settings.color }};
+              }
+          {%- endif -%}
+          {%- assign has_icon = true -%}
+      {%- endcapture -%}
+      {%- capture icons -%}{{icons}}
+        <div class="relative flex gap-2 items-center justify-end mt-2">
+          <svg class="fill-[var(--icon)]" width="28" height="25" viewBox="0 0 28 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="fill-inherit" fill-rule="evenodd" clip-rule="evenodd" d="M5.35206 0C4.5703 0 3.93656 0.617907 3.93656 1.38013C3.93656 2.14236 4.5703 2.76027 5.35206 2.76027H10.4274L0.967374 11.984C-0.322459 13.2416 -0.322457 15.2806 0.967375 16.5382L8.6786 24.0568C9.96843 25.3144 12.0597 25.3144 13.3495 24.0568L25.6981 12.0167C26.2509 11.4777 26.2509 10.6039 25.6981 10.0649L16.6523 1.24511L16.6263 1.22001L15.7896 0.404232C15.5242 0.145407 15.1641 0 14.7887 0H5.35206ZM14.6406 3.1875L16.147 4.65626L16.1641 4.67269L22.6954 11.0408L19.5068 14.1497L15.985 10.7159C15.0637 9.81756 13.57 9.81757 12.6487 10.7159L10.2086 13.095C9.28727 13.9933 9.28727 15.4497 10.2086 16.348L13.7304 19.7818L11.3477 22.105C11.1634 22.2846 10.8647 22.2846 10.6804 22.105L2.96919 14.5864C2.78493 14.4067 2.78493 14.1155 2.96919 13.9358L13.9832 3.19692C14.1642 3.02045 14.4556 3.01731 14.6406 3.1875ZM15.7322 17.83L17.505 16.1015L14.3169 12.993L12.544 14.7215L15.7322 17.83Z" fill="#4A4A4A"/>
+            <path class="fill-inherit" d="M28 22.0822C28 23.6067 26.7325 24.8425 25.169 24.8425C23.6055 24.8425 22.338 23.6067 22.338 22.0822C22.338 21.1066 23.4975 18.1766 24.3324 16.1933C24.6446 15.4516 25.6934 15.4516 26.0056 16.1933C26.8405 18.1766 28 21.1066 28 22.0822Z" fill="#4A4A4A"/>
+          </svg>
+          <button {{ block.shopify_attributes }} class="flex justify-between text-lg ![color:var(--icon)] {{block_short_class}} cursor-sell before:content-normal before:absolute before:left-0 before:top-0 before:w-full before:h-full" type="button" data-class="{{block.settings.title| escape}}" onclick="copyToClipboard(this)">
+            <span class="">{{block.settings.title}}</span>
+            <span class="uppercase">{{block.settings.color}}</span>
+          </button>
+        </div>
+      {%- endcapture -%}
+    {%- when 'link' -%}
+      {% comment %} LINK COLOR {% endcomment %}
+      {%- capture styles -%}{{styles}}
+        .{{ section_schema_class }} .{{block_short_class}},
+        .{{ block_full_class }}{
+          --link: {{ block.settings.color }};
+          --hover-link: {{ block.settings.hover_color }};
+          }
+          {%- if link_counter == 1 -%}
+            .{{ section_schema_class }} a:not([class*="bg"]){
+              --link: {{ block.settings.color }};
+              --hover-link: {{ block.settings.hover_color }};
+              }
+          {%- endif -%}
+      {%- endcapture -%}
+      {%- capture links -%}{{links}}
+        <button class="italic ![color:var(--link)] hover:![color:var(--hover-link)] {{block_short_class}} mt-2 flex justify-between w-full text-md text-left cursor-sell" type="button" data-class="{{block.settings.title| escape}}" onclick="copyToClipboard(this)">
+          <span class="underline">{{block.settings.title}}</span>
+          <span class="uppercase">{{block.settings.color}}</span>
+        </button>
+      {%- endcapture -%}
+    {%- when 'button' -%}
+      {% comment %} BUTTON COLOR {% endcomment %}
+      {%- liquid
+        assign transparent = block.settings.transparent | divided_by: 100.0
+        assign hover_transparent = block.settings.hover_transparent | divided_by: 100.0
+      -%}
+      {%- capture background_value -%}
+        {%- if transparent < 100 -%}
+          {{- block.settings.background | color_modify: 'alpha', transparent -}}
+        {%- else -%}
+          {{- block.settings.background -}}
+        {%- endif -%}
+      {%- endcapture -%}
+      {%- capture hover_background_value -%}
+        {%- if transparent < 100 -%}
+          {{- block.settings.hover_background | color_modify: 'alpha', hover_transparent -}}
+        {%- else -%}
+          {{- block.settings.hover_background -}}
+        {%- endif -%}
+      {%- endcapture -%}
+      {%- capture styles -%}{{styles}}
+        .{{ section_schema_class }} .{{block_short_class}},
+        .{{ block_full_class }}{
+          --btn-background: {{ background_value }};
+          --btn-color: {{ block.settings.color }};
+          --btn-border-color: {{ block.settings.border }};
+          --hover-btn-background: {{ hover_background_value }};
+          --hover-btn-color: {{ block.settings.hover_color }};
+          --hover-btn-border-color: {{ block.settings.hover_border }};
+        }
+
+        {%- if button_counter == 1 -%}
+          .{{ section_schema_class }}{
+            --btn-background: {{ background_value }};
+            --btn-color: {{ block.settings.color }};
+            --btn-border-color: {{ block.settings.border }};
+            --hover-btn-background: {{ hover_background_value }};
+            --hover-btn-color: {{ block.settings.hover_color }};
+            --hover-btn-border-color: {{ block.settings.hover_border }};
+            }
+        {%- endif -%}
+      {%- endcapture -%}
+      {%- capture buttons -%}{{buttons}}
+      {%- capture button_styles -%} border-2 overflow-hidden rounded-full cursor-sell block w-full text-md min-h-[35px]{%- endcapture -%}
+        {%- capture button_class -%}![background:var(--btn-background)] ![color:var(--btn-color)] !border-[var(--btn-border-color)]{%- endcapture -%}
+        {%- capture button_hover_class -%} half absolute right-0 top-0 bottom-0 ![background:var(--hover-btn-background)] ![color:var(--hover-btn-color)] !border-[var(--hover-btn-border-color)]{%- endcapture -%}
+
+        <div class="relative button-group"{{ block.shopify_attributes }}>
+          <button data-class="{{block.settings.title| escape}}" onclick="copyToClipboard(this)" class="{{block_short_class}} {{ button_styles }} {{button_class}}" title="{{ block.settings.title | escape}}">{{ block.settings.title | truncate: 10, '' }}</button>
+          <button data-class="{{block.settings.title| escape}}" onclick="copyToClipboard(this)" class="{{block_short_class}} {{ button_styles }} {{button_hover_class}}" title="{{ block.settings.title | escape}}">{{ block.settings.title | truncate: 10, '' }}</button>
+        </div>
+      {%- endcapture -%}
+  {%- endcase -%}
+{%- endfor -%}
+
+{%- if dev_mode -%}
+  {% style %}
+    {{ styles }}
+  {% endstyle %}
+
+  <div class="schema-card {{ section_schema_class }} rounded-[16px] overflow-hidden flex-1" data-section-type="schema-colors">
+    <div class="p-4 h-full [background:var(--background)] relative">
+      <div class="flex flex-col">
+        <div class="group-text mb-4">
+          {%- if icons != blank -%}
+            <div class="grid items-2 gap-2">
+              <div>{{ texts | append: links }}</div>
+              <div>{{ icons }}</div>
+            </div>
+          {%- else -%}
+            {{ texts | append: links }}
+          {%- endif -%}
+        </div>
+        <div class="col-span-2 border-t border-[var(--miscellaneous)] border-t-4 border-dashed pt-4">
+          <div class="grid items-2 gap-2">
+            {{ buttons }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button
+    type="button"
+    class="block w-full text-center text-2xl mt-2 text-black font-bold cursor-sell"
+    data-class="{{section.settings.title| escape}}"
+    onclick="copyToClipboard(this)">
+    {{ section.settings.title }}
+  </button>
+{%- else -%}
+  <!-- split:schema_colors[ -->
+  {{- styles | strip_newlines | remove: '  ' -}}
+  <!-- split:schema_colors] -->
+{%- endif -%}
+
+{% schema %}
+  {
+    "name": "Schema color",
+    "class": "flex flex-col justify-between",
+    "enabled_on": {
+      "groups": ["custom.schema_colors"]
+    },
+    "presets": [
+      {
+        "name": "Schema color",
+        "blocks": [
+          {
+            "type": "text"
+          }, {
+            "type": "button"
+          }
+        ]
+      }
+    ],
+    "settings": [
+      {
+        "type": "text",
+        "id": "title",
+        "label": "* Name of schema color *",
+        "default": "Default",
+        "info": "Required"
+      },
+      {
+        "type": "color",
+        "id": "background",
+        "label": "Background color",
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "range",
+        "id": "transparent",
+        "label": "Transparency level",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "unit": "%",
+        "default": 100
+      },
+      {
+        "type": "color_background",
+        "id": "background_gradient",
+        "label": "Background gradient",
+        "info": "Background gradient replaces background where possible"
+      }, {
+        "type": "color",
+        "id": "miscellaneous",
+        "label": "Miscellaneous color",
+        "info": "Use for divided, border, .."
+      }, {
+        "type": "color",
+        "id": "input_text_color",
+        "label": "Input Text Color",
+        "default": "#000000"
+      }, {
+        "type": "color",
+        "id": "input_background_color",
+        "label": "Input Background Color",
+        "default": "#f2f2f2"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "text",
+        "name": "Text color",
+        "limit": 5,
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Unique name",
+            "default": "Text"
+          }, {
+            "type": "color",
+            "id": "color",
+            "label": "Color",
+            "default": "#000000"
+          }
+        ]
+      }, {
+        "type": "link",
+        "name": "Link color",
+        "limit": 3,
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Unique name",
+            "default": "Link"
+          }, {
+            "type": "color",
+            "id": "color",
+            "label": "Color",
+            "default": "#000000"
+          }, {
+            "type": "header",
+            "content": "Hover state"
+          }, {
+            "type": "color",
+            "id": "hover_color",
+            "label": "Color",
+            "default": "#000000"
+          }
+        ]
+      }, {
+        "type": "icon",
+        "name": "Icon color",
+        "limit": 2,
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Unique name",
+            "default": "Icon"
+          }, {
+            "type": "color",
+            "id": "color",
+            "label": "Color",
+            "default": "#000000"
+          }
+        ]
+      }, {
+        "type": "button",
+        "name": "Button colors",
+        "limit": 5,
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Unique name",
+            "default": "Button"
+          },
+          {
+            "type": "color",
+            "id": "background",
+            "label": "Background color",
+            "default": "#121212"
+          },
+          {
+            "type": "range",
+            "id": "transparent",
+            "label": "Transparency level",
+            "min": 0,
+            "max": 100,
+            "step": 5,
+            "unit": "%",
+            "default": 100
+          },
+          {
+            "type": "color",
+            "id": "color",
+            "label": "Color",
+            "default": "#FFFFFF"
+          }, {
+            "type": "color",
+            "id": "border",
+            "label": "Border color",
+            "default": "#FFFFFF"
+          }, {
+            "type": "header",
+            "content": "Hover state"
+          }, {
+            "type": "color",
+            "id": "hover_background",
+            "label": "Background color",
+            "default": "#121212"
+          }, {
+            "type": "range",
+            "id": "hover_transparent",
+            "label": "Transparency level",
+            "min": 0,
+            "max": 100,
+            "step": 5,
+            "unit": "%",
+            "default": 100
+          }, {
+            "type": "color",
+            "id": "hover_color",
+            "label": "Color",
+            "default": "#FFFFFF"
+          }, {
+            "type": "color",
+            "id": "hover_border",
+            "label": "Border color",
+            "default": "#FFFFFF"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

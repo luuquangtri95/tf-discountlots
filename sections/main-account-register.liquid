@@ -1,0 +1,230 @@
+{%- liquid
+  render 'snippet-section', type: 'css-file', name: 'customer'
+  assign sectionId = '#shopify-section-' | append: section.id
+  assign layout = settings.account_section_layout | handle
+-%}
+{%- style -%}
+  {{ sectionId }} {
+    --padding: {{ settings.account_section_padding }};
+    --margin: {{ settings.account_section_margin }};
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign pageTitle = 'customer.register.title' | t
+  assign firstName = 'customer.register.first_name' | t
+  assign lastName = 'customer.register.last_name' | t
+  assign emailAddress = 'customer.register.email' | t
+  assign password = 'customer.register.password' | t
+  assign confirmPassword = 'customer.register.confirm_password' | t
+  assign submitButton = 'customer.register.submit' | t
+
+  assign errorTitle = 'form.general.error_title' | t
+
+  assign loginTitle = 'customer.register.login_title' | t
+  assign loginSubtitle = 'customer.register.login_subtitle' | t
+  assign loginButton = 'customer.register.login_buttom' | t
+-%}
+
+<div class="page-title text-center">
+  <h1>{{ 'customer.register.page_title' | t }}</h1>
+</div>
+
+<div class="layout-{{layout}}">
+  <div class="main-page section-container{% if layout == 'boxed' %} container{% endif %}">
+    <div class="block-item">
+      <div class="block-inner">
+        {%- comment -%}
+          -------------------------------
+          Register form
+          -------------------------------
+        {%- endcomment -%}
+        <div class="form-wrapper register-form">
+          <div class="redirect-block text-center">
+            <p class="login-text">{{ 'customer.register.already_have_an_account' | t }}</p>
+            <p>
+              <a href="{{routes.account_login_url}}" class="highlight link underline">
+                {{- 'customer.register.sign_in' | t -}}
+              </a>
+            </p>
+          </div>
+
+          {%- form 'create_customer', id: 'registerForm' -%}
+            {%- if form.errors != blank -%}
+              <ul class="form-error--list">
+                {% for field in form.errors %}
+                  <li>
+                    {% if field == 'form' %}
+                      {{ form.errors.messages[field] }}
+                    {% else %}
+                      {{ form.errors.translated_fields[field] }} - {{ form.errors.messages[field] }}
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+              <br>
+            {%- endif -%}
+
+            {%- comment -%} First name {%- endcomment -%}
+            <div class="form-field">
+              <label class="label-field" for="RegisterForm-FirstName">{{ firstName }}</label>
+              <input
+                type="text"
+                name="customer[first_name]"
+                id="RegisterForm-FirstName"
+                class="input-field"
+                placeholder="{{- 'customer.register.first_name_placeholder' | t -}}"
+                {% if form.first_name %}
+                  value="{{ form.first_name }}"
+                {% endif %}
+                aria-required="true"
+                required
+                autocomplete="given-name"
+              >
+            </div>
+
+            {%- comment -%} Last name {%- endcomment -%}
+            <div class="form-field">
+              <label class="label-field" for="RegisterForm-LastName">{{ lastName }}</label>
+              <input
+                type="text"
+                name="customer[last_name]"
+                id="RegisterForm-LastName"
+                class="input-field"
+                placeholder="{{- 'customer.register.last_name_placeholder' | t -}}"
+                {% if form.last_name %}
+                  value="{{ form.last_name }}"
+                {% endif %}
+                aria-required="true"
+                required
+                autocomplete="family-name"
+              >
+            </div>
+
+            {%- comment -%} Email {%- endcomment -%}
+            <div class="form-field">
+              <label class="label-field" for="RegisterForm-email">{{ emailAddress }}</label>
+              <input
+                type="email"
+                name="customer[email]"
+                id="RegisterForm-email"
+                class="input-field"
+                {% if form.email %}
+                  value="{{ form.email }}"
+                {% endif %}
+                spellcheck="false"
+                autocapitalize="off"
+                autocomplete="email"
+                aria-required="true"
+                required
+                placeholder="{{- 'customer.register.email_placeholder' | t -}}"
+                {% if form.errors contains 'email' %}
+                  aria-invalid="true"
+                  aria-describedby="RegisterForm-email-error"
+                {% endif %}
+              >
+            </div>
+
+            {%- comment -%} Password {%- endcomment -%}
+            <div class="form-field">
+              <label class="label-field" for="RegisterForm-password">{{ password }}</label>
+              <div class="password-wrapper hide-password">
+                <input
+                  type="password"
+                  name="customer[password]"
+                  id="RegisterForm-password"
+                  class="input-field"
+                  aria-required="true"
+                  required
+                  placeholder="{{- 'customer.register.password_placeholder' | t -}}"
+                  {% if form.errors contains 'password' %}
+                    aria-invalid="true"
+                    aria-describedby="RegisterForm-password-error"
+                  {% endif %}
+                >
+
+                <button class="btn-password-toggle cursor-pointer js-password-toggle" type="button">
+                  {%- render 'icons', icon: 'hide_password' -%}
+                  {%- render 'icons', icon: 'show_password' -%}
+                </button>
+              </div>
+
+              <ul class="form-error--list js-pw-check hide">
+                <li class="password-streng js-pw-length hide">
+                  {{- 'customer.register.errors.password_streng' | t -}}
+                </li>
+                <li class="password-character js-pw-regex hide">
+                  {{- 'customer.register.errors.password_character' | t -}}
+                </li>
+                <li class="password-match js-pw-match hide">{{- 'customer.register.errors.password_match' | t -}}</li>
+              </ul>
+            </div>
+
+            {%- comment -%} Re-Password {%- endcomment -%}
+            <div class="form-field">
+              <label class="label-field block text-left" for="password_confirmation">{{ confirmPassword }}</label>
+              <div class="password-wrapper hide-password">
+                <input
+                  type="password"
+                  name="customer[password_confirmation]"
+                  id="password_confirmation"
+                  class="input-field"
+                  aria-required="true"
+                  required
+                  placeholder="{{- 'customer.register.confirm_password_placeholder' | t -}}"
+                  {% if form.errors contains 'password_confirmation' %}
+                    aria-invalid="true"
+                    aria-describedby="password_confirmation-error"
+                  {% endif %}
+                >
+
+                <button class="btn-password-toggle cursor-pointer js-password-toggle" type="button">
+                  {%- render 'icons', icon: 'hide_password' -%}
+                  {%- render 'icons', icon: 'show_password' -%}
+                </button>
+              </div>
+            </div>
+
+            <div class="form-msg form-agree-checkbox">
+              <input
+                type="checkbox"
+                id="signUpAgree"
+                class="input-hidden"
+                required
+                name="agreeTermAndCondition"
+              >
+              <label for="signUpAgree" class="checkbox cursor-pointer">
+                <span class="input-state-default">
+                  {%- render 'icons', icon: 'checkbox', class: 'border-radius' -%}
+                </span>
+                <span class="input-state-active">
+                  {%- render 'icons', icon: 'checkbox-checked', class: 'border-radius' -%}
+                </span>
+                <span class="text">
+                  {{-
+                    'customer.register.agree_with_us_html'
+                    | t: policy_link: settings.policy_link, terms_link: settings.terms_link
+                  -}}
+                </span>
+              </label>
+            </div>
+
+            <div class="form-field form-button-group">
+              <button type="submit" class="btn btn-{{ settings.submit_btn_color }}">{{ submitButton }}</button>
+            </div>
+          {%- endform -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.main_account.name",
+  "class": "shopify-section-account shopify-section-account-register",
+  "tag": "section",
+  "settings": [],
+  "blocks": []
+}
+{% endschema %}

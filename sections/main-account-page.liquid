@@ -1,0 +1,129 @@
+{%- liquid
+  render 'snippet-section', type: 'css-file', name: 'component-pagination'
+  render 'snippet-section', type: 'css-file', name: 'customer'
+
+  assign sectionId = '#shopify-section-' | append: section.id
+  assign layout = settings.account_section_layout | handle
+-%}
+{%- style -%}
+  {{sectionId}}{
+    --padding: {{settings.account_section_padding}};
+    --margin: {{settings.account_section_margin}};
+  }
+{%- endstyle -%}
+
+<div class="layout-{{layout}}">
+  <div class="main-page section-container{% if layout == 'boxed' %} container{% endif %}">
+    <h1 class="page-heading fw600 text-center">{{ 'customer.account.title' | t }}</h1>
+
+    <div class="flex flex-1 md:flex-2 flex-gap">
+      <aside class="account-detail">
+        <div class="account-detail-inner">
+          <h6 class="customer-name">{{ customer.name }}</h6>
+          <div class="customer-email">{{ customer.email }}</div>
+          <div class="button-group">
+            <a
+              href="{{ routes.account_addresses_url }}"
+              class="btn btn-{{ settings.submit_btn_color }} w100 text-center"
+            >
+              {{- 'customer.account.view_addresses' | t }} ({{ customer.addresses_count }})</a
+            >
+            <a href="{{routes.account_logout_url}}" class="btn btn-{{ settings.cancel_btn_color }} w100 text-center">
+              {{- 'customer.general.log_out' | t -}}
+            </a>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-account">
+        <div class="order-list">
+          <h3 class="order-heading">{{ 'customer.account.orders.title' | t }}</h3>
+          {%- paginate customer.orders by 20 -%}
+            {%- if customer.orders.size > 0 -%}
+              <table role="table" class="order-history table-field">
+                <thead role="rowgroup">
+                  <tr role="row" class="table-field-row table-field-header">
+                    <th scope="col" role="columnheader" id="ColumnOrder">
+                      {{ 'customer.account.orders.order_number' | t }}
+                    </th>
+                    <th scope="col" role="columnheader" id="ColumnFulfillment">
+                      {{ 'customer.account.orders.fulfillment_status' | t }}
+                    </th>
+                    <th scope="col" role="columnheader" id="ColumnDate">{{ 'customer.account.orders.date' | t }}</th>
+                    <th scope="col" role="columnheader" id="ColumnPayment">
+                      {{ 'customer.account.orders.payment_status' | t }}
+                    </th>
+                    {%- comment -%}
+                      <th scope="col" role="columnheader" id="ColumnTotal">{{ 'customer.account.orders.total' | t }}</th>
+                    {%- endcomment -%}
+                  </tr>
+                </thead>
+
+                <tbody role="rowgroup">
+                  {%- for order in customer.orders -%}
+                    <tr role="row" class="table-field-row table-field-body row-{% cycle 'odd', 'even' %}">
+                      <td
+                        id="RowOrder"
+                        role="cell"
+                        headers="ColumnOrder"
+                        data-label="{{ 'customer.account.orders.order_number' | t }}"
+                      >
+                        <a
+                          href="{{ order.customer_url }}"
+                          aria-label="{{ 'customer.account.orders.order_number_link' | t: number: order.name }}"
+                          class="highlight"
+                        >
+                          {{- order.name -}}
+                        </a>
+                      </td>
+                      <td
+                        headers="RowOrder ColumnFulfillment"
+                        role="cell"
+                        data-label="{{ 'customer.account.orders.fulfillment_status' | t }}"
+                      >
+                        {{ order.fulfillment_status_label }}
+                      </td>
+                      <td
+                        headers="RowOrder ColumnDate"
+                        role="cell"
+                        data-label="{{ 'customer.account.orders.date' | t }}"
+                      >
+                        {{ order.created_at | time_tag: '%m/%d/%Y' }}
+                      </td>
+                      <td
+                        headers="RowOrder ColumnPayment"
+                        role="cell"
+                        data-label="{{ 'customer.account.orders.payment_status' | t }}"
+                      >
+                        {{ order.financial_status_label }}
+                      </td>
+                      {%- comment -%}
+                        <td headers="RowOrder ColumnTotal" role="cell" data-label="{{ 'customer.account.orders.total' | t }}">{%- render 'money', value: order.total_price -%}</td>
+                      {%- endcomment -%}
+                    </tr>
+                  {%- endfor -%}
+                </tbody>
+              </table>
+            {%- else -%}
+              <p>{{ 'customer.account.orders.none' | t }}</p>
+            {%- endif -%}
+
+            {%- if paginate.pages > 1 -%}
+              {%- render 'pagination', paginate: paginate -%}
+            {%- endif -%}
+          {%- endpaginate -%}
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.main_account.name",
+  "class": "shopify-section-account shopify-section-account",
+  "tag": "section",
+  "settings": [],
+  "blocks": []
+}
+{% endschema %}

@@ -1,0 +1,330 @@
+{%- liquid
+  assign sectionId = '#shopify-section-' | append: section.id
+  assign layout = section.settings.section_layout | handle
+  assign spacing_id = sectionId | append: ' .menu-list'
+
+  assign show_selectors = false
+  assign currency_selector = false
+  assign locale_selector = false
+
+  if section.settings.show_currency_selector and shop.enabled_currencies.size > 1
+    assign currency_selector = true
+  endif
+
+  if section.settings.show_locale_selector and shop.enabled_locales.size > 1
+    assign locale_selector = true
+  endif
+
+  if currency_selector or locale_selector
+    assign show_selectors = true
+  endif
+
+  assign menuBlocks = section.blocks | where: 'type', 'menu'
+-%}
+
+{%- capture custom_schema_color -%}
+  {%- unless section.settings.schema_color_name == blank -%}
+    schema-color-{{- section.settings.schema_color_name | handle -}}
+  {%- endunless -%}
+{%- endcapture -%}
+
+{% comment %} Stylesheet {% endcomment %}
+{%- capture stylesheet -%}
+  {%- liquid
+    assign inline_block_layout = section.settings.inline_block_layout
+    assign items_per_row = section.settings.items_per_row | default: section.blocks.size
+  -%}
+
+  {%- if inline_block_layout == 'customize' and section.settings.items_per_row != blank -%}
+    {%- render 'css-resp', class: spacing_id , css: 'grid-template-columns', value: items_per_row -%}
+    {%- assign items_per_row = nil -%}
+  {%- endif -%}
+
+  {%- capture items_class -%}{%- render 'config-grid', value: items_per_row, spacing: section.settings.items_spacing %}{%- endcapture -%}
+  {%- render 'config-grid', style: true, value: items_per_row, spacing: section.settings.items_spacing, id: spacing_id -%}
+
+   {%- capture css_values -%}
+    --logo-width: {{section.settings.logo_width |   default: "200px"}};
+    color: var(--text);
+    --currency-flag-image: url( {{"country-flags.png" | asset_url }} );
+   {%- endcapture -%}
+   {%- render 'css-resp', class: sectionId, type: 'multi', value: css_values-%}
+
+ {%- endcapture -%}
+{%- render 'snippet-section', type: 'css', value: stylesheet -%}
+
+{% comment %} Classname {% endcomment %}
+{%- capture class -%}
+   |section-container relative {{custom_schema_color}}
+   {% if layout == 'boxed' %}|container{% endif %}
+   {%- if section.settings.show_background -%}|[background:var(--background)] {%- endif -%}
+ {%- endcapture -%}
+
+{%- capture logo_class -%}
+|max-w-[var(--logo-width)]
+|w-[var(--logo-width)]
+{%- endcapture -%}
+
+<div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
+  <div class="m-[var(--margin)] p-[var(--padding)]">
+    {%- unless section.settings.logo == blank -%}
+      <div class="w-full flex items-center justify-center md:justify-start my-[15px] md:my-[0]">
+        <div class="{{ logo_class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
+          {%- render 'logo', object: section.settings -%}
+        </div>
+      </div>
+    {%- endunless -%}
+
+    {%- unless menuBlocks.size == 0 -%}
+      <div class="menu-list menu-list-mobile md:hidden {{items_class}}">
+        {%- for block in menuBlocks -%}
+          {%- if block.settings.menu.links == blank -%}
+            {%- continue -%}
+          {%- endif -%}
+          <div {{ block.shopify_attributes }} class="border-t-[1px] border-solid border-[var(--miscellaneous)]">
+            <lazy-script
+              data-tag="accordion-component"
+              data-file="{{ 'accordion-component.js' | asset_url }}"
+              data-close-screen="(max-width: 749px)"
+            >
+              <details>
+                <summary class="cursor-pointer">
+                  <div class="w-full flex items-center justify-between py-[15px] pr-[10px]">
+                    <h2 class="title flex-1 text-center">{{ block.settings.menu.title }}</h2>
+                    {%- render 'icons', icon: 'arrow', class: 'w-[10px] h-[10px] icon-arrow' -%}
+                  </div>
+                </summary>
+                <div>
+                  <ul role="list">
+                    {%- render 'link' for block.settings.menu.links as link, class: 'text-center' -%}
+                  </ul>
+                </div>
+              </details>
+            </lazy-script>
+          </div>
+        {%- endfor -%}
+      </div>
+
+      <div class="menu-list hidden md:grid {{items_class}} mt-[50px]">
+        {%- for block in menuBlocks -%}
+          {%- if block.settings.menu.links == blank -%}
+            {%- continue -%}
+          {%- endif -%}
+          <div class="menu-block" {{ block.shopify_attributes }}>
+            <p class="title">{{ block.settings.menu.title }}</p>
+            <ul role="list">
+              {%- render 'link' for block.settings.menu.links as link -%}
+            </ul>
+          </div>
+        {%- endfor -%}
+      </div>
+    {%- endunless -%}
+
+    {%- if show_selectors -%}
+      <div
+        class="block mt-[13px] md:mt-[32px]"
+        data-test="{{locale_selector}} - -{{currency_selector}} -- {{section.settings.show_currency_flags}} "
+      >
+        {%- render 'multi-selectors',
+          locale_selector: locale_selector,
+          currency_selector: currency_selector,
+          show_currency_flags: section.settings.show_currency_flags,
+          location: 'footer'
+        -%}
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.show_payment_icons -%}
+      {%- unless shop.enabled_payment_types == empty -%}
+        <ul class="payment-icons flex flex-wrap text-center mt-[16px] md:mt-[41px] justify-center items-center gap-[4px]">
+          {%- for type in shop.enabled_payment_types -%}
+            <li class="icon--payment inline-block cursor-default">
+              {{ type | payment_type_svg_tag }}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endunless -%}
+    {%- endif -%}
+
+    <div class="copyright flex justify-center items-center gap-[4px] pt-[37px] md:pt-[20px] pb-[7.5px]">
+      {%- if section.settings.show_copyright -%}
+        <p class="text-center">
+          &copy; {{ 'now' | date: '%Y' }}
+          {{ shop.name }}
+          {%- if section.settings.copyright_text != blank -%}
+            {{ section.settings.copyright_text }}
+          {%- endif -%}
+        </p>
+      {%- endif -%}
+      <p class="text-center">{{ powered_by_link }}</p>
+    </div>
+  </div>
+</div>
+
+{%- render 'snippet-section', type: 'css-file', name: 'currency' -%}
+{%- render 'snippet-section', type: 'css-file', name: 'footer' -%}
+
+{% schema %}
+{
+  "name": "Footer",
+  "tag": "section",
+  "class": "ss-footer",
+  "presets": [
+    {
+      "name": "Footer"
+    }
+  ],
+  "limit": 1,
+  "enabled_on": {
+    "groups": ["footer"]
+  },
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "t:sections.footer.blocks.logo.settings.logo.label"
+    },
+    {
+      "type": "text",
+      "id": "logo_width",
+      "label": "Logo width"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header_language_selector",
+      "info": "t:sections.footer.settings.header_language_selector"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_locale_selector",
+      "label": "t:sections.footer.settings.show_locale_selector.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header_currency_selector",
+      "info": "t:sections.footer.settings.header_currency_selector"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_currency_selector",
+      "label": "t:sections.footer.settings.show_currency_selector.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_currency_flags",
+      "label": "t:sections.footer.settings.show_currency_flags.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header_additional_footer_content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_payment_icons",
+      "label": "t:sections.footer.settings.show_payment_icons.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_copyright",
+      "label": "t:sections.footer.settings.show_copyright.label"
+    },
+    {
+      "type": "text",
+      "id": "copyright_text",
+      "label": "t:sections.footer.settings.copyright_text.label"
+    },
+    {
+      "type": "header",
+      "content": "General settings"
+    },
+    {
+      "type": "text",
+      "id": "schema_color_name",
+      "label": "Schema color name"
+    },
+    {
+      "type": "select",
+      "id": "section_layout",
+      "label": "t:general.styles.section_layout.label",
+      "options": [
+        {
+          "value": "boxed",
+          "label": "t:general.styles.section_layout.options.option_1"
+        },
+        {
+          "value": "wide",
+          "label": "t:general.styles.section_layout.options.option_2"
+        }
+      ],
+      "default": "boxed"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_background",
+      "label": "Show background"
+    },
+    {
+      "type": "text",
+      "id": "padding",
+      "label": "Padding",
+      "default": "0,0 16px",
+      "info": "t:blocks.block_style.settings.block_padding.info"
+    },
+    {
+      "type": "text",
+      "id": "margin",
+      "label": "Margin",
+      "info": "t:blocks.block_style.settings.block_margin.info"
+    },
+    {
+      "type": "header",
+      "content": "Settings list menu"
+    },
+    {
+      "type": "select",
+      "id": "inline_block_layout",
+      "label": "Blocks width layout",
+      "options": [
+        {
+          "value": "equal",
+          "label": "Equal"
+        },
+        {
+          "value": "customize",
+          "label": "Customize"
+        }
+      ],
+      "default": "equal"
+    },
+    {
+      "type": "text",
+      "id": "items_per_row",
+      "label": "Input blocks layout",
+      "info": "e.g: 2,3,5 or 30% 70%",
+      "default": "2,3"
+    },
+    {
+      "type": "text",
+      "id": "items_spacing",
+      "label": "Block spacing"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "menu",
+      "name": "Menu",
+      "settings": [
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Link"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

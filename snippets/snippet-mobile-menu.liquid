@@ -1,0 +1,245 @@
+{%- case type -%}
+  {%- when 'mobile_layer' -%}
+    {%- if link.links.size == 0 -%}{%- break -%}{%- endif -%}
+
+    <div class="py-2">
+      <ul role="navigation" class="appear-animation appear-delay-6">
+        {%- for link in link.links -%}
+          {%- capture subLayer -%}{%- render 'snippet-mobile-menu', type: 'mobile_layer', link: link -%}{%- endcapture -%}
+          {%- capture mobileLayer -%}{{mobileLayer}}{{subLayer}}{%- endcapture -%}
+
+          <li>
+            {%- if subLayer != blank -%}
+              <lazy-script
+                data-tag="accordion-component"
+                data-file="{{ 'accordion-component.js' | asset_url }}"
+                class="block"
+              >
+                <details class="">
+                  <summary class="flex gap-2 items-center cursor-pointer">
+                    {{ blockBanner }}
+                    <div class="flex justify-between items-center w-full appear-animation appear-delay-{% increment sub_layer_delay %}">
+                      <span class="pl-[5px] py-[7.5px] text-[13px]">{{- link.title -}}</span>
+                      <span
+                        class="icon-dropdown cursor-pointer rounded-full border"
+                        data-control="mobileNav{{ link.title | append: section.id | md5 }}"
+                      >
+                        {%- render 'icons', icon: 'arrow', class: 'w-[28px] h-[28px] p-2' -%}
+                      </span>
+                    </div>
+                  </summary>
+                  <div class="pl-[10px]" style="border-left: 1px solid #000;">
+                    {{ subLayer }}
+                  </div>
+                </details>
+              </lazy-script>
+            {%- else -%}
+              <div class="flex gap-2 items-center">
+                {{ blockBanner }}
+                <a
+                  href="{{ link.url }}"
+                  class="link cursor-pointer py-[7.5px] pl-[5px] text-[13px]"
+                  title="{{- link.title | escape -}}"
+                >
+                  {{- link.title -}}
+                </a>
+              </div>
+            {% endif %}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+
+  {%- else -%}
+    {%- liquid
+      assign main_menu = section.settings.main_menu
+    -%}
+    <!-- header_mobile -->
+
+    <popup-component
+      id="mobileMenu"
+      class="popup-component group [color:var(--text)] top-0 right-0 h-full lg:hidden fixed color-{{ settings.header_color_scheme.id }}"
+      data-body-class="show-mobile-menu"
+      auto-append
+      auto-show
+    >
+      <div class="popup-content h-full max-w-[350px] drawer-transition -translate-x-full group-[.active]:translate-x-[0]">
+        <div class="px-2 sticky top-0 bg-white z-[2]">
+          <div class="mobile-menu-search flex justify-between items-center appear-animation group-[.show]:appear-animated appear-delay-{% increment appear_delay %}">
+            {%- render 'form', type: 'search', icon_class: 'max-w-[22px]', input_class: '!h-[60px]' -%}
+
+            <button class="p-2 jsClose">
+              {%- render 'icons', icon: 'close' -%}
+            </button>
+          </div>
+        </div>
+
+        <div class="popup-body mb-auto mt-0">
+          {%- liquid
+            assign mmBanner = section.settings.mm_banner
+            assign mmBannerRatio = 60.24096385542169 | append: '%'
+            assign mmBanner_heading = section.settings.mm_banner_heading
+            assign mmButton = section.settings.mm_button
+            assign mmBanner_heading_color = section.settings.mm_banner_heading_color
+            assign mmButton_background_color = section.settings.mm_button_background_color
+            assign mmButton_color = section.settings.mm_button_color
+            assign animation_row = animation_row | plus: 1
+          -%}
+
+          {%- unless mmBanner == blank -%}
+            <div
+              class="relative appear-animation appear-delay-{% increment appear_delay %}"
+            >
+              <div class="">
+                {{-
+                  mmBanner
+                  | image_url: width: 500
+                  | image_tag: widths: '300,500', loading: 'lazy', decoding: 'async', fetchpriority: 'low'
+                -}}
+              </div>
+
+              {%- unless section.settings.mm_banner_heading == blank and section.settings.mm_button == blank -%}
+                <div class="absolute bottom-0 left-0 px-[10px] py-[13px]">
+                  {%- unless section.settings.mm_banner_heading == blank -%}
+                    <div style="font-size: 18px; line-height: 24px; color: {{mmBanner_heading_color}}">
+                      {{ section.settings.mm_banner_heading }}
+                    </div>
+                  {%- endunless -%}
+
+                  {%- unless section.settings.mm_button == blank -%}
+                    <div
+                      style="--mmButton-bg: {{mmButton_background_color}};--mmButton-color: {{mmButton_color}};"
+                    >
+                      {{
+                        section.settings.mm_button
+                        | replace: '<a',
+                          '<a class="bg-[var(--mmButton-bg)] [color:var(--mmButton-color)] px-[25px] py-[10px] text-[13px] inline-block uppercase mt-[7px] rounded-[5px]"'
+                      }}
+                    </div>
+                  {%- endunless -%}
+                </div>
+              {%- endunless -%}
+            </div>
+          {%- endunless -%}
+
+          <div class="block">
+            {%- if main_menu.links.size > 0 -%}
+              <ul class="" role="list" aria-label="Main">
+                {%- for link in main_menu.links -%}
+                  {%- capture subLayer -%}{%- render 'snippet-mobile-menu', type: 'mobile_layer', link: link -%}{%- endcapture -%}
+                  {%- capture mobileLayer -%}{{mobileLayer}}{%- endcapture -%}
+
+                  {%- liquid
+                    assign megaBlocks = section.blocks | where: 'type', 'banner_mobile_menu' | map: 'settings'
+                    assign blockBanner = megaBlocks | where: 'title', link.title | first
+                  -%}
+                  {%- capture blockBanner -%}
+                  {%- unless blockBanner.image == blank -%}
+                    <div class="flex-[0_0_48px]">
+                      {{- blockBanner.image | image_url: width: blockBanner.image.width | image_tag: loading: 'lazy', decoding: 'async', fetchpriority: 'low' -}}
+                    </div>
+                  {%- endunless -%}
+                {%- endcapture -%}
+
+                  <li
+                    class="list-item px-[15px] mt-1 appear-animation appear-delay-{% increment appear_delay %}"
+                    style="border-bottom: 1px solid #e8e8e1;"
+                  >
+                    {%- if subLayer != blank -%}
+                      <lazy-script
+                        data-tag="accordion-component"
+                        data-file="{{ 'accordion-component.js' | asset_url }}"
+                        class="block"
+                      >
+                        <details>
+                          <summary class="flex gap-2 items-center cursor-pointer">
+                            {{ blockBanner }}
+                            <div class="flex justify-between items-center w-full">
+                              <span class="uppercase tracking-[0.2em]">{{- link.title -}}</span>
+                              <span
+                                class="icon-dropdown"
+                                data-control="mobileNav{{ link.title | append: section.id | md5 }}"
+                              >
+                                {%- render 'icons',
+                                  icon: 'arrow',
+                                  class: 'expand cursor-pointer w-[28px] h-[28px] p-2'
+                                -%}
+                              </span>
+                            </div>
+                          </summary>
+                          {{ subLayer }}
+                        </details>
+                      </lazy-script>
+                    {%- else -%}
+                      <div class="flex gap-2 items-center">
+                        {{ blockBanner }}
+                        <a
+                          href="{{ link.url }}"
+                          class="link cursor-pointer uppercase tracking-[0.2em]"
+                          title="{{- link.title | escape -}}"
+                        >
+                          {{- link.title -}}
+                        </a>
+                      </div>
+                    {% endif %}
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+
+            <div class="menu-footer mt-[10px] px-[15px]">
+              <div class="grid items-2 text-center appear-animation appear-delay-{% increment appear_delay %}">
+                {%- if shop.customer_accounts_enabled -%}
+                  <a
+                    href="{{routes.account_url}}"
+                    class="text-xs pt-[10px] pb-[5px]"
+                  >
+                    <strong>
+                      {% if customer %}
+                        {{- 'general.text.my_account' | t -}}
+                      {% else %}
+                        {{- 'general.text.account' | t -}}
+                      {% endif %}
+                    </strong>
+                  </a>
+                {%- endif -%}
+                {%- if settings.enable_wishlist -%}
+                  <button class="text-xs  pt-[10px] pb-[5px]" data-type="manually">
+                    <strong>
+                      {{- 'general.text.wishlist' | t -}}
+                    </strong>
+                  </button>
+                {%- endif -%}
+              </div>
+
+              {%- unless section.settings.m_content == blank and section.settings.m_btn_text == blank -%}
+                <div class="appear-animation appear-delay-{% increment appear_delay %}">
+                  {%- unless section.settings.m_content == blank -%}
+                    <div class="text-[12px] text-center my-[15px] italic [letter-spacing:0.1rem]">
+                      {{ section.settings.m_content }}
+                    </div>
+                  {%- endunless -%}
+
+                  {%- unless section.settings.m_btn_text == blank -%}
+                    <div class="custom-box-button mb-5">
+                      <a
+                        href="{{ section.settings.m_btn_link }}"
+                        class="font-bold rounded-[8px] block text-center py-2"
+                        style="font-size: 15px; color: {{section.settings['m_btn_color']}}; background: {{section.settings['m_btn_bg_color']}};"
+                      >
+                        {{- section.settings.m_btn_text -}}
+                      </a>
+                    </div>
+                  {%- endunless -%}
+                </div>
+                </div>
+              {%- endunless -%}
+            </div>
+          </div>
+          {{ mobileLayer }}
+        </div>
+      </div>
+    </popup-component>
+
+    <!-- header_mobile -->
+{%- endcase -%}

@@ -1,0 +1,56 @@
+{%- liquid
+  if value == blank
+    break
+  endif
+  
+  if value contains '<a'
+    assign link = value | split: 'href="' | last | split: '"' | first
+  endif
+-%}
+
+{%- capture btnClass -%}
+  {% if btnStyle > -1 %}
+    btn-wrap btn btn-{{ btnStyle | prepend: '_' | replace: '_0', 'atc' | remove: '_' }}
+  {% else %}
+    link-wrap
+  {% endif %}
+{%- endcapture -%}
+
+<div class="section-button-wrapper">
+  <a href="{{ link }}" class="btn btn-{{ style }}">{{ value | strip_html }}</a>
+</div>
+
+{%- break -%}
+  
+
+{%- liquid
+    assign object = object | default: section
+    assign btnLink = btnLink | default: 'section_btn_link'
+    assign btnStyle = btnStyle | default: 'section_btn_style'
+
+    assign btnContent = btnContent | default: object.settings[btnLink]
+    assign btnStyle = btnStyleNumber | default: object.settings[btnStyle] | at_least: -1
+    assign tabIndex = tabIndex | default: -1
+    assign tabIndex = '<a tabindex="' | append: tabIndex | append: '"'
+
+    capture openNewTab
+      unless openNewTab == false
+        render 'snippet-section', type: 'linkNewTab', link: btnContent
+      endunless
+    endcapture
+
+    assign tabIndex = tabIndex | append: openNewTab
+
+    if btnContent == blank
+      break
+    endif
+  -%}
+
+{%- capture btnClass -%}
+  {% if btnStyle > -1 %}
+    btn-wrap btn btn-{{ btnStyle | prepend: '_' | replace: '_0', 'atc' | remove: '_' }}
+  {% else %}
+    link-wrap{% endif %}
+{%- endcapture -%}
+
+<div class="{{ class | append: btnClass | strip }}">{{- btnContent | replace: '<a', tabIndex -}}</div>
