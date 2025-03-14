@@ -189,42 +189,10 @@
 
 {%- schema -%}
 {
-  "name": "Hero Section",
+  "name": "Contact",
   "tag": "section",
   "settings": [
-    {
-      "type": "header",
-      "content": "General settings"
-    },
-    {
-      "type": "select",
-      "id": "section_layout",
-      "label": "t:general.styles.section_layout.label",
-      "options": [
-        {
-          "value": "boxed",
-          "label": "t:general.styles.section_layout.options.option_1"
-        },
-        {
-          "value": "wide",
-          "label": "t:general.styles.section_layout.options.option_2"
-        }
-      ],
-      "default": "boxed"
-    },
-    {
-      "type": "text",
-      "id": "padding",
-      "label": "Section Padding",
-      "default": "50px 20px",
-      "info": "Define the padding for the section. Format: Top Right Bottom Left (e.g., 50px 20px)."
-    },
-    {
-      "type": "text",
-      "id": "margin",
-      "label": "Margin",
-      "info": "t:blocks.block_style.settings.block_margin.info"
-    },
+    // SECTION SETTINGS
     {
       "type": "header",
       "content": "Section settings"
@@ -268,6 +236,40 @@
       "id": "sub_description",
       "label": "Sub Description",
       "default": "Buy Land & Vacant Lots on Easy Monthly Payment Plans"
+    },
+    // GENERAL SETTINGS
+    {
+      "type": "header",
+      "content": "General settings"
+    },
+    {
+      "type": "select",
+      "id": "section_layout",
+      "label": "t:general.styles.section_layout.label",
+      "options": [
+        {
+          "value": "boxed",
+          "label": "t:general.styles.section_layout.options.option_1"
+        },
+        {
+          "value": "wide",
+          "label": "t:general.styles.section_layout.options.option_2"
+        }
+      ],
+      "default": "boxed"
+    },
+    {
+      "type": "text",
+      "id": "padding",
+      "label": "Section Padding",
+      "default": "50px 20px",
+      "info": "Define the padding for the section. Format: Top Right Bottom Left (e.g., 50px 20px)."
+    },
+    {
+      "type": "text",
+      "id": "margin",
+      "label": "Margin",
+      "info": "t:blocks.block_style.settings.block_margin.info"
     }
   ],
   "blocks": [
@@ -328,7 +330,7 @@
   ],
   "presets": [
     {
-      "name": "Hero Section"
+      "name": "Contact"
     }
   ]
 }
