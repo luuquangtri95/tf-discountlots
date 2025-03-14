@@ -1,1 +1,10 @@
 /* app/styles/base.scss */
+details summary {
+  list-style: none;
+}
+details summary::-webkit-details-marker {
+  display: none;
+}
+.ss-testimonial .swiper-slide {
+  height: auto;
+}

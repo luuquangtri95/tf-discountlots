@@ -1,0 +1,180 @@
+{% liquid
+    assign sectionId = '#shopify-section-' | append: section.id
+    assign layout = section.settings.section_layout | handle
+%}
+
+{%- render 'snippet-section', type: 'css' -%}
+{%- render 'snippet-section', type: 'css-file', name: 'footer-copyright' -%}
+
+{%- capture class -%}
+    |section-container relative
+    {% if layout == 'boxed' %}|container{% endif %}
+  {%- endcapture -%}
+
+{% unless section.settings.hide_border %}
+  <hr>
+{% endunless -%}
+
+<div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}" style="color: {{ section.settings['ft_text_color'] }}">
+    
+  <div class="m-[var(--margin)] p-[var(--padding)]">
+    <div class="text-content text-[18px]">
+        {%- if section.settings.ft_text != blank -%}
+            <p class="text-center">
+                {{ section.settings.ft_text }}
+            </p>
+        {%- endif -%}
+    </div>
+    {%- if section.settings.ft_logo_payment != blank -%}
+        <div class="w-full flex items-center justify-center pt-[15px]">
+          <div class="image-payment">
+            {{-
+                section.settings.ft_logo_payment
+                | image_url: width: 300
+                | image_tag: widths: '300', loading: 'lazy', decoding: 'async', fetchpriority: 'low'
+              -}}
+          </div>
+        </div>
+    {%- endif -%}
+    <div class="copyright flex flex-wrap justify-center items-center text-[12px] gap-[4px] pt-[10px] md:pt-[20px] pb-[7.5px]">
+        {%- if section.settings.show_copyright -%}
+          <p class="text-center">
+            
+            {%- if section.settings.copyright_text != blank -%}
+              {{ section.settings.copyright_text }}
+            {%- endif -%}
+            &copy; {{ 'now' | date: '%Y' }}.
+          </p>
+          <p class="text-center">All rights reserved.</p>
+        {%- endif -%}
+        {%- if section.settings.ft_menu != blank -%}
+            <ul role="list" class="flex flex-wrap gap-2" style="color: {{ section.settings['ft_link_color'] }}">
+                {%- render 'link' for section.settings.ft_menu.links as link, class: 'text-center pl-2 underline underline-offset-2 border-l border-current' -%}
+              </ul>
+        {%- endif -%}
+    </div>
+    {%- if section.settings.show_social -%}
+        <div class="social-icon text-center pt-2" style="color: {{ section.settings['ft_link_color'] }}">
+            {%- render 'social-media-icons', class: 'flex flex-wrap justify-center gap-2' -%}
+        </div>
+    {%- endif -%}
+    <div class="translate-wrapper flex justify-center gap-[10px] mt-[10px]">
+      <span class="block w-[24px] h-[18px]">{{ 'en-us.svg' | inline_asset_content }}</span>
+      <span class="block w-[24px] h-[18px]">{{ 'en-us.svg' | inline_asset_content }}</span>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.footer_copyright.name",
+  "tag": "section",
+  "class": "ss-footer-copyright",
+  "presets": [
+    {
+      "name": "t:sections.footer_copyright.name"
+    }
+  ],
+  "limit": 1,
+  "enabled_on": {
+    "groups": ["footer"]
+  },
+  "settings": [
+    {
+        "type": "header",
+        "content": "t:sections.footer_copyright.settings.ft_link_heading"
+    },
+    {
+        "type": "color",
+        "id": "ft_link_color",
+        "label": "t:sections.footer_copyright.settings.ft_link_color.label",
+        "default": "#1d3675"
+    },
+    {
+        "type": "color",
+        "id": "ft_text_color",
+        "label": "t:sections.footer_copyright.settings.ft_text_color.label",
+        "default": "#575757"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_border",
+      "label": "t:sections.footer_copyright.settings.hide_border.label"
+    },
+    {
+        "type": "header",
+        "content": "t:sections.footer_copyright.settings.ft_text_headng"
+    },
+    {
+        "type": "inline_richtext",
+        "id": "ft_text",
+        "default": "Please read our polices regarding <a>payment plans</a>",
+        "label": "t:sections.footer_copyright.settings.ft_text.label"
+    },
+    {
+        "type": "header",
+        "content": "t:sections.footer_copyright.settings.ft_payment"
+    },
+    {
+        "type": "image_picker",
+        "id": "ft_logo_payment",
+        "label": "t:sections.footer_copyright.settings.ft_logo_payment.label"
+    },
+    {
+        "type": "checkbox",
+        "id": "show_copyright",
+        "label": "t:sections.footer_copyright.settings.show_copyright.label"
+    },
+    {
+        "type": "text",
+        "id": "copyright_text",
+        "label": "t:sections.footer_copyright.settings.copyright_text.label"
+    },
+    {
+        "type": "link_list",
+        "id": "ft_menu",
+        "label": "t:sections.footer_copyright.settings.ft_menu.label"
+    },
+    {
+        "type": "checkbox",
+        "id": "show_social",
+        "label": "t:sections.footer_copyright.settings.show_social.label"
+    },
+    {
+        "type": "header",
+        "content": "General settings"
+      },
+      {
+        "type": "select",
+        "id": "section_layout",
+        "label": "t:general.styles.section_layout.label",
+        "options": [
+          {
+            "value": "boxed",
+            "label": "t:general.styles.section_layout.options.option_1"
+          },
+          {
+            "value": "wide",
+            "label": "t:general.styles.section_layout.options.option_2"
+          }
+        ],
+        "default": "boxed"
+      },
+      {
+        "type": "text",
+        "id": "padding",
+        "label": "Padding",
+        "default": "0,0 16px",
+        "info": "Padding"
+      },
+      {
+        "type": "text",
+        "id": "margin",
+        "label": "Margin",
+        "info": "Margin"
+      }
+  ],
+  "blocks": [
+  ]
+}
+{% endschema %}

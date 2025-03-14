@@ -15,7 +15,7 @@
         "label": "Layout",
         "options": {
           "option_1": "Boxed",
-          "option_2": "Wide",
+          "option_2": "Wide"
         }
       },
       "padding": {
@@ -42,7 +42,7 @@
       },
       "section_content": {
         "label": "Section content"
-      },
+      }
     }
   },
   "settings_schema": {
@@ -102,6 +102,9 @@
     "typography": {
       "name": "Typography",
       "settings": {
+        "header_font": {
+          "label": "Header Font Family"
+        },
         "body_shopify_font": {
           "label": "Font Family"
         },
@@ -116,7 +119,7 @@
     "image_card": {
       "name": "Image card",
       "settings": {
-        "paragraph_1": "[For best results, use product photos with the same aspect ratio](https:\/\/help.shopify.com\/manual\/productivity-tools\/image-editor#image-aspect-ratio)",
+        "paragraph_1": "[For best results, use product photos with the same aspect ratio](https://help.shopify.com/manual/productivity-tools/image-editor#image-aspect-ratio)",
         "header_1": "Product card",
         "header_2": "Article card",
         "card_image_ratio": {
@@ -154,7 +157,7 @@
             "option_4": "3"
           }
         },
-        "header_1": "Product Card",
+        "header_1": "Product Card"
       }
     },
     "account": {
@@ -183,36 +186,36 @@
         "header_1": "Social media",
         "social_facebook_link": {
           "label": "Facebook",
-          "info": "https:\/\/facebook.com\/shopify"
+          "info": "https://facebook.com/shopify"
         },
         "social_instagram_link": {
           "label": "Instagram",
-          "info": "http:\/\/instagram.com\/shopify"
+          "info": "http://instagram.com/shopify"
         },
         "social_tiktok_link": {
           "label": "Tiktok",
-          "info": "http:\/\/tiktok.com\/@shopify"
+          "info": "http://tiktok.com/@shopify"
         },
         "social_twitter_link": {
           "label": "Twitter",
-          "info": "https:\/\/twitter.com\/shopify"
+          "info": "https://twitter.com/shopify"
         },
         "social_youtube_link": {
           "label": "YouTube",
-          "info": "https:\/\/www.youtube.com\/shopify"
+          "info": "https://www.youtube.com/shopify"
         },
         "social_pinterest_link": {
           "label": "Pinterest",
-          "info": "https:\/\/pinterest.com\/shopify"
+          "info": "https://pinterest.com/shopify"
         },
         "social_linkedin_link": {
           "label": "Linkedin",
-          "info": "https:\/\/www.linkedin.com\/company\/shopify"
+          "info": "https://www.linkedin.com/company/shopify"
         },
         "social_googleplus_link": {
           "label": "Google+",
-          "info": "https:\/\/plus.google.com\/+shopify"
-        },
+          "info": "https://plus.google.com/+shopify"
+        }
       }
     },
     "swatch": {
@@ -293,12 +296,12 @@
     "markets": {
       "settings": {
         "enable_country_selector": {
-          "label": "Enable country\/region selector",
-          "info": "To add a country\/region, go to your [market settings.](\/admin\/settings\/markets)"
+          "label": "Enable country/region selector",
+          "info": "To add a country/region, go to your [market settings.](/admin/settings/markets)"
         },
         "enable_language_selector": {
           "label": "Enable language selector",
-          "info": "To add a language, go to your [language settings.](\/admin\/settings\/languages)"
+          "info": "To add a language, go to your [language settings.](/admin/settings/languages)"
         }
       }
     },
@@ -310,7 +313,7 @@
           "label": "Continuous loop"
         },
         "arrow": {
-          "label": "Show next\/prev arrows"
+          "label": "Show next/prev arrows"
         },
         "dot": {
           "label": "Show navigation dots"
@@ -383,14 +386,26 @@
         }
       }
     },
+    "newsletter": {
+      "label": "Newsletter",
+      "button_label": "Submit",
+      "settings": {
+        "title": {
+          "label": "Title"
+        },
+        "btn_style": {
+          "label": "Submit button color"
+        }
+      }
+    },
     "footer": {
       "name": "Footer",
       "settings": {
-        "header_language_selector": "To add a language, go to your [language settings.](\/admin\/settings\/languages)",
+        "header_language_selector": "To add a language, go to your [language settings.](/admin/settings/languages)",
         "show_locale_selector": {
           "label": "Show language selector"
         },
-        "header_currency_selector": "To add a currency, go to your [currency settings.](\/admin\/settings\/payments)",
+        "header_currency_selector": "To add a currency, go to your [currency settings.](/admin/settings/payments)",
         "show_currency_selector": {
           "label": "Show currency selector"
         },
@@ -444,7 +459,7 @@
             "show_footer_title": {
               "label": "Show heading"
             },
-            "content": "Any customers who sign up will have an account created for them in Shopify. [View customers](\/admin\/customers).",
+            "content": "Any customers who sign up will have an account created for them in Shopify. [View customers](/admin/customers).",
             "title": {
               "label": "Heading"
             },
@@ -476,6 +491,41 @@
               "label": "Column width"
             }
           }
+        }
+      }
+    },
+    "footer_copyright": {
+      "name": "Footer copyright",
+      "settings": {
+        "ft_link_heading": "Footer color",
+        "ft_link_color": {
+          "label": "Link color"
+        },
+        "ft_text_color": {
+          "label": "Text color"
+        },
+        "ft_text_headng": "Footer text content",
+        "ft_text": {
+          "label": "Footer text"
+        },
+        "ft_payment": "Add logo payment",
+        "ft_logo_payment": {
+          "label": "Logo payment"
+        },
+        "hide_border": {
+          "label": "Hide border"
+        },
+        "show_copyright": {
+          "label": "Show copyright"
+        },
+        "copyright_text": {
+          "label": "Additional copyright text"
+        },
+        "ft_menu": {
+          "label": "Link menu copyright"
+        },
+        "show_social": {
+          "label": "Show social"
         }
       }
     },
@@ -541,7 +591,7 @@
             },
             "enable_dynamic_checkout": {
               "label": "Show Dynamic Checkout button",
-              "info": "Lets customers check out directly using a familiar payment method. [Learn more](https:\/\/help.shopify.com\/manual\/using-themes\/change-the-layout\/dynamic-checkout)"
+              "info": "Lets customers check out directly using a familiar payment method. [Learn more](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)"
             }
           }
         },
@@ -581,7 +631,7 @@
           "settings": {
             "enable_multi_tab": {
               "label": "Use Multi-tabs with heading 5 tag",
-              "info": "We use heading 5 in Product's description to seperate Multi-tabs, each <h5>Tabs Title<\/h5> will be considered as content seperator and tabs title"
+              "info": "We use heading 5 in Product's description to seperate Multi-tabs, each <h5>Tabs Title</h5> will be considered as content seperator and tabs title"
             }
           }
         },
@@ -624,7 +674,7 @@
         },
         "link": {
           "label": "Link to",
-          "info": "http:\/\/ is required for external links"
+          "info": "http:// is required for external links"
         },
         "title": {
           "label": "Banner title"
@@ -673,7 +723,7 @@
             },
             "link": {
               "label": "Link to",
-              "info": "http:\/\/ is required for external links"
+              "info": "http:// is required for external links"
             },
             "title": {
               "label": "Banner title"

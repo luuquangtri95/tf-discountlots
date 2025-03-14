@@ -1,330 +1,260 @@
-{%- liquid
-  assign sectionId = '#shopify-section-' | append: section.id
-  assign layout = section.settings.section_layout | handle
-  assign spacing_id = sectionId | append: ' .menu-list'
 
-  assign show_selectors = false
-  assign currency_selector = false
-  assign locale_selector = false
-
-  if section.settings.show_currency_selector and shop.enabled_currencies.size > 1
-    assign currency_selector = true
-  endif
-
-  if section.settings.show_locale_selector and shop.enabled_locales.size > 1
-    assign locale_selector = true
-  endif
-
-  if currency_selector or locale_selector
-    assign show_selectors = true
-  endif
-
-  assign menuBlocks = section.blocks | where: 'type', 'menu'
--%}
-
-{%- capture custom_schema_color -%}
-  {%- unless section.settings.schema_color_name == blank -%}
-    schema-color-{{- section.settings.schema_color_name | handle -}}
-  {%- endunless -%}
-{%- endcapture -%}
-
-{% comment %} Stylesheet {% endcomment %}
-{%- capture stylesheet -%}
   {%- liquid
-    assign inline_block_layout = section.settings.inline_block_layout
-    assign items_per_row = section.settings.items_per_row | default: section.blocks.size
+    assign sectionId = '#shopify-section-' | append: section.id
+    assign layout = section.settings.section_layout | handle
+    assign link_color = section.settings.link_color
   -%}
 
-  {%- if inline_block_layout == 'customize' and section.settings.items_per_row != blank -%}
-    {%- render 'css-resp', class: spacing_id , css: 'grid-template-columns', value: items_per_row -%}
-    {%- assign items_per_row = nil -%}
-  {%- endif -%}
+  {%- capture class -%}
+    |section-container relative
+    {% if layout == 'boxed' %}|container{% endif %}
+  {%- endcapture -%}
 
-  {%- capture items_class -%}{%- render 'config-grid', value: items_per_row, spacing: section.settings.items_spacing %}{%- endcapture -%}
-  {%- render 'config-grid', style: true, value: items_per_row, spacing: section.settings.items_spacing, id: spacing_id -%}
-
-   {%- capture css_values -%}
-    --logo-width: {{section.settings.logo_width |   default: "200px"}};
-    color: var(--text);
-    --currency-flag-image: url( {{"country-flags.png" | asset_url }} );
+  {%- capture stylesheet -%}
+     {%- capture css_values -%}
+      --logo-width: {{section.settings.logo_width |   default: "200px"}};
+     {%- endcapture -%}
+     {%- render 'css-resp', class: sectionId, type: 'multi', value: css_values-%}
    {%- endcapture -%}
-   {%- render 'css-resp', class: sectionId, type: 'multi', value: css_values-%}
+  {%- render 'snippet-section', type: 'css', value: stylesheet -%}
 
- {%- endcapture -%}
-{%- render 'snippet-section', type: 'css', value: stylesheet -%}
+   {%- capture logo_class -%}
+    |max-w-[var(--logo-width)]
+    |w-[var(--logo-width)]
+    {%- endcapture -%}
 
-{% comment %} Classname {% endcomment %}
-{%- capture class -%}
-   |section-container relative {{custom_schema_color}}
-   {% if layout == 'boxed' %}|container{% endif %}
-   {%- if section.settings.show_background -%}|[background:var(--background)] {%- endif -%}
- {%- endcapture -%}
-
-{%- capture logo_class -%}
-|max-w-[var(--logo-width)]
-|w-[var(--logo-width)]
-{%- endcapture -%}
-
-<div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
-  <div class="m-[var(--margin)] p-[var(--padding)]">
-    {%- unless section.settings.logo == blank -%}
-      <div class="w-full flex items-center justify-center md:justify-start my-[15px] md:my-[0]">
-        <div class="{{ logo_class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
-          {%- render 'logo', object: section.settings -%}
-        </div>
-      </div>
-    {%- endunless -%}
-
-    {%- unless menuBlocks.size == 0 -%}
-      <div class="menu-list menu-list-mobile md:hidden {{items_class}}">
-        {%- for block in menuBlocks -%}
-          {%- if block.settings.menu.links == blank -%}
-            {%- continue -%}
-          {%- endif -%}
-          <div {{ block.shopify_attributes }} class="border-t-[1px] border-solid border-[var(--miscellaneous)]">
-            <lazy-script
-              data-tag="accordion-component"
-              data-file="{{ 'accordion-component.js' | asset_url }}"
-              data-close-screen="(max-width: 749px)"
-            >
-              <details>
-                <summary class="cursor-pointer">
-                  <div class="w-full flex items-center justify-between py-[15px] pr-[10px]">
-                    <h2 class="title flex-1 text-center">{{ block.settings.menu.title }}</h2>
-                    {%- render 'icons', icon: 'arrow', class: 'w-[10px] h-[10px] icon-arrow' -%}
+    <div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
+      <div class="m-[var(--margin)] p-[var(--padding)]">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-[30px] md:gap-4">
+          {%- for block in section.blocks -%}
+            {%- case block.type -%}
+              {%- when 'menu' -%}
+                {%- liquid
+                  assign menu_title = block.settings.footer_linklist_title
+                  assign block_menu = block.settings.menu
+                -%}
+                <div {{ block.shopify_attributes }} class="block-menu md:flex flex-col items-center">
+                  <div class="heading">
+                    <h2 class="title text-[22px] mb-[20px] font-bold">{{ menu_title }}</h2>
                   </div>
-                </summary>
-                <div>
-                  <ul role="list">
-                    {%- render 'link' for block.settings.menu.links as link, class: 'text-center' -%}
+                  <ul role="list" class="menu-list">
+                    {%- render 'link' for block_menu.links as link, class:'mb-[8px] block text-[#489CD8]' -%}
                   </ul>
                 </div>
-              </details>
-            </lazy-script>
-          </div>
-        {%- endfor -%}
-      </div>
+  
+              {%- when 'newsletter' -%}
+                {%- liquid
+                  assign newsletter_title = block.settings.footer_newsletter_title
+                  assign newsletter_subtitle = block.settings.footer_newsletter_subtitle
+                -%}
+                <div {{ block.shopify_attributes }} class="block-newsletter">
+                  <div class="heading">
+                    <h2 class="title text-[22px] mb-[20px] font-bold">{{ newsletter_title }}</h2>
+                  </div>
+                  <div class="subheading">{{ newsletter_subtitle }}</div>
+                  {%- render 'form', type: 'newsletter' -%}
+                </div>
+                
+              {%- when 'information' -%}
+                {%- liquid
+                  assign phone = block.settings.phone
+                  assign mail = block.settings.mail
+                  assign support = block.settings.support
+                  assign working_1 = block.settings.working_1
+                  assign working_2 = block.settings.working_2
+                  assign link_invest = block.settings.link_invest
+                -%}
 
-      <div class="menu-list hidden md:grid {{items_class}} mt-[50px]">
-        {%- for block in menuBlocks -%}
-          {%- if block.settings.menu.links == blank -%}
-            {%- continue -%}
-          {%- endif -%}
-          <div class="menu-block" {{ block.shopify_attributes }}>
-            <p class="title">{{ block.settings.menu.title }}</p>
-            <ul role="list">
-              {%- render 'link' for block.settings.menu.links as link -%}
-            </ul>
-          </div>
-        {%- endfor -%}
-      </div>
-    {%- endunless -%}
-
-    {%- if show_selectors -%}
-      <div
-        class="block mt-[13px] md:mt-[32px]"
-        data-test="{{locale_selector}} - -{{currency_selector}} -- {{section.settings.show_currency_flags}} "
-      >
-        {%- render 'multi-selectors',
-          locale_selector: locale_selector,
-          currency_selector: currency_selector,
-          show_currency_flags: section.settings.show_currency_flags,
-          location: 'footer'
-        -%}
-      </div>
-    {%- endif -%}
-
-    {%- if section.settings.show_payment_icons -%}
-      {%- unless shop.enabled_payment_types == empty -%}
-        <ul class="payment-icons flex flex-wrap text-center mt-[16px] md:mt-[41px] justify-center items-center gap-[4px]">
-          {%- for type in shop.enabled_payment_types -%}
-            <li class="icon--payment inline-block cursor-default">
-              {{ type | payment_type_svg_tag }}
-            </li>
+                <div {{ block.shopify_attributes }} class="block-information">
+                  {%- unless section.settings.logo == blank -%}
+                    <div class="w-full flex items-center mb-[15px]">
+                      <div class="{{ logo_class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
+                        {%- render 'logo', object: section.settings -%}
+                      </div>
+                    </div>
+                  {%- endunless -%}
+                  {%- unless phone == blank %}
+                    <div class="phone flex gap-1">
+                      <div class="svg-wrapper w-[20px] h-[20px]">
+                        {% render 'icons', icon: 'phone' %}
+                      </div>
+                      {{ phone }}
+                    </div>
+                  {% endunless -%}
+                  {%- unless mail == blank %}
+                    <div class="email" style="color: {{ link_color }}">{{ mail }}</div>
+                  {% endunless -%}
+                  <div class="customer-support my-[30px] text-[15px]">
+                    {%- unless support == blank %}
+                      <div class="support flex gap-1 text-[18px] font-bold mb-[8px]">
+                        <div class="svg-wrapper w-[20px] h-[20px]">
+                          {% render 'icons', icon: 'support' %}
+                        </div>
+                        {{ support }}
+                      </div>
+                    {% endunless -%}
+                    {%- unless working_1 == blank %}
+                      <p>{{ working_1 }}</p>
+                    {% endunless -%}
+                    {%- unless working_2 == blank %}
+                      <p>{{ working_2 }}</p>
+                    {% endunless -%}
+                  </div>
+                  {%- unless link_invest == blank %}
+                    <div class="invest text-[18px]" style="color: {{ link_color }}">{{ link_invest }}</div>
+                  {% endunless -%}
+                </div>
+            {%- endcase -%}
           {%- endfor -%}
-        </ul>
-      {%- endunless -%}
-    {%- endif -%}
-
-    <div class="copyright flex justify-center items-center gap-[4px] pt-[37px] md:pt-[20px] pb-[7.5px]">
-      {%- if section.settings.show_copyright -%}
-        <p class="text-center">
-          &copy; {{ 'now' | date: '%Y' }}
-          {{ shop.name }}
-          {%- if section.settings.copyright_text != blank -%}
-            {{ section.settings.copyright_text }}
-          {%- endif -%}
-        </p>
-      {%- endif -%}
-      <p class="text-center">{{ powered_by_link }}</p>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-
-{%- render 'snippet-section', type: 'css-file', name: 'currency' -%}
-{%- render 'snippet-section', type: 'css-file', name: 'footer' -%}
-
-{% schema %}
-{
-  "name": "Footer",
-  "tag": "section",
-  "class": "ss-footer",
-  "presets": [
-    {
-      "name": "Footer"
-    }
-  ],
-  "limit": 1,
-  "enabled_on": {
-    "groups": ["footer"]
-  },
-  "settings": [
-    {
-      "type": "image_picker",
-      "id": "logo",
-      "label": "t:sections.footer.blocks.logo.settings.logo.label"
+  
+  {%- render 'snippet-section', type: 'css-file', name: 'footer' -%}
+  
+  {% schema %}
+  {
+    "name": "Footer",
+    "tag": "section",
+    "class": "ss-footer",
+    "presets": [
+      {
+        "name": "Footer"
+      }
+    ],
+    "limit": 1,
+    "enabled_on": {
+      "groups": ["footer"]
     },
-    {
-      "type": "text",
-      "id": "logo_width",
-      "label": "Logo width"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.footer.settings.header_language_selector",
-      "info": "t:sections.footer.settings.header_language_selector"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_locale_selector",
-      "label": "t:sections.footer.settings.show_locale_selector.label",
-      "default": true
-    },
-    {
-      "type": "header",
-      "content": "t:sections.footer.settings.header_currency_selector",
-      "info": "t:sections.footer.settings.header_currency_selector"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_currency_selector",
-      "label": "t:sections.footer.settings.show_currency_selector.label",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "show_currency_flags",
-      "label": "t:sections.footer.settings.show_currency_flags.label",
-      "default": true
-    },
-    {
-      "type": "header",
-      "content": "t:sections.footer.settings.header_additional_footer_content"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_payment_icons",
-      "label": "t:sections.footer.settings.show_payment_icons.label",
-      "default": false
-    },
-    {
-      "type": "checkbox",
-      "id": "show_copyright",
-      "label": "t:sections.footer.settings.show_copyright.label"
-    },
-    {
-      "type": "text",
-      "id": "copyright_text",
-      "label": "t:sections.footer.settings.copyright_text.label"
-    },
-    {
-      "type": "header",
-      "content": "General settings"
-    },
-    {
-      "type": "text",
-      "id": "schema_color_name",
-      "label": "Schema color name"
-    },
-    {
-      "type": "select",
-      "id": "section_layout",
-      "label": "t:general.styles.section_layout.label",
-      "options": [
-        {
-          "value": "boxed",
-          "label": "t:general.styles.section_layout.options.option_1"
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo"
+      },
+      {
+        "type": "text",
+        "id": "logo_width",
+        "label": "Logo width"
+      },
+      {
+        "type": "header",
+        "content": "General settings"
+      },
+      {
+        "type": "select",
+        "id": "section_layout",
+        "label": "Layout",
+        "options": [
+          {
+            "value": "boxed",
+            "label": "Boxed"
+          },
+          {
+            "value": "wide",
+            "label": "Wide"
+          }
+        ],
+        "default": "boxed"
+      },
+      {
+        "type": "text",
+        "id": "padding",
+        "label": "Padding",
+        "default": "0,0 16px",
+        "info": "Padding"
+      },
+      {
+        "type": "text",
+        "id": "margin",
+        "label": "Margin",
+        "info": "Margin"
+      },
+      {
+        "type": "color",
+        "id": "link_color",
+        "label": "Link color",
+        "default": "#489cd8"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "menu",
+        "name": "Menu",
+        "settings": [
+          {
+            "type": "text",
+            "id": "footer_linklist_title",
+            "label": "Heading",
+            "default": "Listings By State"
+          },
+          {
+            "type": "link_list",
+            "id": "menu",
+            "label": "Link"
+          }
+        ]
+      },
+      {
+        "type": "newsletter",
+        "name": "Newsletter",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "text",
+            "id": "footer_newsletter_title",
+            "label": "Heading",
+            "default": "Unlock Discount Lots Secrets & Savings"
+          },
+          {
+            "type": "textarea",
+            "id": "footer_newsletter_subtitle",
+            "label": "Subheading",
+            "default": "Join our email list to receive exclusive deals reserved for our subscribers. The essential resource for affordable home ownership - all in a single click!"
+          }
+        ]
+      },
+      {
+        "type": "information",
+        "name": "Information",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "inline_richtext",
+            "id": "phone",
+            "label": "Phone"
+         },
+         {
+          "type": "inline_richtext",
+          "id": "mail",
+          "label": "Email",
+          "default": "help@discountlots.com"
         },
         {
-          "value": "wide",
-          "label": "t:general.styles.section_layout.options.option_2"
-        }
-      ],
-      "default": "boxed"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_background",
-      "label": "Show background"
-    },
-    {
-      "type": "text",
-      "id": "padding",
-      "label": "Padding",
-      "default": "0,0 16px",
-      "info": "t:blocks.block_style.settings.block_padding.info"
-    },
-    {
-      "type": "text",
-      "id": "margin",
-      "label": "Margin",
-      "info": "t:blocks.block_style.settings.block_margin.info"
-    },
-    {
-      "type": "header",
-      "content": "Settings list menu"
-    },
-    {
-      "type": "select",
-      "id": "inline_block_layout",
-      "label": "Blocks width layout",
-      "options": [
-        {
-          "value": "equal",
-          "label": "Equal"
+          "type": "inline_richtext",
+          "id": "support",
+          "label": "Support",
+          "default": "Customer Support Hours"
         },
         {
-          "value": "customize",
-          "label": "Customize"
-        }
-      ],
-      "default": "equal"
-    },
-    {
-      "type": "text",
-      "id": "items_per_row",
-      "label": "Input blocks layout",
-      "info": "e.g: 2,3,5 or 30% 70%",
-      "default": "2,3"
-    },
-    {
-      "type": "text",
-      "id": "items_spacing",
-      "label": "Block spacing"
-    }
-  ],
-  "blocks": [
-    {
-      "type": "menu",
-      "name": "Menu",
-      "settings": [
+          "type": "richtext",
+          "id": "working_1",
+          "label": "Working monday to friday"
+        },
         {
-          "type": "link_list",
-          "id": "menu",
-          "label": "Link"
+          "type": "richtext",
+          "id": "working_2",
+          "label": "Working saturday to sunday"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "link_invest",
+          "label": "Link invest",
+          "default": "Looking to make high-yield secure investment?"
         }
-      ]
-    }
-  ]
-}
-{% endschema %}
+        ]
+      }
+    ]
+  }
+  {% endschema %}
+  

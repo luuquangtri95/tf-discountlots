@@ -1,0 +1,305 @@
+
+{%- liquid
+    assign sectionId = '#shopify-section-' | append: section.id
+    assign layout = section.settings.section_layout | handle
+    assign text_color = section.settings.text_color
+    assign bg_color = section.settings.bg_color
+    assign ratio_video = section.settings.ratio_video
+    assign items_resp = section.settings.items_resp
+    assign items_spacing = section.settings.items_spacing
+    assign dots = section.settings.dots
+    assign navs = section.settings.navs
+-%}
+
+{%- case ratio_video -%}
+{%- when "horizontal" -%}
+  {%- assign padding = "56.25%" -%}
+{%- when "middle" -%}
+  {%- assign padding = "75%" -%}
+{%- when "vertical" -%}
+  {%- assign padding = "177.78%" -%}
+{%- endcase -%}
+
+
+ {% comment %} Classname {% endcomment %}
+ {%- capture class -%}
+    |section-container relative
+    {% if layout == 'boxed' %}|container{% endif %}
+    {%- if section.settings.show_background -%}|[background:var(--background)] {%- endif -%}
+  {%- endcapture -%}
+
+  {%- render 'snippet-section', type: 'css' -%}
+
+  {{ 'component-slider.css' | asset_url | stylesheet_tag }}
+
+<div style="background: {{ bg_color }}">
+    <div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }} z-[3]">
+        <div class="m-[var(--margin)] p-[var(--padding)]">
+            <div class="content-wrapper" style="color: {{ text_color }}">
+                <div class="header-wrapper text-center mb-[60px]">
+                    {%- unless section.settings.heading == blank -%}
+                        <div class="heading text-[30px] lg:text-[40px]">
+                          <h3>{{ section.settings.heading }}</h3>
+                        </div>
+                      {%- endunless -%}
+                      {%- unless section.settings.subtext == blank -%}
+                          <div class="subtext text-[30px] lg:text-[40px]">
+                            <p>{{ section.settings.subtext }}</p>
+                          </div>
+                      {%- endunless -%}
+                </div>
+
+                {%- liquid 
+                    assign slideID = '#slide' | append: section.id 
+                -%}
+
+                {%- capture slider_gridClass -%} {%- render 'config-grid', value: items_resp-%} {%- endcapture -%}
+                <lazy-script
+                    id="{{ slideID | remove: '#' }}"
+                    data-tag="slider-component"
+                    class="swiper block"
+                  >
+                  {%- render 'config-slide', 
+                    id: slideID, 
+                    items: items_resp, 
+                    spacing: items_spacing,
+                    dots: dots,
+                    controls: navs
+                  -%}
+                  <div
+                    id="{{ slideID | remove: '#' }}el"
+                    class="swiper-wrapper slider-list {% if dots %} pb-[60px]{% endif %} grid {{slider_gridClass}} js-slider swiper-wrapper"
+                  >
+                    {%- for block in section.blocks -%}
+                        <div class="swiper-slide">
+                            <div class="block-item text-center flex flex-col h-full">
+                                {%- unless block.settings.testimonial_video == blank -%}
+                                    {% assign external_video = block.settings.testimonial_video %}    
+                                    <div class="video relative h-0 overflow-hidden" style="padding-bottom: {{ padding }}">
+                                      {%- capture videoId -%}player{{section.id | append: block.id | append: external_video.external_id}}{%- endcapture -%}
+                                      {%- assign externalId = external_video.id -%}
+                                  
+                                      {%- capture videoUrl -%}
+                                      {%- if external_video.type == 'youtube' -%}
+                                          https://www.youtube.com/embed/{{ 'videoId' }}?playsinline=1&playlist={{ 'videoId' }}&enablejsapi=1&rel=0&modestbranding=
+                                      {%- else -%}
+                                          https://player.vimeo.com/video/{{ 'videoId' }}
+                                      {%- endif -%}
+                                      {%- endcapture -%}
+                                  
+                                      <lazy-script class="absolute w-full h-full top-0 left-0" data-type="{{external_video.type}}" play-in-view data-tag="video-component" data-file="{{ 'video-component.js' | asset_url }}">
+                                      <iframe
+                                          src="{{- videoUrl | replace: 'videoId', externalId -}}"
+                                          allow="autoplay; encrypted-media"
+                                          allowfullscreen
+                                          title=""
+                                          class="h-full w-full"
+                                          id="{{videoId}}"
+                                          data-video-id="{{ externalId }}"
+                                      ></iframe>
+                                      </lazy-script>
+                                    </div>
+                                {%- endunless -%}
+                                <div class="info-wrapper flex flex-col h-full mt-[20px] lg:mt-[30px]">
+                                    {% unless block.settings.rated == blank %}
+                                      <p class="rated text-[#f7cf2f]">
+                                        {%- for i in (1..5) -%}
+                                          <span class="inline-block w-[22px] {% if i <= block.settings.rated %}text-[var(--star-color)]{% else %}text-gray-300{% endif %}">
+                                            {%- render 'svg', type: 'star-rating' -%}
+                                          </span>
+                                        {%- endfor -%}
+                                      </p>
+                                    {% endunless %}
+                                    {%- unless block.settings.name  == blank -%}
+                                      <h3 class="block-name text-[18px] mt-[10px]">{{ block.settings.name }}</h3>
+                                    {%- endunless -%}
+                                    {%- unless block.settings.details == blank -%}
+                                      <div class="block-details text-[16px] mt-[6px] mb-[20px]">{{ block.settings.details }}</div>
+                                    {%- endunless -%}
+                                    {%- unless block.settings.vendor == blank -%}
+                                        <div class="block-info flex items-center justify-center gap-[12px] mt-auto">
+                                            <div class="svg-wrapper">{{ 'icon-checked.svg' | inline_asset_content | replace: '<svg height="800px" width="800px"', '<svg width="20px" height="20px"' }}</div>
+                                            <div class="block-details text-[14px]">{{ block.settings.vendor }}</div>
+                                        </div>
+                                    {%- endunless -%}
+                                </div>
+                            </div>
+                        </div>
+                    {%- endfor -%}
+                 </div>
+              </lazy-script>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- jsFile: slider-component -->
+<!-- jsFile: swiper -->
+
+{% schema %}
+{
+    "name": "Section testimonial",
+    "tag": "section",
+    "class": "ss-testimonial",
+    "presets": [
+      {
+        "name": "Section testimonial"
+      }
+    ],
+    "disabled_on": {
+      "groups": ["footer", "header"]
+    },
+    "settings": [
+      {
+        "type": "header",
+        "content": "General settings"
+      },
+      {
+        "type": "select",
+        "id": "section_layout",
+        "label": "t:general.styles.section_layout.label",
+        "options": [
+          {
+            "value": "boxed",
+            "label": "t:general.styles.section_layout.options.option_1"
+          },
+          {
+            "value": "wide",
+            "label": "t:general.styles.section_layout.options.option_2"
+          }
+        ],
+        "default": "boxed"
+      },
+      {
+        "type": "text",
+        "id": "padding",
+        "label": "Padding",
+        "default": "0,0 16px",
+        "info": "Padding"
+      },
+      {
+        "type": "text",
+        "id": "margin",
+        "label": "Margin",
+        "info": "Margin"
+      },
+      {
+        "type": "header",
+        "content": "Slider settings"
+      },
+      {
+        "type": "text",
+        "id": "items_resp",
+        "label": "Maximum items per row",
+        "info": "Only for grid view",
+        "default": "2,3,4"
+      },
+      {
+        "type": "text",
+        "id": "items_spacing",
+        "label": "Block spacing"
+      },
+      {
+        "type": "checkbox",
+        "id": "dots",
+        "label": "Show dots"
+      },
+      {
+        "type": "checkbox",
+        "id": "navs",
+        "label": "Show navs"
+      },
+      {
+        "type": "header",
+        "content": "Heading content"
+      },
+      {
+        "type": "richtext",
+        "id": "heading",
+        "label": "Heading"
+    },
+    {
+        "type": "inline_richtext",
+        "id": "subtext",
+        "default": "We Deal In Word...",
+        "label": "Subtext"
+    },
+    {
+        "type": "select",
+        "id": "ratio_video",
+        "label": "Ratio Video",
+        "options": [
+          {
+            "value": "horizontal",
+            "label": "16:9"
+          },
+          {
+            "value": "middle",
+            "label": "4:3"
+          },
+          {
+            "value": "vertical",
+            "label": "9:16"
+          }
+        ],
+        "default": "vertical"
+      },
+      {
+        "type": "color",
+        "id": "text_color",
+        "label": "Text color",
+        "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "bg_color",
+          "label": "Background color",
+          "default": "#124f92"
+      },
+    ],
+    "blocks": [
+        {
+            "type": "gallery",
+            "name": "Video gallery",
+            "settings": [
+                {
+                    "type": "video_url",
+                    "id": "testimonial_video",
+                    "label": "Video",
+                    "accept": [
+                      "youtube",
+                      "vimeo"
+                    ]
+                },
+                {
+                    "type": "range",
+                    "id": "rated",
+                    "min": 1,
+                    "max": 5,
+                    "step": 1,
+                    "label": "Rating",
+                    "default": 5
+                },
+                {
+                    "type": "text",
+                    "id": "name",
+                    "label": "Name",
+                    "default": "Lorem ipsum"
+                },
+                {
+                    "type": "text",
+                    "id": "details",
+                    "label": "Details",
+                    "default": "Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the..."
+                },
+                {
+                    "type": "text",
+                    "id": "vendor",
+                    "label": "Vendor",
+                    "default": "Verified Buyer"
+                }
+            ]
+      }
+    ]
+  }
+{% endschema %}

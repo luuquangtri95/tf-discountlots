@@ -1,0 +1,242 @@
+{%- liquid
+    assign sectionId = '#shopify-section-' | append: section.id
+    assign layout = section.settings.section_layout | handle
+    assign text_color = section.settings.text_color
+    assign bg_color = section.settings.bg_color
+-%}
+
+{%- capture stylesheet -%}
+  {%- liquid
+      assign items_per_row = section.settings.items_per_row | default: section.blocks.size
+      assign items_spacing = section.settings.items_spacing
+  -%}
+{%-capture items_class %}
+    {%- render 'config-grid', value: items_per_row, spacing: items_spacing %}
+{%- endcapture -%}
+    {%- render 'config-grid', style: true, value: items_per_row, spacing: items_spacing, id: sectionId -%}
+
+{%- endcapture -%}
+
+ {% comment %} Classname {% endcomment %}
+ {%- capture class -%}
+    |section-container relative
+    {% if layout == 'boxed' %}|container{% endif %}
+ {%- endcapture -%}
+
+{%- render 'snippet-section', type: 'css', value: stylesheet -%}
+
+<div style="background: {{ bg_color }}">
+  <div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
+      <div class="m-[var(--margin)] p-[var(--padding)]">
+          <div class="content-wrapper" style="color: {{ text_color }}">
+              <div class="header-wrapper text-center mb-[60px]">
+                  {%- unless section.settings.heading == blank -%}
+                      <div class="heading text-[30px] lg:text-[40px]">
+                        <h3>{{ section.settings.heading }}</h3>
+                      </div>
+                    {%- endunless -%}
+                    {%- unless section.settings.subtext == blank -%}
+                        <div class="subtext text-[24px] lg:text-[30px]">
+                          <p>{{ section.settings.subtext }}</p>
+                        </div>
+                    {%- endunless -%}
+              </div>
+              <div class="banner-wrapper {{ items_class }}">
+                  {%- if section.blocks.size > 0 -%}
+                      {%- for block in section.blocks -%}
+                          <div class="block-item relative rounded-[20px] overflow-hidden">
+                              {%- liquid
+                                  assign banner = block.settings.banner 
+                                  assign link_banner = block.settings.btn_block_link
+                              -%}
+                              <div class="block-banner">
+                                  {% render 'image', image: banner, type: 'collection' %}
+                              </div>
+                              <div class="absolute inset-0 bg-[rgba(0,0,0,0.42)]"></div>
+                              <div class="block-content--content absolute top-0 h-full w-full z-[3] p-[8%] flex flex-col justify-center items-center">
+                                  {%- unless block.settings.text  == blank -%}
+                                      <div class="text text-[32px] md:text-[40px]" style="color: {{ block.settings.btn_block_color }}">{{ block.settings.text }}</div>
+                                  {%- endunless -%}
+                                  {%- unless link_banner == blank and block.settings.btn_block_text == blank -%}
+                                      <div class="btn-content mt-[40px] text-center text-[18px] p-[9px] border min-w-[180px] hover:border-[#489cd8] group" style="color: {{ block.settings.btn_block_color }}; background: {{ block.settings.btn_bg_color }}">
+                                          <a href="{{ link_banner }}" class="group-hover:text-[#489cd8]">{{ block.settings.btn_block_text }}</a>
+                                      </div>
+                                  {%- endunless -%}
+                              </div>
+                          </div>
+  
+                      {%- endfor -%}
+                  {%- else -%}
+                      {%- for i in (1..3) -%}
+                          <div class="block-item">
+                              {% render 'empty-content', type: 'collection', index: i %}
+                          </div>
+                      {%- endfor -%}
+                  {%- endif -%}
+              </div>
+              {%- unless section.settings.btn_link == blank and section.settings.btn_text == blank -%}
+                  <div class="button text-[16px] mt-[60px] text-center">
+                    <button class="p-2 min-w-[250px] min-h-[51px] border border-[#111f44] rounded-[10px] hover:bg-[#e4642b] hover:border-[#e4642b]" style="color: {{ section.settings.btn_color }}; background: {{ section.settings.btn_bg_color }}">
+                      <a href="{{ section.settings.btn_link }}" class="flex items-center justify-center gap-[10px]">
+                          {{ 'icon-location.svg' | inline_asset_content | replace: '<svg width="800px" height="800px"', '<svg width="20px" height="20px"' }}
+                          {{ section.settings.btn_text }}</a>
+                    </button>
+                  </div>
+              {%- endunless -%}
+          </div>
+      </div>
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "Section gallery",
+    "tag": "section",
+    "class": "ss-gallery",
+    "presets": [
+      {
+        "name": "Section gallery"
+      }
+    ],
+    "disabled_on": {
+      "groups": ["header", "footer"]
+    },
+    "settings": [
+      {
+        "type": "header",
+        "content": "Custom content"
+      },
+      {
+        "type": "richtext",
+        "id": "heading",
+        "label": "Heading"
+    },
+    {
+        "type": "inline_richtext",
+        "id": "subtext",
+        "default": "We Deal In Word...",
+        "label": "Subtext"
+    },
+    {
+        "type": "text",
+        "id": "btn_text",
+        "label": "Button text"
+      },
+      {
+        "type": "url",
+        "id": "btn_link",
+        "label": "Button link"
+      },
+    {
+        "type": "color",
+        "id": "btn_color",
+        "label": "Button text color",
+        "default": "#ffffff"
+    },
+    {
+        "type": "color",
+        "id": "btn_bg_color",
+        "label": "Button background color",
+        "default": "#f76d2f"
+    },
+    {
+      "type": "header",
+      "content": "General settings"
+    },
+    {
+      "type": "select",
+      "id": "section_layout",
+      "label": "t:general.styles.section_layout.label",
+      "options": [
+        {
+          "value": "boxed",
+          "label": "t:general.styles.section_layout.options.option_1"
+        },
+        {
+          "value": "wide",
+          "label": "t:general.styles.section_layout.options.option_2"
+        }
+      ],
+      "default": "boxed"
+    },
+    {
+      "type": "text",
+      "id": "padding",
+      "label": "Padding",
+      "default": "0,0 16px",
+      "info": "Padding"
+    },
+    {
+      "type": "text",
+      "id": "margin",
+      "label": "Margin",
+      "info": "Margin"
+    },
+    {
+      "type": "text",
+      "id": "items_per_row",
+      "label": "Input blocks layout",
+      "info": "e.g: 2,3,5 or 30% 70%",
+      "default": "2,3"
+    },
+    {
+      "type": "text",
+      "id": "items_spacing",
+      "label": "Block spacing"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#1d3675"
+      },
+      {
+        "type": "color",
+        "id": "bg_color",
+        "label": "Background color",
+        "default": "#ffffff"
+    }
+    ],
+    "blocks": [
+        {
+            "type": "gallery",
+            "name": "Image gallery",
+            "settings": [
+                {
+                    "type": "image_picker",
+                    "id": "banner",
+                    "label": "Image"
+                },
+                {
+                    "type": "text",
+                    "id": "text",
+                    "label": "Heading",
+                    "default": "Florida"
+                },
+                {
+                    "type": "text",
+                    "id": "btn_block_text",
+                    "label": "Button text"
+                },
+                  {
+                    "type": "url",
+                    "id": "btn_block_link",
+                    "label": "Button link"
+                  },
+                {
+                    "type": "color",
+                    "id": "btn_block_color",
+                    "label": "Button text color",
+                    "default": "#ffffff"
+                },
+                {
+                    "type": "color",
+                    "id": "btn_bg_color",
+                    "label": "Button background color",
+                    "default": "#f76d2f"
+                },
+            ]
+          }
+    ]
+  }
+  {% endschema %}

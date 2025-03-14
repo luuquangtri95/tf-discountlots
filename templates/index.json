@@ -8,6 +8,247 @@
  * ------------------------------------------------------------
  */
 {
-  "sections": {},
-  "order": []
+  "sections": {
+    "section_card_info_h37Kib": {
+      "type": "section-card-info",
+      "blocks": {
+        "text_fHa8Bn": {
+          "type": "text",
+          "settings": {
+            "bg_block_color": "#f7f9fb",
+            "text": "Exclusive, Off-Market Listings",
+            "sub_content": "We purchase lots through a variety of sources at wholesale prices. Once we own a property, we list it here, on DiscountLots.com. It does not appear in any real estate listings."
+          }
+        },
+        "text_n3Ck94": {
+          "type": "text",
+          "settings": {
+            "bg_block_color": "#f7f9fb",
+            "text": "No Agent Fees or Commissions",
+            "sub_content": "We are able to sell land at such low prices because we do not have to pay agents any commissions or fees (which can be up to 6% of purchase price.) Instead, we pass the savings on to you."
+          }
+        },
+        "text_YBBp9E": {
+          "type": "text",
+          "settings": {
+            "bg_block_color": "#f7f9fb",
+            "text": "No Credit Checks",
+            "sub_content": "When you purchase a property from us, you can be secure in knowing that we handle all qualification decisions in-house without doing a credit check."
+          }
+        },
+        "text_nrNn89": {
+          "type": "text",
+          "settings": {
+            "bg_block_color": "#f7f9fb",
+            "text": "Potential for Profitable Re-sale",
+            "sub_content": "The lots we purchase have been carefully chosen not only for their value, but for their potential for re-sale. Several of our clients have bought and flipped multiple lots at a nice profit."
+          }
+        },
+        "text_hABj8p": {
+          "type": "text",
+          "settings": {
+            "bg_block_color": "#f7f9fb",
+            "text": "Innovative Program for Buyers",
+            "sub_content": "Our program allows you to own property outright at the end of your agreement. It's like an auto lease, but with no absurd balloon payment at the end of it."
+          }
+        },
+        "text_FBPbFT": {
+          "type": "text",
+          "settings": {
+            "bg_block_color": "#f7f9fb",
+            "text": "Owning Land is Easy",
+            "sub_content": "Our founder Paul started Discount Lots with the objective to make land ownership easy and hassle-free. Buying value real estate sounds intimidating, but our team is here to help you build your legacy with your own property."
+          }
+        }
+      },
+      "block_order": [
+        "text_fHa8Bn",
+        "text_n3Ck94",
+        "text_YBBp9E",
+        "text_nrNn89",
+        "text_hABj8p",
+        "text_FBPbFT"
+      ],
+      "disabled": true,
+      "settings": {
+        "section_layout": "boxed",
+        "padding": "40px 0",
+        "margin": "",
+        "items_per_row": "1,2,3",
+        "items_spacing": "20px",
+        "text_color": "#1d3675",
+        "bg_color": "#ffffff",
+        "heading": "<p><strong>Why</strong> Purchase Land With <strong>Us?</strong></p>",
+        "subtext": "",
+        "btn_text": "GET STARTED",
+        "btn_link": "#",
+        "btn_color": "#ffffff",
+        "btn_bg_color": "#f76d2f",
+        "rated": "Rated <strong>4.9</strong> stars By <strong>3,000+</strong> Clients"
+      }
+    },
+    "section_image_gallery_gihJCB": {
+      "type": "section-image-gallery",
+      "blocks": {
+        "gallery_jczkbc": {
+          "type": "gallery",
+          "settings": {
+            "banner": "shopify://shop_images/Dlots-HomepageStates-CA-1.webp",
+            "text": "California",
+            "btn_block_text": "View Properties",
+            "btn_block_link": "#",
+            "btn_block_color": "#ffffff",
+            "btn_bg_color": "rgba(0,0,0,0)"
+          }
+        },
+        "gallery_q3A4wh": {
+          "type": "gallery",
+          "settings": {
+            "banner": "shopify://shop_images/Dlots-HomepageStates-AZ.webp",
+            "text": "Arizona",
+            "btn_block_text": "View Properties",
+            "btn_block_link": "#",
+            "btn_block_color": "#ffffff",
+            "btn_bg_color": "rgba(0,0,0,0)"
+          }
+        },
+        "gallery_RhVwxG": {
+          "type": "gallery",
+          "settings": {
+            "banner": "shopify://shop_images/Dlots-HomepageStates-FL.webp",
+            "text": "Florida",
+            "btn_block_text": "View Properties",
+            "btn_block_link": "",
+            "btn_block_color": "#ffffff",
+            "btn_bg_color": "rgba(0,0,0,0)"
+          }
+        },
+        "gallery_ag8VXF": {
+          "type": "gallery",
+          "settings": {
+            "banner": "shopify://shop_images/Dlots-HomepageStates-TX.webp",
+            "text": "Texas",
+            "btn_block_text": "View Properties",
+            "btn_block_link": "#",
+            "btn_block_color": "#ffffff",
+            "btn_bg_color": "rgba(0,0,0,0)"
+          }
+        }
+      },
+      "block_order": [
+        "gallery_jczkbc",
+        "gallery_q3A4wh",
+        "gallery_RhVwxG",
+        "gallery_ag8VXF"
+      ],
+      "disabled": true,
+      "settings": {
+        "section_layout": "boxed",
+        "padding": "60px 0, 80px 0",
+        "margin": "",
+        "items_per_row": "1,2,4,4",
+        "items_spacing": "30px,16px",
+        "text_color": "#1d3675",
+        "bg_color": "#f7f9fb",
+        "heading": "<p>Check Out Our  <strong>Most Popular States</strong></p><p>We Deal In</p>",
+        "subtext": "Starting at $200/month",
+        "btn_text": "View All States",
+        "btn_link": "#",
+        "btn_color": "#ffffff",
+        "btn_bg_color": "#1d3675"
+      }
+    },
+    "section_testimonial_cApcbx": {
+      "type": "section-testimonial",
+      "blocks": {
+        "gallery_THNVke": {
+          "type": "gallery",
+          "settings": {
+            "testimonial_video": "https://player.vimeo.com/video/738016138?h=2ccf81e4b8&badge=0&autopause=0&player_id=0&app_id=58479",
+            "rated": 3,
+            "name": "LaJeanna Brooks",
+            "details": "\"The process was extremely easy...it was a super smooth transition. They're very communicative. They will show you the ropes and they will definitely put you in peace.\"",
+            "vendor": "Verified Buyer"
+          }
+        },
+        "gallery_prQYAe": {
+          "type": "gallery",
+          "settings": {
+            "testimonial_video": "https://player.vimeo.com/video/738016189?h=2ccf81e4b8&badge=0&autopause=0&player_id=0&app_id=58479",
+            "rated": 4,
+            "name": "Dion Antic",
+            "details": "\"It just was easy. I don't even know how to explain. It was so easy to buy. With only a $1 down and a $300 document fee, it's worth the risk.\"",
+            "vendor": "Verified Buyer"
+          }
+        },
+        "gallery_jfwDpa": {
+          "type": "gallery",
+          "settings": {
+            "testimonial_video": "https://player.vimeo.com/video/738016168?h=068ec2a42a&badge=0&autopause=0&player_id=0&app_id=58479",
+            "rated": 5,
+            "name": "Broch Clinton",
+            "details": "\"10 out of 10. I believe it'll be an incredible asset in the future so I feel really good about it.\"",
+            "vendor": "Verified Buyer"
+          }
+        },
+        "gallery_4DXYTx": {
+          "type": "gallery",
+          "settings": {
+            "testimonial_video": "https://player.vimeo.com/video/984367274?badge=0&autopause=0&player_id=0&app_id=58479",
+            "rated": 5,
+            "name": "Luis Garcia",
+            "details": "\"Discount lots is my savior. That's the greatest company. I’ve been with them for 4 years. I can't say enough about them…I'm about to buy my second lot so you can't go wrong.\"",
+            "vendor": "Verified Buyer"
+          }
+        },
+        "gallery_thFXrc": {
+          "type": "gallery",
+          "settings": {
+            "testimonial_video": "https://player.vimeo.com/video/984372780?badge=0&autopause=0&player_id=0&app_id=58479",
+            "rated": 5,
+            "name": "Jose Villa",
+            "details": "\"They just made everything very easy…They're not making any more land, and if the price is right, the location is right? Definitely do it.\"",
+            "vendor": "Verified Buyer"
+          }
+        },
+        "gallery_RtVNAq": {
+          "type": "gallery",
+          "settings": {
+            "testimonial_video": "https://player.vimeo.com/video/984394860?badge=0&autopause=0&player_id=0&app_id=58479",
+            "rated": 5,
+            "name": "Adam Weatherall",
+            "details": "\"I investigate everything I do. I investigated them, and they came out the other end with a thumbs up. That's why I purchased with you.\"",
+            "vendor": "Verified Buyer"
+          }
+        }
+      },
+      "block_order": [
+        "gallery_THNVke",
+        "gallery_prQYAe",
+        "gallery_jfwDpa",
+        "gallery_4DXYTx",
+        "gallery_thFXrc",
+        "gallery_RtVNAq"
+      ],
+      "settings": {
+        "section_layout": "boxed",
+        "padding": "60px 0,80px 0",
+        "margin": "",
+        "items_resp": "2,3,4",
+        "items_spacing": "10px,15px,20px,30px",
+        "dots": true,
+        "navs": false,
+        "heading": "<p>Don’t Just Take Our Word!</p>",
+        "subtext": "<strong>Hear It From Our Clients...</strong>",
+        "ratio_video": "vertical",
+        "text_color": "#ffffff",
+        "bg_color": "#124f92"
+      }
+    }
+  },
+  "order": [
+    "section_card_info_h37Kib",
+    "section_image_gallery_gihJCB",
+    "section_testimonial_cApcbx"
+  ]
 }
