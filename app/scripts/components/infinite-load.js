@@ -1,81 +1,92 @@
-
 class infiniteLoading extends HTMLElement {
-	constructor() {
-		super();
-        // this.querySelector('.js-load-more')?.addEventListener('click',()=>{
-        //     this.fetch();
-        // })
-        //this.loading = this.querySelector('.svg_loading')
-	}
+  constructor() {
+    super();
+    // this.querySelector('.js-load-more')?.addEventListener('click',()=>{
+    //     this.fetch();
+    // })
+    //this.loading = this.querySelector('.svg_loading')
+  }
 
-	connectedCallback() {
-		if(!this.dataset.url.length) return;
-	
-		// this.removeEvents();
-		window.addEventListener('scroll', this.onScrollHandler.bind(this), false);
-   
-	}
+  connectedCallback() {
+    if (!this.dataset.url.length) return;
 
-	disconnectedCallback() {
-		this.removeEvents();
-	}
+    // this.removeEvents();
+    window.addEventListener("scroll", this.onScrollHandler.bind(this), false);
+  }
 
-	removeEvents(remove){
-		window.removeEventListener('scroll', this.onScrollHandler.bind(this), false);
-		remove && this.remove();
-	}
+  disconnectedCallback() {
+    this.removeEvents();
+  }
 
-	onScrollHandler(){
-		if(this.getBoundingClientRect().top < 1 || this.getBoundingClientRect().top > window.innerHeight || this.waiting) return;
+  removeEvents(remove) {
+    window.removeEventListener(
+      "scroll",
+      this.onScrollHandler.bind(this),
+      false,
+    );
+    remove && this.remove();
+  }
 
-		this.fetch();
-	}
+  onScrollHandler() {
+    if (
+      this.getBoundingClientRect().top < 1 ||
+      this.getBoundingClientRect().top > window.innerHeight ||
+      this.waiting
+    )
+      return;
 
-	fetch(){
-        if(!this.dataset.url.includes('page')) return;
-		this.waiting = true;
-		this.classList.add('loading');
+    this.fetch();
+  }
 
-		if(!this.dataset.url.length){
-			this.disconnectedCallback();
-			return;
-		}
+  fetch() {
+    if (!this.dataset.url.includes("page")) return;
+    this.waiting = true;
+    this.classList.add("loading");
 
-		var url = this.dataset.url;
-		url += url.includes('?') ? '&' : '?';
+    if (!this.dataset.url.length) {
+      this.disconnectedCallback();
+      return;
+    }
 
-        console.log('url', url)
-		fetch(url).then(e=>e.text()).then(html=>{
-			const div = document.createElement('div');
-			div.innerHTML = html;
+    var url = this.dataset.url;
+    url += url.includes("?") ? "&" : "?";
 
-			this.render(div);
-			div.remove();
-            this.waiting = false;
-            this.classList.remove('loading');
-		})
-	}
+    console.log("url", url);
+    fetch(url)
+      .then((e) => e.text())
+      .then((html) => {
+        const div = document.createElement("div");
+        div.innerHTML = html;
 
-	render(newContent){
-        //console.log('newContent', newContent)
-        if(newContent.querySelector('.list-products') == null) return;
-		Array.from(newContent.querySelector('.list-products')?.children)?.forEach(item=>{
-			if (item.classList.contains('info-card')) return;
-			document.querySelector('.list-products').insertAdjacentElement('beforeend', item);
-		})
-		this.setAttribute('data-url', newContent.querySelector(this.tagName)?.dataset.url);
-		
+        this.render(div);
+        div.remove();
+        this.waiting = false;
+        this.classList.remove("loading");
+      });
+  }
 
-		if(!this.dataset.url.length){
-			this.removeEvents(true);
-		}
-		// Loading Stamped's widgets with AJAX
-		StampedFn.reloadUGC();  
+  render(newContent) {
+    //console.log('newContent', newContent)
+    if (newContent.querySelector(".list-products") == null) return;
+    Array.from(newContent.querySelector(".list-products")?.children)?.forEach(
+      (item) => {
+        if (item.classList.contains("info-card")) return;
+        document
+          .querySelector(".list-products")
+          .insertAdjacentElement("beforeend", item);
+      },
+    );
+    this.setAttribute(
+      "data-url",
+      newContent.querySelector(this.tagName)?.dataset.url,
+    );
 
-	}
+    if (!this.dataset.url.length) {
+      this.removeEvents(true);
+    }
+    // Loading Stamped's widgets with AJAX
+    StampedFn.reloadUGC();
+  }
 }
 
-customElements.define('infinite-loading', infiniteLoading);
-
-
-
+customElements.define("infinite-loading", infiniteLoading);

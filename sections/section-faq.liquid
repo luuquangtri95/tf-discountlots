@@ -1,210 +1,104 @@
-
-
 {%- liquid
-    assign sectionId = '#shopify-section-' | append: section.id
-    assign layout = section.settings.section_layout | handle
-    assign text_color = section.settings.text_color
-    assign ratio_video = section.settings.ratio_video
+  assign sectionId = '#shopify-section-' | append: section.id
+  assign layout = section.settings.section_layout | handle
 -%}
-{%- case ratio_video -%}
-{%- when "horizontal" -%}
-  {%- assign padding = "56.25%" -%}
-{%- when "middle" -%}
-  {%- assign padding = "75%" -%}
-{%- when "vertical" -%}
-  {%- assign padding = "177.78%" -%}
-{%- endcase -%}
 
- {% comment %} Classname {% endcomment %}
- {%- capture class -%}
-    |section-container relative
+{%- capture custom_schema_color -%}
+  {%- unless section.settings.schema_color_name == blank -%}
+    schema-color-{{- section.settings.schema_color_name | handle -}}
+  {%- endunless -%}
+{%- endcapture -%}
+
+{% comment %} Classname {% endcomment %}
+{%- capture class -%}
+    |section-container relative {{ custom_schema_color }}
     {% if layout == 'boxed' %}|container{% endif %}
  {%- endcapture -%}
 
 {%- render 'snippet-section', type: 'css' -%}
 
-
 <div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
-    <div class="m-[var(--margin)] p-[var(--padding)]">
-        <div class="content-wrapper" style="color: {{ text_color }}">
-            <div class="header-wrapper text-center mb-[30px]">
-                {%- unless section.settings.heading == blank -%}
-                    <div class="heading text-[30px] lg:text-[40px]">
-                      <h3>{{ section.settings.heading }}</h3>
-                    </div>
-                  {%- endunless -%}
-                  {%- unless section.settings.subtext == blank -%}
-                      <div class="subtext text-[24px] lg:text-[30px]">
-                        <p>{{ section.settings.subtext }}</p>
-                      </div>
-                  {%- endunless -%}
-            </div>
-            {%- for block in section.blocks -%}
-            <lazy-script
-                data-tag="accordion-component"
-                data-file="{{ 'accordion-component.js' | asset_url }}"
-                data-close-screen="(max-width: 749px)"
-              >
-                <details class="border-b">
-                  <summary class="cursor-pointer">
-                    <div class="w-full flex items-center justify-between py-[15px] pr-[10px]">
-                      <p class="title flex-1 font-bold">{{ block.settings.question }}</p>
-                      {%- render 'icons', icon: 'arrow', class: 'w-[10px] h-[10px] icon-arrow' -%}
-                    </div>
-                  </summary>
-                  <div class="pb-[30px]"> 
-                    {% unless block.settings.answer == blank %}                    
-                        <div class="text">
-                            {{ block.settings.answer }}
-                        </div>
-                    {% endunless %}
-                    {% unless block.settings.video == blank %}
-                      {% assign external_video = block.settings.video %}    
-                        <div class="video relative h-0 overflow-hidden mt-[30px]" style="padding-bottom: {{ padding }}">
-                          {%- capture videoId -%}player{{section.id | append: block.id | append: external_video.external_id}}{%- endcapture -%}
-                          {%- assign externalId = external_video.id -%}
-                      
-                          {%- capture videoUrl -%}
-                          {%- if external_video.type == 'youtube' -%}
-                              https://www.youtube.com/embed/{{ 'videoId' }}?playsinline=1&playlist={{ 'videoId' }}&enablejsapi=1&rel=0&modestbranding=
-                          {%- else -%}
-                              https://player.vimeo.com/video/{{ 'videoId' }}
-                          {%- endif -%}
-                          {%- endcapture -%}
-                      
-                          <lazy-script class="absolute w-full h-full top-0 left-0" data-type="{{external_video.type}}" play-in-view data-tag="video-component" data-file="{{ 'video-component.js' | asset_url }}">
-                          <iframe
-                              src="{{- videoUrl | replace: 'videoId', externalId -}}"
-                              allow="autoplay; encrypted-media"
-                              allowfullscreen
-                              title=""
-                              class="h-full w-full"
-                              id="{{videoId}}"
-                              data-video-id="{{ externalId }}"
-                          ></iframe>
-                          </lazy-script>
-                        </div>
-                    {% endunless %}
-                  </div>
-                </details>
-            </lazy-script>
+  <div class="m-[var(--margin)] p-[var(--padding)]">
+    <div class="content-wrapper text-[var(--text)]">
+      <div class="header-wrapper mb-[30px] text-center">
+        {%- unless section.settings.heading == blank -%}
+          <div class="heading text-[30px] lg:text-[40px]">
+            <h3>{{ section.settings.heading }}</h3>
+          </div>
+        {%- endunless -%}
+        {%- unless section.settings.subtext == blank -%}
+          <div class="subtext text-[24px] lg:text-[30px]">
+            <p>{{ section.settings.subtext }}</p>
+          </div>
+        {%- endunless -%}
+      </div>
+      {% content_for 'blocks' %}
+      <div class="button-wrapper mt-[40px] text-center lg:mt-[60px]">
+        {%- unless section.settings.btn_link == blank and section.settings.btn_text == blank -%}
+          <div class="button mt-[30px] text-[16px]">
+            <button
+              class="min-h-[51px] min-w-[250px] rounded-[10px] border border-[var(--btn-border-color)] bg-[var(--btn-background)] p-2 font-[600] uppercase text-[var(--btn-color)] hover:border-[var(--hover-btn-border-color)] hover:bg-[var(--hover-btn-background)] hover:text-[var(--hover-btn-color)]"
+            >
+              <a href="{{ section.settings.btn_link }}">{{ section.settings.btn_text }}</a>
+            </button>
+          </div>
+        {%- endunless -%}
+
+        {%- unless section.settings.rated == blank -%}
+          <div class="rated mt-[20px] flex flex-wrap items-center justify-center gap-2 text-[14px]">
+            {%- for i in (1..5) -%}
+              <span class="inline-block w-[22px] {% if i <= section.settings.rated %}text-[#f7cf2f]{% else %}text-gray-300{% endif %}">
+                {{ 'icon-star-rating.svg' | inline_asset_content }}
+              </span>
             {%- endfor -%}
-            <div class="button-wrapper text-center mt-[40px] lg:mt-[60px]">
-              {%- unless section.settings.btn_link == blank and section.settings.btn_text == blank -%}
-                <div class="button text-[16px] mt-[30px]">
-                  <button class="p-2 min-w-[250px] min-h-[51px] font-[600] border border-[#111f44] rounded-[10px] uppercase hover:bg-[#e4642b] hover:border-[#e4642b]" style="color: {{ section.settings.btn_color }}; background: {{ section.settings.btn_bg_color }}">
-                    <a href="{{ section.settings.btn_link }}">{{ section.settings.btn_text }}</a>
-                  </button>
-                </div>
-            {%- endunless -%}
-  
-                {%- unless section.settings.rated == blank -%}
-                  <div class="rated mt-[20px] text-[14px] flex gap-2 flex-wrap items-center justify-center">
-                    {%- for i in (1..5) -%}
-                      <span class="inline-block w-[22px] {% if i <= section.settings.rated %}text-[#f7cf2f]{% else %}text-gray-300{% endif %}">
-                        {%- render 'svg', type: 'star-rating' -%}
-                      </span>
-                    {%- endfor -%}
-                      <span>{{ section.settings.text_rated }}</span>
-                  </div>
-                {%- endunless -%}
-            </div>
-        </div>
+            <span>{{ section.settings.text_rated }}</span>
+          </div>
+        {%- endunless -%}
+      </div>
     </div>
+  </div>
 </div>
 
-
 {% schema %}
-  {
-    "name": "Section faq",
-    "tag": "section",
-    "class": "ss-faq",
-    "presets": [
-      {
-        "name": "Section faq"
-      }
-    ],
-    "limit": 1,
-    "enabled_on": {
-      "groups": ["footer"]
-    },
-    "settings": [
-      {
-        "type": "header",
-        "content": "General settings"
-      },
-      {
-        "type": "select",
-        "id": "section_layout",
-        "label": "t:general.styles.section_layout.label",
-        "options": [
-          {
-            "value": "boxed",
-            "label": "t:general.styles.section_layout.options.option_1"
-          },
-          {
-            "value": "wide",
-            "label": "t:general.styles.section_layout.options.option_2"
-          }
-        ],
-        "default": "boxed"
-      },
-      {
-        "type": "text",
-        "id": "padding",
-        "label": "Padding",
-        "default": "0,0 16px",
-        "info": "Padding"
-      },
-      {
-        "type": "text",
-        "id": "margin",
-        "label": "Margin",
-        "info": "Margin"
-      },
-      {
-        "type": "color",
-        "id": "text_color",
-        "label": "Text color",
-        "default": "#1d3675"
-        },
-      {
-        "type": "header",
-        "content": "Custom content"
-      },
-      {
-        "type": "inline_richtext",
-        "id": "heading",
-        "default": "Got Questions?",
-        "label": "Heading"
+{
+  "name": "FAQ",
+  "tag": "section",
+  "class": "ss-faq",
+  "presets": [
+    {
+      "name": "FAQ"
+    }
+  ],
+  "limit": 1,
+  "enabled_on": {
+    "groups": ["footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Custom content"
     },
     {
-        "type": "inline_richtext",
-        "id": "subtext",
-        "default": "We’ve Got You Covered",
-        "label": "Subtext"
+      "type": "inline_richtext",
+      "id": "heading",
+      "default": "Got Questions?",
+      "label": "Heading"
     },
     {
-        "type": "text",
-        "id": "btn_text",
-        "label": "Button text"
-      },
-      {
-        "type": "url",
-        "id": "btn_link",
-        "label": "Button link"
-      },
-    {
-        "type": "color",
-        "id": "btn_color",
-        "label": "Button text color",
-        "default": "#ffffff"
+      "type": "inline_richtext",
+      "id": "subtext",
+      "default": "We’ve Got You Covered",
+      "label": "Subtext"
     },
     {
-        "type": "color",
-        "id": "btn_bg_color",
-        "label": "Button background color",
-        "default": "#f76d2f"
+      "type": "text",
+      "id": "btn_text",
+      "label": "Button text"
+    },
+    {
+      "type": "url",
+      "id": "btn_link",
+      "label": "Button link"
     },
     {
       "type": "range",
@@ -216,10 +110,10 @@
       "default": 5
     },
     {
-        "type": "inline_richtext",
-        "id": "text_rated",
-        "default": "Rated 4.9 stars By 3,000+ Clients",
-        "label": "Rated content"
+      "type": "inline_richtext",
+      "id": "text_rated",
+      "default": "Rated 4.9 stars By 3,000+ Clients",
+      "label": "Rated content"
     },
     {
       "type": "select",
@@ -240,36 +134,46 @@
         }
       ],
       "default": "horizontal"
-    }
-    ],
-    "blocks": [
+    },
+    {
+      "type": "header",
+      "content": "General settings"
+    },
+    {
+      "type": "text",
+      "id": "schema_color_name",
+      "label": "Schema color name"
+    },
+    {
+      "type": "select",
+      "id": "section_layout",
+      "label": "t:general.styles.section_layout.label",
+      "options": [
         {
-            "type": "faq",
-            "name": "Faq",
-            "settings": [
-                {
-                    "type": "text",
-                    "id": "question",
-                    "label": "question",
-                    "default": "Lorem ipsum as well as a random"
-                },
-                {
-                    "type": "richtext",
-                    "id": "answer",
-                    "label": "answer",
-                },
-                {
-                    "type": "video_url",
-                    "id": "video",
-                    "label": "Insert video",
-                    "accept": [
-                      "youtube",
-                      "vimeo"
-                    ]
-                }
-            ]
-          }
-    ]
-  }
-  {% endschema %}
-  
+          "value": "boxed",
+          "label": "t:general.styles.section_layout.options.option_1"
+        },
+        {
+          "value": "wide",
+          "label": "t:general.styles.section_layout.options.option_2"
+        }
+      ],
+      "default": "boxed"
+    },
+    {
+      "type": "text",
+      "id": "padding",
+      "label": "Padding",
+      "default": "0,0 16px",
+      "info": "Padding"
+    },
+    {
+      "type": "text",
+      "id": "margin",
+      "label": "Margin",
+      "info": "Margin"
+    }
+  ],
+  "blocks": [{ "type": "_faq-question" }]
+}
+{% endschema %}

@@ -1,230 +1,241 @@
+{%- liquid
+  assign sectionId = '#shopify-section-' | append: section.id
+  assign layout = section.settings.section_layout | handle
+-%}
 
-  {%- liquid
-    assign sectionId = '#shopify-section-' | append: section.id
-    assign layout = section.settings.section_layout | handle
-    assign link_color = section.settings.link_color
-  -%}
+{%- capture custom_schema_color -%}
+  {%- unless section.settings.schema_color_name == blank -%}
+    schema-color-{{- section.settings.schema_color_name | handle -}}
+  {%- endunless -%}
+{%- endcapture -%}
 
-  {%- capture class -%}
-    |section-container relative
+{%- capture class -%}
+    |section-container relative {{ custom_schema_color }}
     {% if layout == 'boxed' %}|container{% endif %}
   {%- endcapture -%}
 
-  {%- capture stylesheet -%}
+{%- capture stylesheet -%}
      {%- capture css_values -%}
       --logo-width: {{section.settings.logo_width |   default: "200px"}};
      {%- endcapture -%}
      {%- render 'css-resp', class: sectionId, type: 'multi', value: css_values-%}
    {%- endcapture -%}
-  {%- render 'snippet-section', type: 'css', value: stylesheet -%}
+{%- render 'snippet-section', type: 'css', value: stylesheet -%}
 
-   {%- capture logo_class -%}
+{%- capture logo_class -%}
     |max-w-[var(--logo-width)]
     |w-[var(--logo-width)]
     {%- endcapture -%}
 
-    <div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
-      <div class="m-[var(--margin)] p-[var(--padding)]">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-[30px] md:gap-4">
-          {%- for block in section.blocks -%}
-            {%- case block.type -%}
-              {%- when 'menu' -%}
-                {%- liquid
-                  assign menu_title = block.settings.footer_linklist_title
-                  assign block_menu = block.settings.menu
-                -%}
-                <div {{ block.shopify_attributes }} class="block-menu md:flex flex-col items-center">
-                  <div class="heading">
-                    <h2 class="title text-[22px] mb-[20px] font-bold">{{ menu_title }}</h2>
-                  </div>
-                  <ul role="list" class="menu-list">
-                    {%- render 'link' for block_menu.links as link, class:'mb-[8px] block text-[#489CD8]' -%}
-                  </ul>
-                </div>
-  
-              {%- when 'newsletter' -%}
-                {%- liquid
-                  assign newsletter_title = block.settings.footer_newsletter_title
-                  assign newsletter_subtitle = block.settings.footer_newsletter_subtitle
-                -%}
-                <div {{ block.shopify_attributes }} class="block-newsletter">
-                  <div class="heading">
-                    <h2 class="title text-[22px] mb-[20px] font-bold">{{ newsletter_title }}</h2>
-                  </div>
-                  <div class="subheading">{{ newsletter_subtitle }}</div>
-                  {%- render 'form', type: 'newsletter' -%}
-                </div>
-                
-              {%- when 'information' -%}
-                {%- liquid
-                  assign phone = block.settings.phone
-                  assign mail = block.settings.mail
-                  assign support = block.settings.support
-                  assign working_1 = block.settings.working_1
-                  assign working_2 = block.settings.working_2
-                  assign link_invest = block.settings.link_invest
-                -%}
+<div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
+  <div class="m-[var(--margin)] p-[var(--padding)] text-[var(--text)]">
+    <div class="grid grid-cols-1 gap-[30px] md:grid-cols-3 md:gap-4">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'menu' -%}
+            {%- liquid
+              assign menu_title = block.settings.footer_linklist_title
+              assign block_menu = block.settings.menu
+            -%}
+            <div {{ block.shopify_attributes }} class="block-menu flex-col items-center md:flex">
+              <div class="heading">
+                <h2 class="title mb-[20px] text-[22px] font-bold">{{ menu_title }}</h2>
+              </div>
+              <ul role="list" class="menu-list">
+                {%- render 'link' for block_menu.links as link, class: 'mb-[8px] block text-[#489CD8]' -%}
+              </ul>
+            </div>
 
-                <div {{ block.shopify_attributes }} class="block-information">
-                  {%- unless section.settings.logo == blank -%}
-                    <div class="w-full flex items-center mb-[15px]">
-                      <div class="{{ logo_class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
-                        {%- render 'logo', object: section.settings -%}
-                      </div>
-                    </div>
-                  {%- endunless -%}
-                  {%- unless phone == blank %}
-                    <div class="phone flex gap-1">
-                      <div class="svg-wrapper w-[20px] h-[20px]">
-                        {% render 'icons', icon: 'phone' %}
-                      </div>
-                      {{ phone }}
-                    </div>
-                  {% endunless -%}
-                  {%- unless mail == blank %}
-                    <div class="email" style="color: {{ link_color }}">{{ mail }}</div>
-                  {% endunless -%}
-                  <div class="customer-support my-[30px] text-[15px]">
-                    {%- unless support == blank %}
-                      <div class="support flex gap-1 text-[18px] font-bold mb-[8px]">
-                        <div class="svg-wrapper w-[20px] h-[20px]">
-                          {% render 'icons', icon: 'support' %}
-                        </div>
-                        {{ support }}
-                      </div>
-                    {% endunless -%}
-                    {%- unless working_1 == blank %}
-                      <p>{{ working_1 }}</p>
-                    {% endunless -%}
-                    {%- unless working_2 == blank %}
-                      <p>{{ working_2 }}</p>
-                    {% endunless -%}
+          {%- when 'newsletter' -%}
+            {%- liquid
+              assign newsletter_title = block.settings.footer_newsletter_title
+              assign newsletter_subtitle = block.settings.footer_newsletter_subtitle
+            -%}
+            <div {{ block.shopify_attributes }} class="block-newsletter">
+              <div class="heading">
+                <h2 class="title mb-[20px] text-[22px] font-bold">{{ newsletter_title }}</h2>
+              </div>
+              <div class="subheading">{{ newsletter_subtitle }}</div>
+              {% comment %} {%- render 'form', type: 'newsletter' -%} {% endcomment %}
+            </div>
+
+          {%- when 'information' -%}
+            {%- liquid
+              assign phone = block.settings.phone
+              assign mail = block.settings.mail
+              assign support = block.settings.support
+              assign working_1 = block.settings.working_1
+              assign working_2 = block.settings.working_2
+              assign link_invest = block.settings.link_invest
+            -%}
+
+            <div {{ block.shopify_attributes }} class="block-information">
+              {%- unless section.settings.logo == blank -%}
+                <div class="mb-[15px] flex w-full items-center">
+                  <div class="{{ logo_class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
+                    {%- render 'logo', object: section.settings -%}
                   </div>
-                  {%- unless link_invest == blank %}
-                    <div class="invest text-[18px]" style="color: {{ link_color }}">{{ link_invest }}</div>
-                  {% endunless -%}
                 </div>
-            {%- endcase -%}
-          {%- endfor -%}
-        </div>
-      </div>
+              {%- endunless -%}
+              {%- unless phone == blank %}
+                <div class="phone flex gap-1">
+                  <div class="svg-wrapper h-[20px] w-[20px]">
+                    {{ 'icon-phone.svg' | inline_asset_content }}
+                  </div>
+                  {{ phone }}
+                </div>
+              {% endunless -%}
+              {%- unless mail == blank %}
+                <div class="email text-[var(--link)] hover:text-[var(--link)]">{{ mail }}</div>
+              {% endunless -%}
+              <div class="customer-support my-[30px] text-[15px]">
+                {%- unless support == blank %}
+                  <div class="support mb-[8px] flex items-center gap-1 text-[18px] font-bold">
+                    <div class="svg-wrapper h-[20px] w-[20px]">
+                      {{ 'icon-support.svg' | inline_asset_content }}
+                    </div>
+                    {{ support }}
+                  </div>
+                {% endunless -%}
+                {%- unless working_1 == blank %}
+                  <p>{{ working_1 }}</p>
+                {% endunless -%}
+                {%- unless working_2 == blank %}
+                  <p>{{ working_2 }}</p>
+                {% endunless -%}
+              </div>
+              {%- unless link_invest == blank %}
+                <div class="invest text-[18px] underline-offset-2 hover:underline" style="color: {{ link_color }}">
+                  {{ link_invest }}
+                </div>
+              {% endunless -%}
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
     </div>
-  
-  {%- render 'snippet-section', type: 'css-file', name: 'footer' -%}
-  
-  {% schema %}
-  {
-    "name": "Footer",
-    "tag": "section",
-    "class": "ss-footer",
-    "presets": [
-      {
-        "name": "Footer"
-      }
-    ],
-    "limit": 1,
-    "enabled_on": {
-      "groups": ["footer"]
+  </div>
+</div>
+
+{%- render 'snippet-section', type: 'css-file', name: 'footer' -%}
+
+{% schema %}
+{
+  "name": "Footer",
+  "tag": "section",
+  "class": "ss-footer",
+  "presets": [
+    {
+      "name": "Footer"
+    }
+  ],
+  "limit": 1,
+  "enabled_on": {
+    "groups": ["footer"]
+  },
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo"
     },
-    "settings": [
-      {
-        "type": "image_picker",
-        "id": "logo",
-        "label": "Logo"
-      },
-      {
-        "type": "text",
-        "id": "logo_width",
-        "label": "Logo width"
-      },
-      {
-        "type": "header",
-        "content": "General settings"
-      },
-      {
-        "type": "select",
-        "id": "section_layout",
-        "label": "Layout",
-        "options": [
-          {
-            "value": "boxed",
-            "label": "Boxed"
-          },
-          {
-            "value": "wide",
-            "label": "Wide"
-          }
-        ],
-        "default": "boxed"
-      },
-      {
-        "type": "text",
-        "id": "padding",
-        "label": "Padding",
-        "default": "0,0 16px",
-        "info": "Padding"
-      },
-      {
-        "type": "text",
-        "id": "margin",
-        "label": "Margin",
-        "info": "Margin"
-      },
-      {
-        "type": "color",
-        "id": "link_color",
-        "label": "Link color",
-        "default": "#489cd8"
-      }
-    ],
-    "blocks": [
-      {
-        "type": "menu",
-        "name": "Menu",
-        "settings": [
-          {
-            "type": "text",
-            "id": "footer_linklist_title",
-            "label": "Heading",
-            "default": "Listings By State"
-          },
-          {
-            "type": "link_list",
-            "id": "menu",
-            "label": "Link"
-          }
-        ]
-      },
-      {
-        "type": "newsletter",
-        "name": "Newsletter",
-        "limit": 1,
-        "settings": [
-          {
-            "type": "text",
-            "id": "footer_newsletter_title",
-            "label": "Heading",
-            "default": "Unlock Discount Lots Secrets & Savings"
-          },
-          {
-            "type": "textarea",
-            "id": "footer_newsletter_subtitle",
-            "label": "Subheading",
-            "default": "Join our email list to receive exclusive deals reserved for our subscribers. The essential resource for affordable home ownership - all in a single click!"
-          }
-        ]
-      },
-      {
-        "type": "information",
-        "name": "Information",
-        "limit": 1,
-        "settings": [
-          {
-            "type": "inline_richtext",
-            "id": "phone",
-            "label": "Phone"
-         },
-         {
+    {
+      "type": "text",
+      "id": "logo_width",
+      "label": "Logo width"
+    },
+    {
+      "type": "header",
+      "content": "General settings"
+    },
+    {
+      "type": "text",
+      "id": "schema_color_name",
+      "label": "Schema color name"
+    },
+    {
+      "type": "select",
+      "id": "section_layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "boxed",
+          "label": "Boxed"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        }
+      ],
+      "default": "boxed"
+    },
+    {
+      "type": "text",
+      "id": "padding",
+      "label": "Padding",
+      "default": "0,0 16px",
+      "info": "Padding"
+    },
+    {
+      "type": "text",
+      "id": "margin",
+      "label": "Margin",
+      "info": "Margin"
+    },
+    {
+      "type": "color",
+      "id": "link_color",
+      "label": "Link color",
+      "default": "#489cd8"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "menu",
+      "name": "Menu",
+      "settings": [
+        {
+          "type": "text",
+          "id": "footer_linklist_title",
+          "label": "Heading",
+          "default": "Listings By State"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Link"
+        }
+      ]
+    },
+    {
+      "type": "newsletter",
+      "name": "Newsletter",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "footer_newsletter_title",
+          "label": "Heading",
+          "default": "Unlock Discount Lots Secrets & Savings"
+        },
+        {
+          "type": "textarea",
+          "id": "footer_newsletter_subtitle",
+          "label": "Subheading",
+          "default": "Join our email list to receive exclusive deals reserved for our subscribers. The essential resource for affordable home ownership - all in a single click!"
+        }
+      ]
+    },
+    {
+      "type": "information",
+      "name": "Information",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "phone",
+          "label": "Phone"
+        },
+        {
           "type": "inline_richtext",
           "id": "mail",
           "label": "Email",
@@ -252,9 +263,8 @@
           "label": "Link invest",
           "default": "Looking to make high-yield secure investment?"
         }
-        ]
-      }
-    ]
-  }
-  {% endschema %}
-  
+      ]
+    }
+  ]
+}
+{% endschema %}

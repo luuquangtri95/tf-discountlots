@@ -10,43 +10,48 @@
 		</div>
 	{%- endif -%}
 {%- endcapture -%}
- 
 
 {%- capture LINK -%}
-	<a href="{{link.url}}" class="link">
+	<a href="{{link.url}}" class="link {{ class }}">
 		{{- link.title -}}
 	</a>
 {%- endcapture -%}
 
-
 <li class="list-item{% if sublink != blank %} has-dropdown{% endif %}{% if link.active or link.child_active %} active{% endif %}">
-	{%- if sublink != blank and showSubLink -%}
-		{%- case type -%}
-			{%- when 'accordion' -%}
+  {%- if sublink != blank and showSubLink -%}
+    {%- case type -%}
+      {%- when 'accordion' -%}
+        <lazy-script
+          data-tag="accordion-component"
+          data-file="{{ 'accordion-component.js' | asset_url }}"
+          class="menu-accordion"
+        >
+          <details
+            {% if link.active or link.child_active %}
+              open
+            {% endif %}
+          >
+            <summary class="link flex cursor-pointer items-center justify-between">
+              <span>{{- link.title -}}</span>
+              {%- render 'icons', icon: 'arrow', class: 'expand cursor-pointer' -%}
+            </summary>
+            {{- sublink -}}
+          </details>
+        </lazy-script>
 
-				<lazy-script data-tag="accordion-component" data-file="{{ 'accordion-component.js' | asset_url }}" class="menu-accordion">
-					<details {% if link.active or link.child_active %} open{% endif %}>
-						<summary class="link cursor-pointer flex items-center justify-between">
-							<span>{{- link.title -}}</span>
-							{%- render 'icons', icon: 'arrow', class: 'expand cursor-pointer' -%}
-						</summary>
-						{{- sublink -}}
-					</details>
-				</lazy-script>
+      {%- else -%}
+        <details>
+          <summary>
+            <div class="flex justify-between">
+              {{- LINK -}}
+              {%- render 'icons', icon: 'arrow', class: 'expand cursor-pointer' -%}
+            </div>
+          </summary>
 
-			{%- else -%}
-				<details>
-					<summary>
-						<div class="flex justify-between">
-							{{- LINK -}}
-							{%- render 'icons', icon: 'arrow', class: 'expand cursor-pointer' -%}
-						</div>
-					</summary>
-
-					{{sublink}}
-				</details>
-		{%- endcase -%}
-	{%- else -%}
-		{{- LINK -}}
-	{%- endif -%}
+          {{ sublink }}
+        </details>
+    {%- endcase -%}
+  {%- else -%}
+    {{- LINK -}}
+  {%- endif -%}
 </li>

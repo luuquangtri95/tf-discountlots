@@ -1,0 +1,33 @@
+<lazy-script
+  data-tag="accordion-component"
+  data-file="{{ 'accordion-component.js' | asset_url }}"
+  data-close-screen="(max-width: 749px)"
+>
+  <details class="border-b">
+    <summary class="cursor-pointer">
+      <div class="flex w-full items-center justify-between py-[15px] pr-[10px]">
+        <p class="title flex-1 font-bold">{{ block.settings.question }}</p>
+        {%- render 'icons', icon: 'arrow', class: 'w-[10px] h-[10px] icon-arrow' -%}
+      </div>
+    </summary>
+    <div class="pb-[30px]">
+      {% content_for 'blocks' %}
+    </div>
+  </details>
+</lazy-script>
+
+{% schema %}
+{
+  "name": "Question",
+  "settings": [
+    {
+      "type": "text",
+      "id": "question",
+      "label": "question",
+      "default": "Sample question ?"
+    }
+  ],
+  "blocks": [{ "type": "_faq-answer" }, { "type": "_faq-video" }, { "type": "_faq-image" }],
+  "presets": [{ "name": "Question" }]
+}
+{% endschema %}

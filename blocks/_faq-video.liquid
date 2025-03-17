@@ -1,0 +1,57 @@
+{%- assign ratio_video = section.settings.ratio_video -%}
+{% assign external_video = block.settings.video %}
+
+{%- case ratio_video -%}
+  {%- when 'horizontal' -%}
+    {%- assign padding = '56.25%' -%}
+  {%- when 'middle' -%}
+    {%- assign padding = '75%' -%}
+  {%- when 'vertical' -%}
+    {%- assign padding = '177.78%' -%}
+{%- endcase -%}
+
+<div class="video relative mt-[30px] h-0 overflow-hidden" style="padding-bottom: {{ padding }}">
+  {%- capture videoId -%}player{{section.id | append: block.id | append: external_video.external_id}}{%- endcapture -%}
+  {%- assign externalId = external_video.id -%}
+
+  {%- capture videoUrl -%}
+            {%- if external_video.type == 'youtube' -%}
+                https://www.youtube.com/embed/{{ 'videoId' }}?playsinline=1&playlist={{ 'videoId' }}&enablejsapi=1&rel=0&modestbranding=
+            {%- else -%}
+                https://player.vimeo.com/video/{{ 'videoId' }}
+            {%- endif -%}
+            {%- endcapture -%}
+
+  <lazy-script
+    class="absolute left-0 top-0 h-full w-full"
+    data-type="{{external_video.type}}"
+    play-in-view
+    data-tag="video-component"
+    data-file="{{ 'video-component.js' | asset_url }}"
+  >
+    <iframe
+      src="{{- videoUrl | replace: 'videoId', externalId -}}"
+      allow="autoplay; encrypted-media"
+      allowfullscreen
+      title=""
+      class="h-full w-full"
+      id="{{videoId}}"
+      data-video-id="{{ externalId }}"
+    ></iframe>
+  </lazy-script>
+</div>
+
+{% schema %}
+{
+  "name": "Video",
+  "settings": [
+    {
+      "type": "video_url",
+      "id": "video",
+      "label": "Insert video",
+      "accept": ["youtube", "vimeo"]
+    }
+  ],
+  "presets": [{ "name": "Video" }]
+}
+{% endschema %}

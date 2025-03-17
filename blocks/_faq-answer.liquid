@@ -1,0 +1,17 @@
+<div class="text">
+  {{ block.settings.answer }}
+</div>
+
+{% schema %}
+{
+  "name": "Answer",
+  "settings": [
+    {
+      "type": "richtext",
+      "id": "answer",
+      "label": "Answer"
+    }
+  ],
+  "presets": [{ "name": "Answer" }]
+}
+{% endschema %}

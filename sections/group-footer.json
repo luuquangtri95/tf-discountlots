@@ -14,132 +14,217 @@
     "section_faq_7RYq9b": {
       "type": "section-faq",
       "blocks": {
-        "faq_PdRPt9": {
-          "type": "faq",
+        "faq_question_6NBWBU": {
+          "type": "_faq-question",
           "settings": {
-            "question": "Is this a scam?",
-            "answer": "<p>No! We purchase lots through various sources at wholesale prices. Once we own a property, we exclusively list it here on the website.</p>",
-            "video": "https://player.vimeo.com/video/731477508?h=aaa82dd855&badge=0&autopause=0&player_id=0&app_id=58479"
-          }
+            "question": "Is this a scam?"
+          },
+          "blocks": {
+            "faq_answer_7r3DE3": {
+              "type": "_faq-answer",
+              "settings": {
+                "answer": "<p>No! We purchase lots through various sources at wholesale prices. Once we own a property, we exclusively list it here on the website.</p>"
+              }
+            },
+            "faq_video_aNqFGb": {
+              "type": "_faq-video",
+              "settings": {
+                "video": "https://player.vimeo.com/video/731477508?h=aaa82dd855&badge=0&autopause=0&player_id=0&app_id=58479"
+              }
+            }
+          },
+          "block_order": ["faq_answer_7r3DE3", "faq_video_aNqFGb"]
         },
-        "faq_DzHDyM": {
-          "type": "faq",
+        "faq_question_YKiGaU": {
+          "type": "_faq-question",
           "settings": {
-            "question": "How does it work?",
-            "answer": "<p>First step is to find your lot. Use our interactive map to search and filter available properties. You can then check out individual listings to see if they meet your needs. Once you have chosen the right property for you, you can purchase your lot online! You have the options to choose between a payment plan or paying for your lot in a single lump sum.</p>",
-            "video": ""
-          }
+            "question": "How does it work?"
+          },
+          "blocks": {
+            "faq_answer_QCJzE4": {
+              "type": "_faq-answer",
+              "settings": {
+                "answer": "<p>First step is to find your lot. Use our interactive map to search and filter available properties. You can then check out individual listings to see if they meet your needs. Once you have chosen the right property for you, you can purchase your lot online! You have the options to choose between a payment plan or paying for your lot in a single lump sum.</p>"
+              }
+            },
+            "faq_image_RHJWAT": {
+              "type": "_faq-image",
+              "settings": {
+                "image_answer": "shopify://shop_images/pexels-monstera-5849563-1.jpg"
+              }
+            }
+          },
+          "block_order": ["faq_answer_QCJzE4", "faq_image_RHJWAT"]
         },
-        "faq_YzBWxa": {
-          "type": "faq",
+        "faq_question_pcDriX": {
+          "type": "_faq-question",
           "settings": {
-            "question": "Do you check credit?",
-            "answer": "<p>No! When you choose to purchase a property from us, we handle all qualification decisions in-house without doing a credit check. A few basic questions allow us to figure out our program is right for you.</p>",
-            "video": ""
-          }
+            "question": "Do you check credit?"
+          },
+          "blocks": {
+            "faq_answer_RQEGD9": {
+              "type": "_faq-answer",
+              "settings": {
+                "answer": "<p>No! When you choose to purchase a property from us, we handle all qualification decisions in-house without doing a credit check. A few basic questions allow us to figure out our program is right for you.</p>"
+              }
+            }
+          },
+          "block_order": ["faq_answer_RQEGD9"]
         },
-        "faq_89RmCC": {
-          "type": "faq",
+        "faq_question_6rjiyX": {
+          "type": "_faq-question",
           "settings": {
-            "question": "Are you a real estate company?",
-            "answer": "<p>No. Instead, we identify as a private buyer group based in Florida.</p><p>Because we don't have the agents and overhead of a traditional real estate brokerage, we are able to directly sell properties to you at better prices.</p>",
-            "video": ""
-          }
+            "question": "Are you a real estate company?"
+          },
+          "blocks": {
+            "faq_answer_DNBTij": {
+              "type": "_faq-answer",
+              "settings": {
+                "answer": "<p>No. Instead, we identify as a private buyer group based in Florida.&lt;/p&gt;&lt;p&gt;Because we don't have the agents and overhead of a traditional real estate brokerage, we are able to directly sell properties to you at better prices.</p>"
+              }
+            }
+          },
+          "block_order": ["faq_answer_DNBTij"]
         },
-        "faq_CKkJYx": {
-          "type": "faq",
+        "faq_question_anL3L6": {
+          "type": "_faq-question",
           "settings": {
-            "question": "How do I buy a property?",
-            "answer": "<p>When you find the perfect property for you, contact us to set up a time to talk to one of our buyer specialists. We will walk you through the process, answer any questions you may have, and help you visit the property before you buy.</p><p>On the other hand, we also have many clients who buy property right from our site using the purchasing options you can conveniently find on the listing page. Once you set up a payment plan, we will send you the contract for the land. Closings can be finalized in less than a week.</p>",
-            "video": ""
-          }
+            "question": "How do I buy a property?"
+          },
+          "blocks": {
+            "faq_answer_zDbcnP": {
+              "type": "_faq-answer",
+              "settings": {
+                "answer": "<p>When you find the perfect property for you, contact us to set up a time to talk to one of our buyer specialists. We will walk you through the process, answer any questions you may have, and help you visit the property before you buy.&lt;/p&gt;&lt;p&gt;On the other hand, we also have many clients who buy property right from our site using the purchasing options you can conveniently find on the listing page. Once you set up a payment plan, we will send you the contract for the land. Closings can be finalized in less than a week.</p>"
+              }
+            }
+          },
+          "block_order": ["faq_answer_zDbcnP"]
         },
-        "faq_WD3nVm": {
-          "type": "faq",
+        "faq_question_MFA3mX": {
+          "type": "_faq-question",
           "settings": {
-            "question": "How often do you have new properties for sale?",
-            "answer": "<p>We visit bank auctions and other wholesaling events across the state regularly. If you would like to get advance notice of new properties before we post them, we encourage you to join our VIP Buyers List (see form at the bottom of this page).</p><p>Lots are sold on a first come, first served basis. We cannot hold a lot without taking a deposit.</p>",
-            "video": ""
-          }
+            "question": "How often do you have new properties for sale?"
+          },
+          "blocks": {
+            "faq_answer_4krtH3": {
+              "type": "_faq-answer",
+              "settings": {
+                "answer": "<p>We visit bank auctions and other wholesaling events across the state regularly. If you would like to get advance notice of new properties before we post them, we encourage you to join our VIP Buyers List (see form at the bottom of this page).&lt;/p&gt;&lt;p&gt;Lots are sold on a first come, first served basis. We cannot hold a lot without taking a deposit.</p>"
+              }
+            }
+          },
+          "block_order": ["faq_answer_4krtH3"]
         },
-        "faq_JcXxay": {
-          "type": "faq",
+        "faq_question_iqFmcz": {
+          "type": "_faq-question",
           "settings": {
-            "question": "Can I visit the property beforehand?",
-            "answer": "<p>Absolutely. We encourage all of our buyers to visit the property before actually buying it. Not only will it help you see the value of your investment up front, but you can also start making plans about how you will use the lot once you've purchased it.</p>",
-            "video": ""
-          }
+            "question": "Can I visit the property beforehand?"
+          },
+          "blocks": {
+            "faq_answer_gmdPzn": {
+              "type": "_faq-answer",
+              "settings": {
+                "answer": "<p>Absolutely. We encourage all of our buyers to visit the property before actually buying it. Not only will it help you see the value of your investment up front, but you can also start making plans about how you will use the lot once you've purchased it.</p>"
+              }
+            }
+          },
+          "block_order": ["faq_answer_gmdPzn"]
         },
-        "faq_TeXdLT": {
-          "type": "faq",
+        "faq_question_xVqjQ4": {
+          "type": "_faq-question",
           "settings": {
-            "question": "How can we visit the property we’re interested in?",
-            "answer": "",
-            "video": "https://player.vimeo.com/video/728429051?h=07e4a62428&badge=0&autopause=0&player_id=0&app_id=58479"
-          }
+            "question": "How can we visit the property we’re interested in?"
+          },
+          "blocks": {
+            "faq_video_t7TrYk": {
+              "type": "_faq-video",
+              "settings": {
+                "video": "https://player.vimeo.com/video/728429051?h=07e4a62428&badge=0&autopause=0&player_id=0&app_id=58479"
+              }
+            }
+          },
+          "block_order": ["faq_video_t7TrYk"]
         },
-        "faq_abiWFk": {
-          "type": "faq",
+        "faq_question_PcLFty": {
+          "type": "_faq-question",
           "settings": {
-            "question": "Do you own the land on your website?",
-            "answer": "<p>We own every property listed on our website, <a href=\"https://discountlots.com/\"><strong>https://discountlots.com/</strong></a>. This allows us to offer great lots at the lowest prices along with a simple and trustworthy buying process. There are no credit checks, brokers, or additional fees. When you buy from Discount Lots, you are buying directly from the property owner.</p>",
-            "video": ""
-          }
+            "question": "Do you own the land on your website?"
+          },
+          "blocks": {
+            "faq_answer_FpG3BV": {
+              "type": "_faq-answer",
+              "settings": {
+                "answer": "<p>We own every property listed on our website, &lt;a href=\\\"https://discountlots.com/\\\"&gt;&lt;strong&gt;https://discountlots.com/&lt;/strong&gt;&lt;/a&gt;. This allows us to offer great lots at the lowest prices along with a simple and trustworthy buying process. There are no credit checks, brokers, or additional fees. When you buy from Discount Lots, you are buying directly from the property owner.</p>"
+              }
+            }
+          },
+          "block_order": ["faq_answer_FpG3BV"]
         },
-        "faq_DMVx7b": {
-          "type": "faq",
+        "faq_question_nJNa3R": {
+          "type": "_faq-question",
           "settings": {
-            "question": "What do I need to get approved?",
-            "answer": "<p>You don’t need proof of outstanding credit or a pre-approval letter with Discount Lots. We believe that homeownership should be accessible for everyone. All you need is the ability to pay - that’s it! Whether you use a Debit Card or Credit Card, as long as you can pay for the property, you are automatically approved.</p>",
-            "video": ""
-          }
+            "question": "What do I need to get approved?"
+          },
+          "blocks": {
+            "faq_answer_46yCLM": {
+              "type": "_faq-answer",
+              "settings": {
+                "answer": "<p>You don’t need proof of outstanding credit or a pre-approval letter with Discount Lots. We believe that homeownership should be accessible for everyone. All you need is the ability to pay - that’s it! Whether you use a Debit Card or Credit Card, as long as you can pay for the property, you are automatically approved.</p>"
+              }
+            }
+          },
+          "block_order": ["faq_answer_46yCLM"]
         }
       },
       "block_order": [
-        "faq_PdRPt9",
-        "faq_DzHDyM",
-        "faq_YzBWxa",
-        "faq_89RmCC",
-        "faq_CKkJYx",
-        "faq_WD3nVm",
-        "faq_JcXxay",
-        "faq_TeXdLT",
-        "faq_abiWFk",
-        "faq_DMVx7b"
+        "faq_question_6NBWBU",
+        "faq_question_YKiGaU",
+        "faq_question_pcDriX",
+        "faq_question_6rjiyX",
+        "faq_question_anL3L6",
+        "faq_question_MFA3mX",
+        "faq_question_iqFmcz",
+        "faq_question_xVqjQ4",
+        "faq_question_PcLFty",
+        "faq_question_nJNa3R"
       ],
       "settings": {
-        "section_layout": "boxed",
-        "padding": "40px 0",
-        "margin": "",
-        "text_color": "#1d3675",
         "heading": "Got Questions?",
         "subtext": "We’ve Got You Covered",
         "btn_text": "GET STARTED",
         "btn_link": "",
         "btn_color": "#ffffff",
         "btn_bg_color": "#f76d2f",
-        "rated": "Rated 4.9 stars By 3,000+ Clients"
+        "rated": 5,
+        "text_rated": "Rated <strong>4.9</strong> stars By <strong>3,000+</strong> Clients",
+        "ratio_video": "horizontal",
+        "schema_color_name": "Faq",
+        "section_layout": "boxed",
+        "padding": "40px 0",
+        "margin": ""
       }
     },
     "section_newsletter_eadVTc": {
       "type": "section-newsletter",
       "settings": {
-        "bg_image": "shopify://shop_images/DLots-DroneBackground.jpg",
-        "section_layout": "boxed",
-        "padding": "35px 0",
-        "margin": "30px 0",
-        "text_color": "#ffffff",
         "heading": "So What Are You Waiting For?",
-        "subtext": "Start Searching & Buy Your Dream Property",
+        "subtext": "<p>Start Searching & Buy Your Dream Property</p>",
         "btn_text": "GET STARTED",
         "btn_link": "#",
-        "btn_color": "#ffffff",
-        "btn_bg_color": "#f76d2f",
-        "rated": "Rated <strong>4.9</strong> stars By <strong>3,000+</strong> Clients"
+        "rated": 5,
+        "text_rated": "Rated <strong>4.9</strong> stars By <strong>3,000+</strong> Clients",
+        "bg_overlay": true,
+        "bg_image": "shopify://shop_images/DLots-DroneBackground.jpg",
+        "schema_color_name": "newsletter",
+        "section_layout": "boxed",
+        "padding": "35px 0",
+        "margin": "30px 0"
       }
     },
     "footer_old_WBEgQM": {
       "type": "footer-old",
+      "disabled": true,
       "settings": {
         "logo": "shopify://shop_images/discount-lots-logo-sm.png",
         "logo_width": "",
@@ -192,17 +277,16 @@
       "settings": {
         "logo": "shopify://shop_images/discount-lots-logo-sm.png",
         "logo_width": "200px",
+        "schema_color_name": "Footer color",
         "section_layout": "boxed",
-        "padding": "30px 0",
-        "margin": "20px 0,30px 0",
+        "padding": "20px 0",
+        "margin": "",
         "link_color": "#489cd8"
       }
     },
     "footer_copyright_jQGYxm": {
       "type": "footer-copyright",
       "settings": {
-        "ft_link_color": "#1d3675",
-        "ft_text_color": "#575757",
         "hide_border": false,
         "ft_text": "Please read our polices regarding <a>payment plans</a>",
         "ft_logo_payment": "shopify://shop_images/CC-Logos.jpg",
@@ -210,9 +294,10 @@
         "copyright_text": "Copyright Discount Lots",
         "ft_menu": "footer-copyright",
         "show_social": true,
+        "schema_color_name": "Footer copyright",
         "section_layout": "boxed",
-        "padding": "20px 0, 50px 0",
-        "margin": "30px 0, 60px 0"
+        "padding": "20px 0",
+        "margin": ""
       }
     }
   },

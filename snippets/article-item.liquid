@@ -6,61 +6,72 @@
 {%- liquid
   assign image = article.image
 -%}
-{%- assign cardImageHeight = cardImageHeight | remove: 'default' | strip | default: settings.article_card_image_ratio | remove: 'auto' | strip -%}
+{%- assign cardImageHeight = cardImageHeight
+  | remove: 'default'
+  | strip
+  | default: settings.article_card_image_ratio
+  | remove: 'auto'
+  | strip
+-%}
 {%- if settings.article_card_ratio_custom != blank -%}
-  {%- assign cardImageHeight =  1.0 | divided_by: settings.article_card_ratio_custom.aspect_ratio | times: 100 | append: '%' -%}
+  {%- assign cardImageHeight = 1.0
+    | divided_by: settings.article_card_ratio_custom.aspect_ratio
+    | times: 100
+    | append: '%'
+  -%}
   {%- assign focalPoint = settings.article_card_ratio_custom.presentation.focal_point -%}
 {%- endif -%}
 {%- if cardImageHeight == blank -%}
   {%- assign imageRatio = image.aspect_ratio | default: 1 -%}
-  {%- assign cardImageHeight =  1.0 | divided_by: imageRatio | times: 100 | append: '%' -%}
+  {%- assign cardImageHeight = 1.0 | divided_by: imageRatio | times: 100 | append: '%' -%}
 {%- endif -%}
 
-<article class="card card-article{{class}}">
-  <div class="card-inner">
-    <div class="block-banner relative">
-      <div class="card-article-image">
+<article class="card card-article rounded-[20px] border border-[#f7f7f7] bg-[#fff] p-[20px]">
+  <div class="card-inner h-full">
+    <div class="block-banner relative flex flex-col gap-[20px]">
+      <div class="card-article-image overflow-hidden rounded-[15px]">
         {%- if image == blank -%}
           {%- render 'empty-content', type: 'blog-apparel', index: index -%}
         {%- else -%}
-          {%- render 'image', image: image, crop: settings.article_card_image_mode, height: cardImageHeight, focalPoint: focalPoint -%}
+          {%- render 'image',
+            image: image,
+            crop: settings.article_card_image_mode,
+            height: cardImageHeight,
+            focalPoint: focalPoint,
+            class: 'rounded-[15px]'
+          -%}
         {%- endif -%}
       </div>
 
-      <div class="content-wrapper">
-        {%- if datePosition == 'top' -%}
-          <div class="card-article-publish-date">{{ article.published_at | time_tag: '%d %B %Y' }}</div>
-        {%- endif -%}
-
-        <div class="card-article-title">
+      <div class="content-wrapper flex h-full flex-col gap-[20px] text-[var(--text)]">
+        <div class="card-article-title text-[20px] font-[600]">
           {%- unless showReadMore -%}
             <a href="{{ article.url }}" class="link-overlay">
           {%- endunless -%}
 
-            {{- article.title -}}
+          {{- article.title -}}
 
           {%- unless showReadMore -%}
             </a>
           {%- endunless -%}
         </div>
 
-        {%- if showExcerpt -%}
-          <div class="card-article-content">{{ article.excerpt_or_content | strip_html | truncate: 50 }}</div>
-        {%- endif -%}
-          
-        {%- if showReadMore or datePosition == 'bottom' -%}
-          <div class="card-article-footer flex justify-between items-center">
-            <div class="card-article-link">
-              {%- if showReadMore -%}
-                <a href="{{article.url}}" class="link underline">{{ 'blog.general.read_more' | t }}</a>
-              {%- endif -%}
-            </div>
+        <div class="card-article-content text-[14px]">
+          {{ article.excerpt_or_content | strip_html | truncate: 165 }}
+        </div>
 
-            {%- if datePosition == 'bottom' -%}
-              <div class="card-article-publish-date">{{ article.published_at | time_tag: '%d %B %Y' }}</div>
-            {%- endif -%}
+        <div class="card-article-footer mt-auto flex items-center justify-between">
+          <div class="card-article-link">
+            <a
+              href="{{article.url}}"
+              class="link text-[18px] uppercase text-[var(--btn-color)] underline hover:text-[var(--hover-btn-color)]"
+            >
+              {{- 'blog.general.read_more' | t -}}
+            </a>
           </div>
-        {%- endif -%}
+
+          <div class="card-article-publish-date">{{ article.published_at | time_tag: '%d %B %Y' }}</div>
+        </div>
       </div>
     </div>
   </div>

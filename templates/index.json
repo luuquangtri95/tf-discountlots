@@ -9,6 +9,139 @@
  */
 {
   "sections": {
+    "section_contact_HKyqqG": {
+      "type": "section-contact",
+      "blocks": {
+        "title_XHPGRB": {
+          "type": "title",
+          "settings": {
+            "title": "Lots for Sale Across the USA",
+            "title_color": "#ffffff"
+          }
+        },
+        "sub_title_RcTKhd": {
+          "type": "sub_title",
+          "settings": {
+            "sub_title": "Become a landowner for as little as $500 down, in less than 5 minutes.",
+            "sub_color": "#ffffff"
+          }
+        },
+        "text_wNgL7L": {
+          "type": "text",
+          "settings": {
+            "text": "Buy Land & Vacant Lots on Easy Monthly Payment Plans",
+            "title_color": "#ffffff"
+          }
+        }
+      },
+      "block_order": ["title_XHPGRB", "sub_title_RcTKhd", "text_wNgL7L"],
+      "settings": {
+        "background_image": "shopify://shop_images/DLots-DroneBackground.jpg",
+        "rating_range": 5,
+        "rating_text": "Rated <strong>5</strong> stars By <strong>3,000+</strong> Clients",
+        "title": "Lots for Sale Across the USA",
+        "sub_title": "Become a landowner for as little as $500 down , in less than 5 minutes",
+        "sub_description": "Buy Land & Vacant Lots on Easy Monthly Payment Plans",
+        "section_layout": "boxed",
+        "padding": "50px 20px",
+        "margin": ""
+      }
+    },
+    "section_out_benefits_VieRPX": {
+      "type": "section-out-benefits",
+      "blocks": {
+        "point_c79cYm": {
+          "type": "point",
+          "settings": {
+            "icon": "icon-headset.svg",
+            "text": "You Can Contact Support Fast"
+          }
+        },
+        "point_tRM4X3": {
+          "type": "point",
+          "settings": {
+            "icon": "icon-medal-reward.svg",
+            "text": "Best Selection Of Land Online"
+          }
+        },
+        "point_BThC7W": {
+          "type": "point",
+          "settings": {
+            "icon": "icon-star.svg",
+            "text": "Loved By Thousands of Satisfied Buyers"
+          }
+        }
+      },
+      "block_order": ["point_c79cYm", "point_tRM4X3", "point_BThC7W"],
+      "settings": {
+        "bg_color": "#114273",
+        "section_layout": "boxed",
+        "margin": "",
+        "padding": "20px 0"
+      }
+    },
+    "section_how_it_works_JiQmDy": {
+      "type": "section-how-it-works",
+      "blocks": {
+        "step_YFFNUh": {
+          "type": "step",
+          "settings": {
+            "select_icon": "icon-map-marker.svg",
+            "title": "Step 1: Fill In Our Form",
+            "description": "Fill in our short form and browse our listings!"
+          }
+        },
+        "step_Cnkeha": {
+          "type": "step",
+          "settings": {
+            "select_icon": "icon-list-ol.svg",
+            "title": "Step 2: Speak With A Specialist",
+            "description": "Our team will assist you in finding the best option."
+          }
+        },
+        "step_UwG8LF": {
+          "type": "step",
+          "settings": {
+            "select_icon": "icon-cart.svg",
+            "title": "Step 3: Purchase Your Dream Land",
+            "description": "Complete the purchase with our trusted process."
+          }
+        }
+      },
+      "block_order": ["step_YFFNUh", "step_Cnkeha", "step_UwG8LF"],
+      "settings": {
+        "section_heading": "Buying Your Dream Land Is",
+        "section_subheading": "<strong>As Easy As 1, 2, 3</strong>",
+        "section_heading_color": "#114273",
+        "rating_range": 5,
+        "text_rating": "Rated <strong>5</strong> stars By <strong>3,000+</strong> Clients",
+        "section_layout": "boxed",
+        "padding": "50px 20px",
+        "margin": ""
+      }
+    },
+    "section_about_us_eUV9Pd": {
+      "type": "section-about-us",
+      "blocks": {
+        "subtitle_4zpYty": {
+          "type": "subtitle",
+          "settings": {
+            "subtitle": "<p>We took our experience as real estate and e-commerce experts and put it to work to find overlooked deals on land. We take our savings and pass them on to our clients in the form of low prices and easy payments. Many of our clients ask, \"Is Discount Lots legit?\" and we assure you that our reputation is built on trust and satisfied customers.</p><p>Apart from exclusive access to listings not listed on the market, we also assist in outright land purchases and our innovative rent-to-own program. You can even buy land online</p><p>with confidence through our secure platform, giving you access to vacant lots for sale at competitive prices.</p>"
+          }
+        }
+      },
+      "block_order": ["subtitle_4zpYty"],
+      "settings": {
+        "heading": "Discount Lots - Making Land Ownership Easy and Affordable",
+        "background": "linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(0, 0, 0, 1) 100%)",
+        "external_video_url": "https://player.vimeo.com/video/731477508?h=aaa82dd855&badge=0&autopause=0&player_id=0&app_id=58479",
+        "video_source": "external",
+        "video_aspect_ratio": "56.25%",
+        "section_layout": "boxed",
+        "padding": "50px 20px",
+        "margin": ""
+      }
+    },
     "section_card_info_h37Kib": {
       "type": "section-card-info",
       "blocks": {
@@ -69,93 +202,21 @@
         "text_hABj8p",
         "text_FBPbFT"
       ],
-      "disabled": true,
       "settings": {
-        "section_layout": "boxed",
-        "padding": "40px 0",
-        "margin": "",
-        "items_per_row": "1,2,3",
-        "items_spacing": "20px",
-        "text_color": "#1d3675",
-        "bg_color": "#ffffff",
         "heading": "<p><strong>Why</strong> Purchase Land With <strong>Us?</strong></p>",
         "subtext": "",
         "btn_text": "GET STARTED",
         "btn_link": "#",
         "btn_color": "#ffffff",
         "btn_bg_color": "#f76d2f",
-        "rated": "Rated <strong>4.9</strong> stars By <strong>3,000+</strong> Clients"
-      }
-    },
-    "section_image_gallery_gihJCB": {
-      "type": "section-image-gallery",
-      "blocks": {
-        "gallery_jczkbc": {
-          "type": "gallery",
-          "settings": {
-            "banner": "shopify://shop_images/Dlots-HomepageStates-CA-1.webp",
-            "text": "California",
-            "btn_block_text": "View Properties",
-            "btn_block_link": "#",
-            "btn_block_color": "#ffffff",
-            "btn_bg_color": "rgba(0,0,0,0)"
-          }
-        },
-        "gallery_q3A4wh": {
-          "type": "gallery",
-          "settings": {
-            "banner": "shopify://shop_images/Dlots-HomepageStates-AZ.webp",
-            "text": "Arizona",
-            "btn_block_text": "View Properties",
-            "btn_block_link": "#",
-            "btn_block_color": "#ffffff",
-            "btn_bg_color": "rgba(0,0,0,0)"
-          }
-        },
-        "gallery_RhVwxG": {
-          "type": "gallery",
-          "settings": {
-            "banner": "shopify://shop_images/Dlots-HomepageStates-FL.webp",
-            "text": "Florida",
-            "btn_block_text": "View Properties",
-            "btn_block_link": "",
-            "btn_block_color": "#ffffff",
-            "btn_bg_color": "rgba(0,0,0,0)"
-          }
-        },
-        "gallery_ag8VXF": {
-          "type": "gallery",
-          "settings": {
-            "banner": "shopify://shop_images/Dlots-HomepageStates-TX.webp",
-            "text": "Texas",
-            "btn_block_text": "View Properties",
-            "btn_block_link": "#",
-            "btn_block_color": "#ffffff",
-            "btn_bg_color": "rgba(0,0,0,0)"
-          }
-        }
-      },
-      "block_order": [
-        "gallery_jczkbc",
-        "gallery_q3A4wh",
-        "gallery_RhVwxG",
-        "gallery_ag8VXF"
-      ],
-      "disabled": true,
-      "settings": {
+        "rated": "Rated <strong>4.9</strong> stars By <strong>3,000+</strong> Clients",
         "section_layout": "boxed",
-        "padding": "60px 0, 80px 0",
+        "padding": "40px 0",
         "margin": "",
-        "items_per_row": "1,2,4,4",
-        "items_spacing": "30px,16px",
+        "items_per_row": "1,2,3",
+        "items_spacing": "20px",
         "text_color": "#1d3675",
-        "bg_color": "#f7f9fb",
-        "heading": "<p>Check Out Our  <strong>Most Popular States</strong></p><p>We Deal In</p>",
-        "subtext": "Starting at $200/month",
-        "btn_text": "View All States",
-        "btn_link": "#",
-        "btn_color": "#ffffff",
-        "btn_bg_color": "#1d3675"
+        "bg_color": "#ffffff"
       }
     },
     "section_testimonial_cApcbx": {
@@ -165,7 +226,7 @@
           "type": "gallery",
           "settings": {
             "testimonial_video": "https://player.vimeo.com/video/738016138?h=2ccf81e4b8&badge=0&autopause=0&player_id=0&app_id=58479",
-            "rated": 3,
+            "rated": 5,
             "name": "LaJeanna Brooks",
             "details": "\"The process was extremely easy...it was a super smooth transition. They're very communicative. They will show you the ropes and they will definitely put you in peace.\"",
             "vendor": "Verified Buyer"
@@ -175,7 +236,7 @@
           "type": "gallery",
           "settings": {
             "testimonial_video": "https://player.vimeo.com/video/738016189?h=2ccf81e4b8&badge=0&autopause=0&player_id=0&app_id=58479",
-            "rated": 4,
+            "rated": 5,
             "name": "Dion Antic",
             "details": "\"It just was easy. I don't even know how to explain. It was so easy to buy. With only a $1 down and a $300 document fee, it's worth the risk.\"",
             "vendor": "Verified Buyer"
@@ -231,24 +292,94 @@
         "gallery_RtVNAq"
       ],
       "settings": {
+        "heading": "<p>Don’t Just Take Our Word!</p>",
+        "subtext": "<strong>Hear It From Our Clients...</strong>",
+        "ratio_video": "vertical",
+        "schema_color_name": "Testimonial",
         "section_layout": "boxed",
         "padding": "60px 0,80px 0",
         "margin": "",
         "items_resp": "2,3,4",
         "items_spacing": "10px,15px,20px,30px",
         "dots": true,
-        "navs": false,
-        "heading": "<p>Don’t Just Take Our Word!</p>",
-        "subtext": "<strong>Hear It From Our Clients...</strong>",
-        "ratio_video": "vertical",
-        "text_color": "#ffffff",
-        "bg_color": "#124f92"
+        "navs": false
+      }
+    },
+    "section_gallery_eBq7kL": {
+      "type": "section-gallery",
+      "blocks": {
+        "gallery_jczkbc": {
+          "type": "gallery",
+          "settings": {
+            "banner": "shopify://shop_images/Dlots-HomepageStates-CA-1.webp",
+            "text": "California",
+            "btn_block_text": "View Properties",
+            "btn_block_link": "#",
+            "btn_block_color": "#ffffff",
+            "btn_bg_color": "rgba(0,0,0,0)"
+          }
+        },
+        "gallery_q3A4wh": {
+          "type": "gallery",
+          "settings": {
+            "banner": "shopify://shop_images/Dlots-HomepageStates-AZ.webp",
+            "text": "Arizona",
+            "btn_block_text": "View Properties",
+            "btn_block_link": "#",
+            "btn_block_color": "#ffffff",
+            "btn_bg_color": "rgba(0,0,0,0)"
+          }
+        },
+        "gallery_RhVwxG": {
+          "type": "gallery",
+          "settings": {
+            "banner": "shopify://shop_images/Dlots-HomepageStates-FL.webp",
+            "text": "Florida",
+            "btn_block_text": "View Properties",
+            "btn_block_link": "",
+            "btn_block_color": "#ffffff",
+            "btn_bg_color": "rgba(0,0,0,0)"
+          }
+        },
+        "gallery_ag8VXF": {
+          "type": "gallery",
+          "settings": {
+            "banner": "shopify://shop_images/Dlots-HomepageStates-TX.webp",
+            "text": "Texas",
+            "btn_block_text": "View Properties",
+            "btn_block_link": "#",
+            "btn_block_color": "#ffffff",
+            "btn_bg_color": "rgba(0,0,0,0)"
+          }
+        }
+      },
+      "block_order": [
+        "gallery_jczkbc",
+        "gallery_q3A4wh",
+        "gallery_RhVwxG",
+        "gallery_ag8VXF"
+      ],
+      "settings": {
+        "heading": "<p>Check Out Our  <strong>Most Popular States</strong></p><p>We Deal In</p>",
+        "subtext": "Starting at $200/month",
+        "btn_text": "View All States",
+        "btn_link": "#",
+        "schema_color_name": "Gallery",
+        "section_layout": "boxed",
+        "padding": "60px 0, 80px 0",
+        "margin": "",
+        "items_per_row": "1,2,4,4",
+        "items_spacing": "30px,16px"
       }
     }
   },
   "order": [
+    "section_contact_HKyqqG",
+    "section_out_benefits_VieRPX",
+    "section_how_it_works_JiQmDy",
+    "section_about_us_eUV9Pd",
     "section_card_info_h37Kib",
-    "section_image_gallery_gihJCB",
-    "section_testimonial_cApcbx"
+    "section_testimonial_cApcbx",
+    "section_gallery_eBq7kL"
   ]
 }
