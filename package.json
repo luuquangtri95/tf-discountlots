@@ -9,7 +9,9 @@
   "scripts": {
     "dev": "concurrently  \"generating,tw,shopify\" -c \"blue,cyan,green\" \"nodemon  -w .env -w app/server.js -w app/server.js\" \"npm run tailwind\" \"npm run dev:cli\"",
     "dev:cli": "concurrently \"shopify theme dev -e=default\"",
-    "tailwind": "npx tailwindcss -i ./app/styles/tailwind.scss -o ./assets/tailwind.css --watch"
+    "tailwind": "npx tailwindcss -i ./app/styles/tailwind.scss -o ./assets/tailwind.css --watch",
+    "prettier": "prettier --write .",
+    "prettier:check": "prettier --check ."
   },
   "devDependencies": {
     "@shopify/cli": "^3.72.2",
@@ -24,6 +26,7 @@
     "nodemon": "^3.0.2",
     "postcss": "^8.4.32",
     "prettier": "^3.5.3",
+    "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^3.4.13"
   },
   "dependencies": {
@@ -31,7 +34,6 @@
     "lazysizes": "^5.3.2",
     "localforage": "^1.10.0",
     "nouislider": "^15.8.1",
-    "prettier-plugin-tailwindcss": "^0.6.11",
     "swiper": "^11.2.5"
   }
 }

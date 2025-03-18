@@ -1,0 +1,139 @@
+<div class="w-full overflow-hidden rounded-[30px] bg-white lg:w-[500px]">
+  <div class="form-heading flex h-[120px] items-center justify-center bg-[var(--text-color)] text-center text-[18px] font-bold">
+    <p class="px-[20px] text-white">Fill In Our Form And We'll Help You Find The Right Property For You</p>
+  </div>
+
+  <div class="form-body px-[10px] py-[40px]  lg:px-[30px]">
+    <form class="form-control">
+      <!-- Name Fields -->
+      <div class="form-group mb-4">
+        <label class="text-[14px] font-[200] text-[#124f92]"> Your Name <span class="text-[#ff0000]">*</span> </label>
+        <div class="mt-2 flex flex-col gap-2 md:flex-row lg:flex-row">
+          <input
+            class="w-full rounded-md border border-[#b2bed4] p-2"
+            type="text"
+            placeholder="First"
+            name="firstname"
+            required
+          >
+          <input
+            class="w-full rounded-md border border-[#b2bed4] p-2"
+            type="text"
+            placeholder="Last"
+            name="lastname"
+            required
+          >
+        </div>
+      </div>
+
+      <div class="md:flex md:gap-2 lg:flex lg:gap-2">
+        <!-- Email Field -->
+        <div class="form-group mb-4 md:w-full lg:w-full">
+          <label class="text-[14px] font-[200] text-[#124f92]">
+            Best Email Address <span class="text-[#ff0000]">*</span>
+          </label>
+          <input
+            class="mt-2 w-full rounded-md border border-[#b2bed4] p-2"
+            type="email"
+            name="email"
+            required
+          >
+        </div>
+
+        <!-- Phone Field -->
+        <div class="form-group mb-4 md:w-full lg:w-full">
+          <label class="text-[14px] font-[200] text-[#124f92]"> Phone <span class="text-[#ff0000]">*</span> </label>
+          <input
+            class="mt-2 w-full rounded-md border border-[#b2bed4] p-2"
+            type="tel"
+            name="phone"
+            required
+          >
+        </div>
+      </div>
+
+      <!-- Location Fields -->
+      <div class="form-group mb-4">
+        <label class="text-[14px] font-[200] text-[#124f92]">
+          Property Location <span class="text-[#ff0000]">*</span>
+        </label>
+        <div class="mt-2 flex flex-col gap-2">
+          <select
+            id="AddressCountry"
+            name="address[country]"
+            class="w-full rounded-md border border-[#b2bed4] p-2 text-[#124f92]"
+            autocomplete="country"
+            required
+            data-default="{{ form.country }}"
+            {% if address %}
+              data-address-country-select
+              data-form-id="{{ form.id }}"
+            {% endif %}
+          >
+            {{ all_country_option_tags }}
+          </select>
+          <select
+            id="AddressProvince"
+            name="address[province]"
+            class="w-full rounded-md border border-[#b2bed4] p-2 text-[#124f92]"
+            autocomplete="address-level1"
+            required
+            data-default="{{ form.country }}"
+          >
+            <option value="">Select a country first</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Radio Options - Checkbox -->
+      <div class="form-group mb-4">
+        <label class="text-[14px] font-[200] text-[#124f92]">
+          Are you open to land in other states? <span class="text-[#ff0000]">*</span>
+        </label>
+        <div class="mt-2 flex flex-col gap-2">
+          <div class="flex items-center">
+            <input type="radio" id="choice-yes" name="other-states" value="yes" required>
+            <label for="choice-yes" class="ml-2">Yes</label>
+          </div>
+
+          <div class="flex items-center">
+            <input type="radio" id="choice-no" name="other-states" value="no" required>
+            <label for="choice-no" class="ml-2">No</label>
+          </div>
+
+          <div class="flex items-center">
+            <input type="checkbox" id="opt-stick" name="otp-sms" value="" required>
+            <label for="otp" class="ml-2">Otp out of sms</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Privacy Policy -->
+      <div class="form-group mb-4">
+        <label class="text-[14px] font-[200] text-[#124f92]">Privacy Policy</label>
+
+        <div class="mt-2 max-h-[100px] overflow-y-scroll bg-[#f3f4f6] p-[10px]">
+          By submitting this form and signing up for texts, you consent to receive customer care text messages from
+          Discount lots at the number provided, including messages sent by autodialer. Consent is not a condition of
+          purchase. Msg & data rates may apply. Msg frequency varies. Unsubscribe at any time by replying STOP or
+          clicking the unsubscribe link (where available). Reply HELP for help. What's the best way to contact you?
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="form-group mb-4">
+        <hr>
+      </div>
+
+      <!-- Submit Button -->
+      <div>
+        <button
+          type="submit"
+          class="mt-2 w-full rounded-md border border-[#b2bed4] bg-[#f76d2f] p-2 px-[24px] py-[14px] text-[16px] text-white"
+        >
+          Next
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

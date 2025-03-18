@@ -1,0 +1,35 @@
+<!-- props: rating, position, star_size, rating_text -->
+{%- assign rating = rating | default: 5 -%}
+{%- assign position = position | default: 'left' -%}
+{%- assign star_size = star_size | default: 'small' -%}
+
+{% case star_size %}
+  {% when 'small' %}
+    {%- assign width = 'w-[12px]' -%}
+  {% when 'medium' %}
+    {%- assign width = 'w-[14px]' -%}
+  {% when 'large' %}
+    {%- assign width = 'w-[16px]' -%}
+  {% when 'extra_large' %}
+    {%- assign width = 'w-[18px]' -%}
+{% endcase %}
+
+{% if position == 'left' %}
+  <p class="lg:text-[20px]">
+    {{ rating_text }}
+    {%- for i in (1..5) -%}
+      <span class="inline-block {{ width }} {% if i <= rating %}text-[var(--star-color)]{% else %}text-gray-300{% endif %}">
+        {{ 'icon-star-rating.svg' | inline_asset_content }}
+      </span>
+    {%- endfor -%}
+  </p>
+{% else %}
+  <p class="lg:text-[20px]">
+    {%- for i in (1..5) -%}
+      <span class="inline-block {{ width }} {% if i <= rating %}text-[var(--star-color)]{% else %}text-gray-300{% endif %}">
+        {{ 'icon-star-rating.svg' | inline_asset_content }}
+      </span>
+    {%- endfor -%}
+    {{ rating_text }}
+  </p>
+{% endif %}
