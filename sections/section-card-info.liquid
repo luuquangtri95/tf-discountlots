@@ -29,11 +29,7 @@
   <div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
     <div class="m-[var(--margin)] p-[var(--padding)]">
       <div class="content-wrapper" style="color: {{ text_color }}">
-<<<<<<< HEAD
         <div class="header-wrapper mb-[60px] text-center">
-=======
-        <div class="header-wrapper text-center mb-[60px]">
->>>>>>> origin
           {%- unless section.settings.heading == blank -%}
             <div class="heading text-[30px] lg:text-[40px]">
               <h3>{{ section.settings.heading }}</h3>
@@ -64,13 +60,8 @@
         {%- else -%}
           <div class="banner-wrapper grid grid-cols-3 gap-[20px] pt-[50px]">
             {%- for i in (1..3) -%}
-<<<<<<< HEAD
               <div class="block-item min-h-[100px] rounded-[20px] bg-[#e5e5e5] p-[20px]">
                 <h3 class="title mb-[15px] text-[24px]">Lorem Ipsum is simply...</h3>
-=======
-              <div class="block-item min-h-[100px] bg-[#e5e5e5] p-[20px] rounded-[20px]">
-                <h3 class="title text-[24px] mb-[15px]">Lorem Ipsum is simply...</h3>
->>>>>>> origin
                 <div class="content">
                   Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the
                   industry's standard dummy text ever since the 1500s
@@ -80,19 +71,11 @@
           </div>
         {%- endif -%}
 
-<<<<<<< HEAD
         <div class="button-wrapper mt-[40px] text-center lg:mt-[60px]">
           {%- unless section.settings.btn_link == blank and section.settings.btn_text == blank -%}
             <div class="button mt-[60px] text-center text-[16px]">
               <button
                 class="min-h-[51px] min-w-[250px] rounded-[10px] border border-[#111f44] p-2 hover:border-[#e4642b] hover:bg-[#e4642b]"
-=======
-        <div class="button-wrapper text-center mt-[40px] lg:mt-[60px]">
-          {%- unless section.settings.btn_link == blank and section.settings.btn_text == blank -%}
-            <div class="button text-[16px] mt-[60px] text-center">
-              <button
-                class="p-2 min-w-[250px] min-h-[51px] border border-[#111f44] rounded-[10px] hover:bg-[#e4642b] hover:border-[#e4642b]"
->>>>>>> origin
                 style="color: {{ section.settings.btn_color }}; background: {{ section.settings.btn_bg_color }}"
               >
                 <a href="{{ section.settings.btn_link }}" class="flex items-center justify-center gap-[10px]">
@@ -115,7 +98,6 @@
 
 {% schema %}
 {
-<<<<<<< HEAD
   "name": "Card Content",
   "tag": "section",
   "class": "ss-card",
@@ -127,23 +109,10 @@
   "enabled_on": {
     "templates": ["*"],
     "groups": ["aside"]
-=======
-  "name": "Section card info",
-  "tag": "section",
-  "class": "ss-card-info",
-  "presets": [
-    {
-      "name": "Section card info"
-    }
-  ],
-  "disabled_on": {
-    "groups": ["header", "footer"]
->>>>>>> origin
   },
   "settings": [
     {
       "type": "header",
-<<<<<<< HEAD
       "content": "Section settings"
     },
     {
@@ -186,8 +155,6 @@
     },
     {
       "type": "header",
-=======
->>>>>>> origin
       "content": "General settings"
     },
     {
@@ -242,51 +209,6 @@
       "id": "bg_color",
       "label": "Background color",
       "default": "#ffffff"
-<<<<<<< HEAD
-=======
-    },
-    {
-      "type": "header",
-      "content": "Custom content"
-    },
-    {
-      "type": "richtext",
-      "id": "heading",
-      "label": "Heading"
-    },
-    {
-      "type": "inline_richtext",
-      "id": "subtext",
-      "label": "Subtext"
-    },
-    {
-      "type": "text",
-      "id": "btn_text",
-      "label": "Button text"
-    },
-    {
-      "type": "url",
-      "id": "btn_link",
-      "label": "Button link"
-    },
-    {
-      "type": "color",
-      "id": "btn_color",
-      "label": "Button text color",
-      "default": "#ffffff"
-    },
-    {
-      "type": "color",
-      "id": "btn_bg_color",
-      "label": "Button background color",
-      "default": "#f76d2f"
-    },
-    {
-      "type": "inline_richtext",
-      "id": "rated",
-      "default": "Rated 4.9 stars By 3,000+ Clients",
-      "label": "Rated content"
->>>>>>> origin
     }
   ],
   "blocks": [

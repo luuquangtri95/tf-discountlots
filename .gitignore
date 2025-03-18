@@ -6,3 +6,4 @@ node_modules
 .shopify
 config.yml
 shopify.theme.toml
+/assets/tailwind.css
