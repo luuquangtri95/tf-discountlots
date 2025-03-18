@@ -1,11 +1,16 @@
 {%- liquid
   assign sectionId = '#shopify-section-' | append: section.id
   assign layout = section.settings.section_layout | handle
-  assign link_color = section.settings.link_color
 -%}
 
+{%- capture custom_schema_color -%}
+  {%- unless section.settings.schema_color_name == blank -%}
+    schema-color-{{- section.settings.schema_color_name | handle -}}
+  {%- endunless -%}
+{%- endcapture -%}
+
 {%- capture class -%}
-    |section-container relative
+    |section-container relative {{ custom_schema_color }}
     {% if layout == 'boxed' %}|container{% endif %}
   {%- endcapture -%}
 
@@ -23,8 +28,8 @@
     {%- endcapture -%}
 
 <div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
-  <div class="m-[var(--margin)] p-[var(--padding)]">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-[30px] md:gap-4">
+  <div class="m-[var(--margin)] p-[var(--padding)] text-[var(--text)]">
+    <div class="grid grid-cols-1 gap-[30px] md:grid-cols-3 md:gap-4">
       {%- for block in section.blocks -%}
         {%- case block.type -%}
           {%- when 'menu' -%}
@@ -32,9 +37,9 @@
               assign menu_title = block.settings.footer_linklist_title
               assign block_menu = block.settings.menu
             -%}
-            <div {{ block.shopify_attributes }} class="block-menu md:flex flex-col items-center">
+            <div {{ block.shopify_attributes }} class="block-menu flex-col items-center md:flex">
               <div class="heading">
-                <h2 class="title text-[22px] mb-[20px] font-bold">{{ menu_title }}</h2>
+                <h2 class="title mb-[20px] text-[22px] font-bold">{{ menu_title }}</h2>
               </div>
               <ul role="list" class="menu-list">
                 {%- render 'link' for block_menu.links as link, class: 'mb-[8px] block text-[#489CD8]' -%}
@@ -48,10 +53,10 @@
             -%}
             <div {{ block.shopify_attributes }} class="block-newsletter">
               <div class="heading">
-                <h2 class="title text-[22px] mb-[20px] font-bold">{{ newsletter_title }}</h2>
+                <h2 class="title mb-[20px] text-[22px] font-bold">{{ newsletter_title }}</h2>
               </div>
               <div class="subheading">{{ newsletter_subtitle }}</div>
-              {%- render 'form', type: 'newsletter' -%}
+              {% comment %} {%- render 'form', type: 'newsletter' -%} {% endcomment %}
             </div>
 
           {%- when 'information' -%}
@@ -66,7 +71,7 @@
 
             <div {{ block.shopify_attributes }} class="block-information">
               {%- unless section.settings.logo == blank -%}
-                <div class="w-full flex items-center mb-[15px]">
+                <div class="mb-[15px] flex w-full items-center">
                   <div class="{{ logo_class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
                     {%- render 'logo', object: section.settings -%}
                   </div>
@@ -74,20 +79,20 @@
               {%- endunless -%}
               {%- unless phone == blank %}
                 <div class="phone flex gap-1">
-                  <div class="svg-wrapper w-[20px] h-[20px]">
-                    {% render 'icons', icon: 'phone' %}
+                  <div class="svg-wrapper h-[20px] w-[20px]">
+                    {{ 'icon-phone.svg' | inline_asset_content }}
                   </div>
                   {{ phone }}
                 </div>
               {% endunless -%}
               {%- unless mail == blank %}
-                <div class="email" style="color: {{ link_color }}">{{ mail }}</div>
+                <div class="email text-[var(--link)] hover:text-[var(--link)]">{{ mail }}</div>
               {% endunless -%}
               <div class="customer-support my-[30px] text-[15px]">
                 {%- unless support == blank %}
-                  <div class="support flex gap-1 text-[18px] font-bold mb-[8px]">
-                    <div class="svg-wrapper w-[20px] h-[20px]">
-                      {% render 'icons', icon: 'support' %}
+                  <div class="support mb-[8px] flex items-center gap-1 text-[18px] font-bold">
+                    <div class="svg-wrapper h-[20px] w-[20px]">
+                      {{ 'icon-support.svg' | inline_asset_content }}
                     </div>
                     {{ support }}
                   </div>
@@ -100,7 +105,9 @@
                 {% endunless -%}
               </div>
               {%- unless link_invest == blank %}
-                <div class="invest text-[18px]" style="color: {{ link_color }}">{{ link_invest }}</div>
+                <div class="invest text-[18px] underline-offset-2 hover:underline" style="color: {{ link_color }}">
+                  {{ link_invest }}
+                </div>
               {% endunless -%}
             </div>
         {%- endcase -%}
@@ -139,6 +146,11 @@
     {
       "type": "header",
       "content": "General settings"
+    },
+    {
+      "type": "text",
+      "id": "schema_color_name",
+      "label": "Schema color name"
     },
     {
       "type": "select",

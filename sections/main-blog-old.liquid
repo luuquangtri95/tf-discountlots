@@ -1,0 +1,380 @@
+{%- liquid
+  assign sectionId = '#shopify-section-' | append: section.id
+  assign layout = section.settings.section_layout | handle
+  assign items_resp = section.settings.items_resp
+-%}
+
+{%- capture section_css -%}{{- section_css -}}{%- render 'config-grid', value: items_resp, spacing: item_spacing style: true, id: slideID, class: 'el' -%}{%- endcapture -%}
+{%- capture gridClass -%}{%- render 'config-grid', value: items_resp %} flex-gap{%- endcapture -%}
+
+{%- capture banner -%}
+  {% if section.settings.banner != blank %}
+    <div class="section-banner">
+      {%- liquid
+        assign sectionTitle   = section.settings.title | newline_to_br
+        assign sectionContent = section.settings.content
+      -%}
+
+      <div class="section-banner-image relative">
+        {% if sectionContent == blank and section.settings.link != blank %}
+          <a href="{{- section.settings.link -}}" class="">
+        {% endif %}
+
+        {%- render 'image', image: section.settings.banner, type: 'collection', index: index -%}
+
+        {% if sectionContent == blank and section.settings.link != blank %}
+          </a>
+        {% endif %}
+      </div>
+
+      {%- unless sectionTitle == blank and sectionContent == blank -%}
+        <div class="section-content absolute{% if sectionContent != blank %} has-link{% endif %}">
+          {%- unless sectionTitle == blank -%}
+            <p class="section-content--title">{{sectionTitle}}</p>
+          {%- endunless -%}
+
+          {%- unless sectionContent == blank -%}
+            <div class="section-content--content">
+              <a href="{{- section.settings.link -}}" class="">{{sectionContent}}</a>
+            </div>
+          {%- endunless -%}
+        </div>
+      {%- endunless -%}
+    </div>
+  {% endif %}
+{%- endcapture -%}
+
+{%- capture content -%}
+{%- paginate blog.articles by section.settings.limit -%}
+<div class="section-container{% if layout == 'boxed' %} container{% endif %}">
+  <div class="layout-{{layout}}">
+    {%- render 'snippet-section', type: 'heading' , section_heading: blog.tilte -%}
+
+    <div class="section__content-wrapper{% if section.blocks.size > 0 %} flex{% endif %}">
+
+      <div class="section__content flex-w-1">
+
+          <div class="flex {{gridClass}}">
+            {%- for article in blog.articles -%}
+              {% if forloop.index == section.settings.position_banner %}
+                {%- assign bannerShowed = true -%}
+                {{- banner -}}
+              {% endif %}
+
+              {%- assign class = nil -%}
+              {%- if forloop.index0 < 2 -%}
+                {%- assign class = ' flex-w-1/2-important' -%}
+              {%- endif -%}
+
+              {%- render 'article-item', article: article, class: class -%}
+
+            {%- else -%}
+
+              <p>{{- 'blog.general.no_item' | t -}}</p>
+            {%- endfor -%}
+
+            {%- unless bannerShowed == true -%}{{- banner -}}{%- endunless -%}
+          </div>
+          {%- render 'pagination', paginate: paginate -%}
+      </div>
+
+      {%- if section.blocks.size > 0-%}
+        <div class="section__sidebar flex-w-1 md:flex-w-1/5">
+          {%- for block in section.blocks -%}
+            <div class="block__item block__type-{{block.type}}"{{ block.shopify_attributes }}>
+              {%- case block.type -%}
+                {%- when 'menu' -%}
+                  <ul class="menu-list" role="list">
+                   {%- render 'link' for block.settings.menu.links as link -%}
+                 </ul>
+
+                {%- when 'collection' -%}
+                  {%- capture cssFiles -%}{{cssFiles}}
+                    {%- render 'snippet-section', type: 'css-file', name: 'component-product-list' -%}
+                  {%- endcapture -%}
+                  <h5 class="block__heading">{{ block.settings.title }}</h5>
+
+                  <div class="related__items">
+                    {%- for product in block.settings.collection.products limit: block.settings.limit -%}
+                      <div class="product__list">
+                        <div class="flex">
+                          <div class="product__list-image flex-w-1/4 xl-flex-w-1/3 relative">
+                            {%- render 'image', image: product.featured_image, height: imgHeight, crop: 'contain' -%}
+                            {%- render 'snippet-product-item', type: 'label', product: product -%}
+                          </div>
+
+                          <div class="product__list-detail flex-w-1">
+                            {%- if block.settings.show_vendor -%}
+                            <p class="product__list--vendor">{{ product.vendor }}</p>
+                            {%- endif -%}
+
+                            <p class="product__list--title">
+                              <a href="{{ product.url }}" aria-label="{{ product.title | escape }}">{{ product.title }}</a>
+                            </p>
+
+                            <div class="product__list--price">
+                              {%- render 'snippet-product-item', type: 'price', product: product -%}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    {%- else -%}
+                      <p class="no-items">{{- 'collection.general.no_products' | t -}}</p>
+                    {%- endfor -%}
+
+                  </div>
+
+                {%- when 'banner' -%}
+
+                  {%- liquid
+                    assign blockTitle   = block.settings.title | newline_to_br
+                    assign blockContent = block.settings.content
+                    assign blockID = '.block-' | append: block.id
+                  -%}
+                  {%- capture blockID -%}.block-{{block.id}}{%- endcapture -%}
+
+
+                  {%- capture section_css -%}{{- section_css -}}
+                    {%- render 'css-resp', class: sectionId, next_class: blockID, join: ' ', css: 'color', value: block.settings.color, split_by: '|', remove_default: 'rgba(0,0,0,0)' -%}
+                    {%- render 'css-resp', class: sectionId, next_class: blockID, join: ' ', css: '--block__content--title', value: block.settings.title_fs -%}
+                  {%- endcapture -%}
+
+                  <div class="block-banner">
+                    {% unless section.settings.link == blank %}
+                      <a href="{{- block.settings.link -}}" class="link-overlay">
+                    {% endunless %}
+
+                    {%- capture index -%}{% cycle 1,2,3,4,5,6 %}{%- endcapture -%}
+                    {%- render 'image', image: block.settings.banner, type: 'collection', index: index -%}
+
+
+                    {% unless section.settings.link == blank %}
+                      </a>
+                    {% endunless %}
+                  </div>
+
+                  {%- unless blockTitle == blank and blockContent == blank -%}
+
+                    <div class="block-content absolute {{ blockID | remove: '.' }}">
+                      {%- unless blockTitle == blank -%}
+                        <p class="block-content--title">{{blockTitle}}</p>
+                      {%- endunless -%}
+
+                      {%- unless blockContent == blank -%}
+                        <div class="block-content--content">{{blockContent}}</div>
+                      {%- endunless -%}
+                    </div>
+                  {%- endunless -%}
+              {%- endcase -%}
+            </div>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+{%- endpaginate -%}
+{%- endcapture -%}
+
+{%- capture css_values -%}
+  --banner-title-fs: {{ section.settings.title_fs }};
+  --banner-content-color: {{- section.settings.color -}};
+{%- endcapture -%}
+{% capture section_css %}{{- section_css -}}
+  {%- render 'css-resp', class: sectionId, type: 'multi', value: css_values -%}
+{% endcapture %}
+
+{%- liquid
+  render 'snippet-section', type: 'css-file', name: 'component-pagination'
+  render 'snippet-section', type: 'css-file', name: 'component-article-card'
+  render 'snippet-section', type: 'css-file', name: 'page-blog'
+  echo cssFiles
+  render 'snippet-section', type: 'css', value: section_css
+
+  echo content
+-%}
+
+{%- schema -%}
+{
+  "name": "t:sections.main_blog.name",
+  "class": "shopify-section-main-blog",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "items_resp",
+      "label": "t:general.text.max_items.label",
+      "default": "2,4,6"
+    },
+    {
+      "type": "range",
+      "id": "limit",
+      "label": "t:sections.general.limit.label",
+      "min": 1,
+      "max": 50,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "checkbox",
+      "id": "show_date",
+      "label": "t:sections.main_blog.settings.show_date.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_blog.settings.header_1"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner",
+      "label": "t:sections.main_blog.settings.banner.label",
+      "info": "t:sections.main_blog.settings.banner.info"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:sections.main_blog.settings.link.label",
+      "info": "t:sections.main_blog.settings.link.info"
+    },
+    {
+      "type": "textarea",
+      "id": "title",
+      "label": "t:sections.main_blog.settings.title.label"
+    },
+    {
+      "type": "text",
+      "id": "title_fs",
+      "label": "t:sections.main_blog.settings.title_fs.label"
+    },
+    {
+      "type": "text",
+      "id": "content",
+      "label": "t:sections.main_blog.settings.content.label"
+    },
+    {
+      "type": "color",
+      "id": "color",
+      "label": "t:sections.main_blog.settings.color.label"
+    },
+    {
+      "type": "number",
+      "id": "position_banner",
+      "label": "t:sections.main_blog.settings.position_banner.label"
+    },
+    {
+      "type": "header",
+      "content": "t:general.styles.header"
+    },
+    {
+      "type": "select",
+      "id": "section_layout",
+      "label": "t:general.styles.section_layout.label",
+      "options": [
+        {
+          "value": "boxed",
+          "label": "t:general.styles.section_layout.options.option_1"
+        },
+        {
+          "value": "wide",
+          "label": "t:general.styles.section_layout.options.option_2"
+        }
+      ],
+      "default": "boxed"
+    },
+    {
+      "type": "text",
+      "id": "padding",
+      "label": "t:general.styles.padding.label",
+      "info": "t:general.styles.padding.info"
+    },
+    {
+      "type": "text",
+      "id": "margin",
+      "label": "t:general.styles.margin.label",
+      "info": "t:general.styles.margin.info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "menu",
+      "name": "t:sections.main_blog.blocks.menu.name",
+      "settings": [
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "t:sections.main_blog.blocks.menu.settings.menu.label"
+        }
+      ]
+    },
+    {
+      "type": "collection",
+      "name": "t:sections.main_blog.blocks.collection.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:sections.main_blog.blocks.collection.settings.title.label"
+        },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "t:sections.main_blog.blocks.collection.settings.collection.label"
+        },
+        {
+          "type": "range",
+          "id": "limit",
+          "label": "t:sections.general.limit.label",
+          "min": 1,
+          "max": 10,
+          "step": 1,
+          "default": 3
+        },
+        {
+          "type": "checkbox",
+          "id": "show_vendor",
+          "label": "t:sections.main_blog.blocks.collection.settings.show_vendor.label",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "banner",
+      "name": "t:sections.main_blog.blocks.banner.name",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "banner",
+          "label": "t:sections.main_blog.blocks.banner.settings.banner.label"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.main_blog.blocks.banner.settings.link.label",
+          "info": "t:sections.main_blog.blocks.banner.settings.link.info"
+        },
+        {
+          "type": "textarea",
+          "id": "title",
+          "label": "t:sections.main_blog.blocks.banner.settings.title.label"
+        },
+        {
+          "type": "text",
+          "id": "title_fs",
+          "label": "t:sections.main_blog.blocks.banner.settings.title_fs.label"
+        },
+        {
+          "type": "text",
+          "id": "content",
+          "label": "t:sections.main_blog.blocks.banner.settings.content.label"
+        },
+        {
+          "type": "color",
+          "id": "color",
+          "label": "t:sections.main_blog.blocks.banner.settings.color.label"
+        }
+      ]
+    }
+  ]
+}
+{%- endschema -%}

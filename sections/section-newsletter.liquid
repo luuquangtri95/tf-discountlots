@@ -1,175 +1,111 @@
-
 {%- liquid
-    assign sectionId = '#shopify-section-' | append: section.id
-    assign layout = section.settings.section_layout | handle
-    assign bg_overlay = section.settings.bg_overlay
-    assign bg_image = section.settings.bg_image
-    assign bg_color = section.settings.bg_color
+  assign sectionId = '#shopify-section-' | append: section.id
+  assign layout = section.settings.section_layout | handle
+  assign bg_overlay = section.settings.bg_overlay
+  assign bg_image = section.settings.bg_image
 -%}
 
- {% comment %} Classname {% endcomment %}
+{%- capture custom_schema_color -%}
+  {%- unless section.settings.schema_color_name == blank -%}
+    schema-color-{{- section.settings.schema_color_name | handle -}}
+  {%- endunless -%}
+{%- endcapture -%}
+
+{% comment %} Classname {% endcomment %}
 {%- capture class -%}
     |section-container relative
     {% if layout == 'boxed' %}|container{% endif %}
   {%- endcapture -%}
 
-  {%- render 'snippet-section', type: 'css' -%}
+{%- render 'snippet-section', type: 'css' -%}
 
-  {%capture bg_img %}
+{% capture bg_img %}
     {% if bg_image %}
       style="background-image: url('{{ bg_image | image_url }}')" 
-    {% else %}
-      style="background: {{ bg_color }}"
     {% endif %}
   {% endcapture %}
-  
-<div class="relative bg-cover bg-no-repeat bg-center" {{ bg_img }}>
+
+<div class="{{ custom_schema_color }} relative bg-[var(--background)] bg-cover bg-center bg-no-repeat" {{ bg_img }}>
   {%- if bg_overlay -%}
     <div class="absolute inset-0 bg-[rgba(29,54,117,0.8)]"></div>
   {%- endif -%}
-    <div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }} z-[3]">
-      <div class="m-[var(--margin)] p-[var(--padding)]">
-          <div class="text-center py-[30px]" style="color: {{ section.settings.text_color }}">
-              {%- unless section.settings.heading == blank -%}
-                <div class="heading text-[30px] lg:text-[40px]">
-                  <h3>{{ section.settings.heading }}</h3>
-                </div>
-              {%- endunless -%}
-              {%- unless section.settings.subtext == blank -%}
-                  <div class="subtext text-[24px] lg:text-[30px]">
-                    <p>{{ section.settings.subtext }}</p>
-                  </div>
-              {%- endunless -%}
-              {%- unless section.settings.btn_link == blank and section.settings.btn_text == blank -%}
-                <div class="button text-[16px] mt-[30px]">
-                  <button class="p-2 min-w-[250px] min-h-[51px] font-[600] border border-[#111f44] rounded-[10px] uppercase hover:bg-[#e4642b] hover:border-[#e4642b]" style="color: {{ section.settings.btn_color }}; background: {{ section.settings.btn_bg_color }}">
-                    <a href="{{ section.settings.btn_link }}">{{ section.settings.btn_text }}</a>
-                  </button>
-                </div>
-            {%- endunless -%}
-
-              {%- unless section.settings.rated == blank -%}
-                <div class="rated mt-[20px] text-[14px] flex gap-2 flex-wrap items-center justify-center">
-                  {%- for i in (1..5) -%}
-                    <span class="inline-block w-[22px] {% if i <= section.settings.rated %}text-[#f7cf2f]{% else %}text-gray-300{% endif %}">
-                      {%- render 'svg', type: 'star-rating' -%}
-                    </span>
-                  {%- endfor -%}
-                    <span>{{ section.settings.text_rated }}</span>
-                </div>
-              {%- endunless -%}
+  <div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }} z-[3]">
+    <div class="m-[var(--margin)] p-[var(--padding)] text-[var(--text)]">
+      <div class="py-[30px] text-center">
+        {%- unless section.settings.heading == blank -%}
+          <div class="heading text-[30px] lg:text-[40px]">
+            <h3>{{ section.settings.heading }}</h3>
           </div>
+        {%- endunless -%}
+        {%- unless section.settings.subtext == blank -%}
+          <div class="subtext text-[24px] lg:text-[30px]">
+            <p>{{ section.settings.subtext }}</p>
+          </div>
+        {%- endunless -%}
+        {%- unless section.settings.btn_link == blank and section.settings.btn_text == blank -%}
+          <div class="button mt-[30px] text-[16px]">
+            <button
+              class="min-h-[51px] min-w-[250px] rounded-[10px] border border-[var(--btn-border-color)] bg-[var(--btn-background)] p-2 font-[600] uppercase text-[var(--btn-color)] hover:border-[var(--hover-btn-border-color)] hover:bg-[var(--hover-btn-background)] hover:text-[var(--hover-btn-color)]"
+            >
+              <a href="{{ section.settings.btn_link }}">{{ section.settings.btn_text }}</a>
+            </button>
+          </div>
+        {%- endunless -%}
+
+        {%- unless section.settings.rated == blank -%}
+          <div class="rated mt-[20px] flex flex-wrap items-center justify-center gap-2 text-[14px]">
+            {%- for i in (1..5) -%}
+              <span class="inline-block w-[22px] {% if i <= section.settings.rated %}text-[#f7cf2f]{% else %}text-gray-300{% endif %}">
+                {{ 'icon-star-rating.svg' | inline_asset_content }}
+              </span>
+            {%- endfor -%}
+            <span>{{ section.settings.text_rated }}</span>
+          </div>
+        {%- endunless -%}
       </div>
     </div>
+  </div>
 </div>
-  
-  {% schema %}
-  {
-    "name": "Section newsletter",
-    "tag": "section",
-    "class": "ss-newsletter",
-    "presets": [
-      {
-        "name": "Section newsletter"
-      }
-    ],
-    "limit": 1,
-    "enabled_on": {
-      "groups": ["footer"]
-    },
-    "settings": [
-      {
-        "type": "header",
-        "content": "General settings"
-      },
-      {
-        "type": "checkbox",
-        "id": "bg_overlay",
-        "label": "Background overlay",
-        "info": "Only for background image"
-      },
-      {
-        "type": "image_picker",
-        "id": "bg_image",
-        "label": "Background image"
-      },
-      {
-        "type": "color",
-        "id": "bg_color",
-        "label": "Background color",
-        "default": "#ffffff"
-      },
-      {
-        "type": "select",
-        "id": "section_layout",
-        "label": "t:general.styles.section_layout.label",
-        "options": [
-          {
-            "value": "boxed",
-            "label": "t:general.styles.section_layout.options.option_1"
-          },
-          {
-            "value": "wide",
-            "label": "t:general.styles.section_layout.options.option_2"
-          }
-        ],
-        "default": "boxed"
-      },
-      {
-        "type": "text",
-        "id": "padding",
-        "label": "Padding",
-        "default": "0,0 16px",
-        "info": "Padding"
-      },
-      {
-        "type": "text",
-        "id": "margin",
-        "label": "Margin",
-        "info": "Margin"
-      },
-      {
-        "type": "color",
-        "id": "text_color",
-        "label": "Text color",
-        "default": "#ffffff"
-      },
-      {
-        "type": "header",
-        "content": "Custom content"
-      },
-      {
-        "type": "inline_richtext",
-        "id": "heading",
-        "default": "So What Are You Waiting For?",
-        "label": "Heading"
-    },
-      {
-        "type": "richtext",
-        "id": "subtext",
-        "label": "Subtext"
+
+{% schema %}
+{
+  "name": "Newsletter",
+  "tag": "section",
+  "class": "ss-newsletter",
+  "presets": [
+    {
+      "name": "Newsletter"
+    }
+  ],
+  "limit": 1,
+  "enabled_on": {
+    "groups": ["footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section settings"
     },
     {
-        "type": "text",
-        "id": "btn_text",
-        "label": "Button text"
-      },
-      {
-        "type": "url",
-        "id": "btn_link",
-        "label": "Button link"
-      },
-    {
-        "type": "color",
-        "id": "btn_color",
-        "label": "Button text color",
-        "default": "#ffffff"
+      "type": "inline_richtext",
+      "id": "heading",
+      "default": "So What Are You Waiting For?",
+      "label": "Heading"
     },
     {
-        "type": "color",
-        "id": "btn_bg_color",
-        "label": "Button background color",
-        "default": "#f76d2f"
+      "type": "richtext",
+      "id": "subtext",
+      "label": "Subtext"
+    },
+    {
+      "type": "text",
+      "id": "btn_text",
+      "label": "Button text"
+    },
+    {
+      "type": "url",
+      "id": "btn_link",
+      "label": "Button link"
     },
     {
       "type": "range",
@@ -181,14 +117,61 @@
       "default": 5
     },
     {
-        "type": "inline_richtext",
-        "id": "text_rated",
-        "default": "Rated 4.9 stars By 3,000+ Clients",
-        "label": "Rated content"
+      "type": "inline_richtext",
+      "id": "text_rated",
+      "default": "Rated 4.9 stars By 3,000+ Clients",
+      "label": "Rated content"
+    },
+    {
+      "type": "header",
+      "content": "General settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "bg_overlay",
+      "label": "Background overlay",
+      "info": "Only for background image"
+    },
+    {
+      "type": "image_picker",
+      "id": "bg_image",
+      "label": "Background image"
+    },
+    {
+      "type": "text",
+      "id": "schema_color_name",
+      "label": "Schema color name"
+    },
+    {
+      "type": "select",
+      "id": "section_layout",
+      "label": "t:general.styles.section_layout.label",
+      "options": [
+        {
+          "value": "boxed",
+          "label": "t:general.styles.section_layout.options.option_1"
+        },
+        {
+          "value": "wide",
+          "label": "t:general.styles.section_layout.options.option_2"
+        }
+      ],
+      "default": "boxed"
+    },
+    {
+      "type": "text",
+      "id": "padding",
+      "label": "Padding",
+      "default": "0,0 16px",
+      "info": "Padding"
+    },
+    {
+      "type": "text",
+      "id": "margin",
+      "label": "Margin",
+      "info": "Margin"
     }
-    ],
-    "blocks": [
-    ]
-  }
-  {% endschema %}
-  
+  ],
+  "blocks": []
+}
+{% endschema %}

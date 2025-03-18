@@ -822,5 +822,11 @@
     "mini_cart": {
       "name": "Mini cart"
     }
+  },
+  "blog": {
+    "general": {
+      "no_item": "No Blog",
+      "loadmore": "Load More"
+    }
   }
 }

@@ -1,0 +1,17 @@
+<div class="answer-image pt-[30px]">
+  {% render 'image', image: block.settings.image_answer, type: 'collection' %}
+</div>
+
+{% schema %}
+{
+  "name": "Image",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image_answer",
+      "label": "Image"
+    }
+  ],
+  "presets": [{ "name": "Image" }]
+}
+{% endschema %}
