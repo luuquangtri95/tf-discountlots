@@ -6,11 +6,10 @@
 %}
 
 {% capture css_variables %}
---section-padding: {{ section.settings.padding }};    
 --section-heading-color : {{ section.settings.section_heading_color }};
 {% endcapture %}
 
-{% comment %} Classname {% endcomment %}
+<!-- Class -->
 {%- capture class -%}
   |section-container relative
   {% if layout == 'boxed' %}|container{% endif %}
@@ -27,24 +26,24 @@
 {% endstyle %}
 
 <div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
-  <div class="p-[var(--padding)]">
-    <div class="heading text-[30px] mb-[30px] text-center">
+  <div class="m-[var(--margin)] p-[var(--padding)]">
+    <div class="heading mb-[30px] text-center text-[30px]">
       <p class="text-[var(--section-heading-color)]">{{ section.settings.section_heading }}</p>
       <span class="sub-heading text-[var(--section-heading-color)]">{{ section.settings.section_subheading }}</span>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-[60px]">
+    <div class="grid grid-cols-1 gap-[60px] md:grid-cols-3">
       {%- for block in section.blocks -%}
         {%- case block.type -%}
           {%- when 'step' -%}
-            <div class="flex flex-col justify-center items-center gap-[20px]">
+            <div class="flex flex-col items-center justify-center gap-[20px]" {{ block.shopify_attributes }}>
               <div class="image-wrapper relative w-full">
-                <div class="rounded-[50%] bg-[#489cd8] w-[100px] h-[100px] flex justify-center items-center m-auto">
+                <div class="m-auto flex h-[100px] w-[100px] items-center justify-center rounded-[50%] bg-[#489cd8]">
                   <div class="w-[50px] text-[#fff]">{{ block.settings.select_icon | inline_asset_content }}</div>
                 </div>
 
-                <div class="hidden lg:block absolute right-[-70px] top-[50%] translate-y-[-50%]">
-                  <div class="flex justify-center items-center my-[20px]">
+                <div class="absolute right-[-70px] top-[50%] hidden translate-y-[-50%] lg:block">
+                  <div class="my-[20px] flex items-center justify-center">
                     {%- if forloop.last == false -%}
                       <div class=" w-[70px] text-[#489cd8]">
                         {{ 'icon-arrow-right.svg' | inline_asset_content }}
@@ -56,12 +55,12 @@
 
               <div class="content flex-1 text-center text-[#114273]">
                 <h3
-                  class="text-[22px] mb-[20px] xl:text-[26px]"
+                  class="mb-[20px] text-[22px] xl:text-[26px]"
                   style="color:{{ block.settings.section_heading_color }}"
                 >
                   {{ block.settings.title }}
                 </h3>
-                <p class="text-[14px] mb-[20px] xl:text-[18px]">{{ block.settings.description }}</p>
+                <p class="mb-[20px] text-[14px] xl:text-[18px]">{{ block.settings.description }}</p>
               </div>
             </div>
         {%- endcase -%}
@@ -69,14 +68,14 @@
     </div>
 
     {% comment %} button get started {% endcomment %}
-    <div class="w-[250px] max-w-full mx-auto mt-[50px]">
-      <button class="w-full text-[#fff] bg-[#f76d2f] px-[24px] py-[14px] text-[16px] rounded-lg border border-[#000] mb-4">
+    <div class="mx-auto mt-[50px] w-[250px] max-w-full">
+      <button class="mb-4 w-full rounded-lg border border-[#000] bg-[#f76d2f] px-[24px] py-[14px] text-[16px] text-[#fff]">
         GET STARTED
       </button>
 
       <p class="text-[12px] leading-[1.6]">
         {%- for i in (1..5) -%}
-          <span class="inline-block w-[14px] text-[#f7cf2f] align-text-top {% if i <= rating %}text-[#f7cf2f]{% else %}text-gray-300{% endif %}">
+          <span class="inline-block w-[14px] align-text-top text-[#f7cf2f] {% if i <= rating %}text-[#f7cf2f]{% else %}text-gray-300{% endif %}">
             {{ 'icon-star-rating.svg' | inline_asset_content }}
           </span>
         {%- endfor -%}
@@ -219,6 +218,10 @@
       ]
     }
   ],
+  "enabled_on": {
+    "templates": ["*"],
+    "groups": ["aside"]
+  },
   "presets": [
     {
       "name": "How It Works",

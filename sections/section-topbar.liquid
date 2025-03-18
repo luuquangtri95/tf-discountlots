@@ -1,25 +1,40 @@
-{%- assign padding_values = section.settings.padding | split: "," -%}
+{%- assign padding_values = section.settings.padding | split: ',' -%}
 
 {%- case padding_values.size -%}
   {%- when 1 -%}
     {%- assign padding_css = padding_values[0] -%}
   {%- when 2 -%}
-    {%- assign padding_css = padding_values[0] | append: " " | append: padding_values[1] -%}
+    {%- assign padding_css = padding_values[0] | append: ' ' | append: padding_values[1] -%}
   {%- when 3 -%}
-    {%- assign padding_css = padding_values[0] | append: " " | append: padding_values[1] | append: " " | append: padding_values[2] -%}
+    {%- assign padding_css = padding_values[0]
+      | append: ' '
+      | append: padding_values[1]
+      | append: ' '
+      | append: padding_values[2]
+    -%}
   {%- else -%}
-    {%- assign padding_css = padding_values[0] | append: " " | append: padding_values[1] | append: " " | append: padding_values[2] | append: " " | append: padding_values[3] -%}
+    {%- assign padding_css = padding_values[0]
+      | append: ' '
+      | append: padding_values[1]
+      | append: ' '
+      | append: padding_values[2]
+      | append: ' '
+      | append: padding_values[3]
+    -%}
 {%- endcase -%}
 
 <div class="w-full" style="background-color: {{ section.settings.bg_color }}; padding: {{ padding_css }}">
   <div class="h-full container flex justify-between items-center flex-col gap-2 md:flex-row ">
     <div class="text-[#fff] text-[12px] flex items-center gap-2 md:text-[14px]">
-      {{ 'icon-call-v2.svg' | inline_asset_content }} {{ section.settings.inline_heading }}
+      {{ 'icon-call-v2.svg' | inline_asset_content }}
+      {{ section.settings.inline_heading }}
     </div>
 
     <div class="text-[#fff] flex gap-2 items-center justify-between">
-      {%- render 'social-media-icons'
-        , class: "flex gap-2" - %}
+      {%-
+        render 'social-media-icons'
+        , class: "flex gap-2" -
+      %}
 
       <div class="flex gap-2">
         <div class="w-[20px]">
@@ -34,33 +49,37 @@
   </div>
 </div>
 
-
 {% schema %}
-  {
-    "name": "Topbar",
-    "settings": [
-      {
-        "type": "color",
-        "id": "bg_color",
-        "label": "Background color",
-        "default": "#114273"
-      }, {
-        "type": "inline_richtext",
-        "id": "inline_heading",
-        "label": "Heading",
-        "default": "Call 866-808-7809 To Find Your Dream Property Today"
-      }, {
-        "type": "text",
-        "id": "padding",
-        "label": "Padding",
-        "default": "10px, 10px, 10px, 10px",
-        "info": "e.g Top, Right, Bottom, Left"
-      }
-    ],
-    "presets": [
-      {
-        "name": "Topbar"
-      }
-    ]
-  }
+{
+  "name": "Topbar",
+  "enabled_on": {
+    "groups": ["header"]
+  },
+  "settings": [
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#114273"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "inline_heading",
+      "label": "Heading",
+      "default": "Call 866-808-7809 To Find Your Dream Property Today"
+    },
+    {
+      "type": "text",
+      "id": "padding",
+      "label": "Padding",
+      "default": "10px, 10px, 10px, 10px",
+      "info": "e.g Top, Right, Bottom, Left"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Topbar"
+    }
+  ]
+}
 {% endschema %}

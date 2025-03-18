@@ -8,13 +8,12 @@
 %}
 
 {% capture css_variables %}
-    --section-padding: {{ section.settings.padding }};    
     --section-heading-color : {{ section.settings.heading_color }};
     --section-background: {{ section.settings.background }};
     --video-aspect-ratio: {{ section.settings.video_aspect_ratio | default: "56.25%" }};
 {% endcapture %}
 
-{% comment %} Classname {% endcomment %}
+<!-- Class -->
 {%- capture class -%}
   |section-container relative
   {% if layout == 'boxed' %}|container{% endif %}
@@ -32,7 +31,7 @@
 
 <div class="bg-[#f7f9fb]">
   <div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
-    <div class="p-[var(--padding)]">
+    <div class="p-[var(--padding)] m-[var(--margin)kk]">
       <div class="grid grid-cols-1 bg-[var(--section-background)]] lg:grid-cols-2 lg:gap-[40px] xl:grid-cols-2">
         <div>
           {%- if video_source == 'external' and external_video_url != blank -%}
@@ -84,7 +83,7 @@
           <h2 class="text-[28px] text-[#124f92] mb-[20px] mt-[14px] lg:mt-0">{{ heading }}</h2>
 
           {%- for block in section.blocks -%}
-            <div class="mb-[20px]">
+            <div class="mb-[20px]" {{ block.shopify_attributes }}>
               {{ block.settings.subtitle }}
             </div>
           {%- endfor -%}
@@ -214,6 +213,10 @@
       ]
     }
   ],
+  "enabled_on": {
+    "templates": ["*"],
+    "groups": ["aside"]
+  },
   "presets": [
     {
       "name": "About Us Section",

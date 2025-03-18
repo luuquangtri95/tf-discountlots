@@ -28,7 +28,7 @@
 {%- render 'snippet-section', type: 'css', value: section_css -%}
 
 <div
-  class="header-section block layout-{{ layout | handle }} relative bg-[#fff]"
+  class="header-section block layout-{{ layout | handle }} relative"
   data-section-type="header"
 >
   <div class="section-container{% if layout == 'boxed' %} container{% endif %}">
@@ -44,6 +44,20 @@
         >
           {{ 'icon-search.svg' | inline_asset_content }}
         </a>
+      </div>
+
+      {% comment %} Hamburger {% endcomment %}
+      <div class="flex-[0_0_50px] lg:hidden">
+        <button
+          class="jsTogglePopup jsTemplate cursor-pointer"
+          type="button"
+          data-template="#mobileMenuTemplate"
+          data-control="#mobileMenu"
+          aria-label="{{- 'accessibility.text.mobile_menu' | t -}}"
+        >
+          {{ 'icon-hamburger.svg' | inline_asset_content }}
+          <span class="sr-only">{{- 'accessibility.text.mobile_menu' | t -}}</span>
+        </button>
       </div>
 
       {% comment %} Left menu {% endcomment %}
@@ -63,20 +77,6 @@
         {% comment %} Logo {% endcomment %}
         <div class="flex-[0_0_var(--logo-width)] text-center text-xl md:text-3xl">
           {%- render 'logo', is_header: true -%}
-        </div>
-
-        {% comment %} Hamburger {% endcomment %}
-        <div class="flex-[0_0_50px] lg:hidden">
-          <button
-            class="jsTogglePopup jsTemplate cursor-pointer"
-            type="button"
-            data-template="#mobileMenuTemplate"
-            data-control="#mobileMenu"
-            aria-label="{{- 'accessibility.text.mobile_menu' | t -}}"
-          >
-            {{ 'icon-hamburger.svg' | inline_asset_content }}
-            <span class="sr-only">{{- 'accessibility.text.mobile_menu' | t -}}</span>
-          </button>
         </div>
 
         {% comment %} Right menu {% endcomment %}
@@ -110,24 +110,22 @@
           </a>
         {%- endif -%}
 
-        {% comment %}
-          <a
-            href="{{routes.cart_url}}"
-            title="{{- 'sections.header.cart' | t -}}"
-            class="{{icon_class}} jsTogglePopup"
-            data-control="#cartDrawer"
-            aria-label="{{- 'sections.header.cart' | t -}}"
-          >
-            <span class="relative">
-              {{ 'icon-cart.svg' | inline_asset_content }}
-              <span
-                class="pointer-events-none jsCartCount data-[count=0]:hidden before:absolute before:bottom-[-4px] before:right-[-4px] before:block before:w-[8px] before:h-[8px] before:bg-[var(--primary-color)] before:rounded-full"
-                data-count="{{ cart.item_count }}"
-              >
-              </span>
+        <a
+          href="{{routes.cart_url}}"
+          title="{{- 'sections.header.cart' | t -}}"
+          class="{{icon_class}} jsTogglePopup"
+          data-control="#cartDrawer"
+          aria-label="{{- 'sections.header.cart' | t -}}"
+        >
+          <span class="relative">
+            {{ 'icon-cart.svg' | inline_asset_content }}
+            <span
+              class="jsCartCount pointer-events-none before:absolute before:bottom-[-4px] before:right-[-4px] before:block before:h-[8px] before:w-[8px] before:rounded-full before:bg-[var(--primary-color)] data-[count=0]:hidden"
+              data-count="{{ cart.item_count }}"
+            >
             </span>
-          </a>
-        {% endcomment %}
+          </span>
+        </a>
       </div>
     </div>
   </div>
