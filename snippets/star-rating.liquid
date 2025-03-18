@@ -1,7 +1,9 @@
 <!-- props: rating, position, star_size, rating_text -->
-{%- assign rating = rating | default: 5 -%}
-{%- assign position = position | default: 'left' -%}
-{%- assign star_size = star_size | default: 'small' -%}
+{% liquid
+  assign rating = rating | default: 5
+  assign position = position | default: 'left'
+  assign star_size = star_size | default: 'small'
+%}
 
 {% case star_size %}
   {% when 'small' %}
@@ -14,22 +16,20 @@
     {%- assign width = 'w-[18px]' -%}
 {% endcase %}
 
-{% if position == 'left' %}
-  <p class="lg:text-[20px]">
-    {{ rating_text }}
+{% case position %}
+  {% when 'left' %}
+    {%- assign flex_direction = '' -%}
+  {% when 'right' %}
+    {%- assign flex_direction = 'flex-row-reverse justify-end' -%}
+{% endcase %}
+
+<div class="flex items-center gap-2 {{ flex_direction }}">
+  <p class="">{{ rating_text }}</p>
+  <div class="flex items-center">
     {%- for i in (1..5) -%}
       <span class="inline-block {{ width }} {% if i <= rating %}text-[var(--star-color)]{% else %}text-gray-300{% endif %}">
         {{ 'icon-star-rating.svg' | inline_asset_content }}
       </span>
     {%- endfor -%}
-  </p>
-{% else %}
-  <p class="lg:text-[20px]">
-    {%- for i in (1..5) -%}
-      <span class="inline-block {{ width }} {% if i <= rating %}text-[var(--star-color)]{% else %}text-gray-300{% endif %}">
-        {{ 'icon-star-rating.svg' | inline_asset_content }}
-      </span>
-    {%- endfor -%}
-    {{ rating_text }}
-  </p>
-{% endif %}
+  </div>
+</div>
