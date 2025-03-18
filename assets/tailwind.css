@@ -883,6 +883,18 @@ video {
   margin-top: auto;
 }
 
+.mt-\[-12px\] {
+  margin-top: -12px;
+}
+
+.mt-\[-20px\] {
+  margin-top: -20px;
+}
+
+.mb-\[40px\] {
+  margin-bottom: 40px;
+}
+
 .block {
   display: block;
 }
@@ -985,6 +997,10 @@ video {
 
 .h-full {
   height: 100%;
+}
+
+.h-\[40px\] {
+  height: 40px;
 }
 
 .\!max-h-\[50\%\] {
@@ -1111,12 +1127,24 @@ video {
   width: 100%;
 }
 
+.w-\[240px\] {
+  width: 240px;
+}
+
+.w-\[200px\] {
+  width: 200px;
+}
+
 .min-w-\[180px\] {
   min-width: 180px;
 }
 
 .min-w-\[250px\] {
   min-width: 250px;
+}
+
+.min-w-\[240px\] {
+  min-width: 240px;
 }
 
 .max-w-\[22px\] {
@@ -1706,6 +1734,10 @@ video {
   padding: var(--padding);
 }
 
+.p-3 {
+  padding: 0.75rem;
+}
+
 .px-2 {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -2150,6 +2182,15 @@ video {
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
 }
 
+.text-\[\#f76d2f\] {
+  --tw-text-opacity: 1;
+  color: rgb(247 109 47 / var(--tw-text-opacity, 1));
+}
+
+.text-\[inherit\] {
+  color: inherit;
+}
+
 .underline {
   text-decoration-line: underline;
 }
@@ -2430,6 +2471,10 @@ video {
 
 .hover\:text-\[var\(--link\)\]:hover {
   color: var(--link);
+}
+
+.hover\:text-\[var\(--text\)\]:hover {
+  color: var(--text);
 }
 
 .hover\:underline:hover {
@@ -2755,6 +2800,10 @@ video {
 
   .lg\:text-\[45px\] {
     font-size: 45px;
+  }
+
+  .lg\:text-\[50px\] {
+    font-size: 50px;
   }
 }
 

@@ -73,7 +73,7 @@
             class="swiper-wrapper slider-list {% if dots %} pb-[60px]{% endif %} grid {{slider_gridClass}} js-slider swiper-wrapper"
           >
             {%- for block in section.blocks -%}
-              <div class="swiper-slide">
+              <div class="swiper-slide" {{ block.shopify_attributes }}>
                 <div class="block-item flex h-full flex-col text-center">
                   {%- unless block.settings.testimonial_video == blank -%}
                     {% assign external_video = block.settings.testimonial_video %}

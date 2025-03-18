@@ -50,7 +50,7 @@
         <div class="banner-wrapper {{ items_class }}">
           {%- if section.blocks.size > 0 -%}
             {%- for block in section.blocks -%}
-              <div class="block-item relative overflow-hidden rounded-[20px]">
+              <div class="block-item relative overflow-hidden rounded-[20px]" {{ block.shopify_attributes }}>
                 {%- liquid
                   assign banner = block.settings.banner
                   assign link_banner = block.settings.btn_block_link

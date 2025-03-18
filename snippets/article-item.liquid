@@ -64,13 +64,14 @@
           <div class="card-article-link">
             <a
               href="{{article.url}}"
-              class="link text-[18px] uppercase text-[var(--btn-color)] underline hover:text-[var(--hover-btn-color)]"
+              class="link text-[18px] uppercase text-[#f76d2f] underline hover:text-[var(--text)]"
             >
               {{- 'blog.general.read_more' | t -}}
             </a>
           </div>
-
-          <div class="card-article-publish-date">{{ article.published_at | time_tag: '%d %B %Y' }}</div>
+          {%- unless section.settings.hide_date -%}
+            <div class="card-article-publish-date text-[14px]">{{ article.published_at | time_tag: '%d %B %Y' }}</div>
+          {%- endunless -%}
         </div>
       </div>
     </div>

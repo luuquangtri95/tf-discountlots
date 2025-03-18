@@ -19,20 +19,12 @@ class infiniteLoading extends HTMLElement {
   }
 
   removeEvents(remove) {
-    window.removeEventListener(
-      "scroll",
-      this.onScrollHandler.bind(this),
-      false,
-    );
+    window.removeEventListener("scroll", this.onScrollHandler.bind(this), false);
     remove && this.remove();
   }
 
   onScrollHandler() {
-    if (
-      this.getBoundingClientRect().top < 1 ||
-      this.getBoundingClientRect().top > window.innerHeight ||
-      this.waiting
-    )
+    if (this.getBoundingClientRect().top < 1 || this.getBoundingClientRect().top > window.innerHeight || this.waiting)
       return;
 
     this.fetch();
@@ -68,18 +60,11 @@ class infiniteLoading extends HTMLElement {
   render(newContent) {
     //console.log('newContent', newContent)
     if (newContent.querySelector(".list-products") == null) return;
-    Array.from(newContent.querySelector(".list-products")?.children)?.forEach(
-      (item) => {
-        if (item.classList.contains("info-card")) return;
-        document
-          .querySelector(".list-products")
-          .insertAdjacentElement("beforeend", item);
-      },
-    );
-    this.setAttribute(
-      "data-url",
-      newContent.querySelector(this.tagName)?.dataset.url,
-    );
+    Array.from(newContent.querySelector(".list-products")?.children)?.forEach((item) => {
+      if (item.classList.contains("info-card")) return;
+      document.querySelector(".list-products").insertAdjacentElement("beforeend", item);
+    });
+    this.setAttribute("data-url", newContent.querySelector(this.tagName)?.dataset.url);
 
     if (!this.dataset.url.length) {
       this.removeEvents(true);
