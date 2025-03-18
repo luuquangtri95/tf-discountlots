@@ -1,6 +1,10 @@
 {%- liquid
   assign sectionId = '#shopify-section-' | append: section.id
   assign layout = section.settings.section_layout | handle
+
+  if section.settings.show_paginate == false
+    assign pagination_type = 'infinite'
+  endif
 -%}
 
 {%- capture stylesheet -%}
@@ -32,9 +36,17 @@
   <div class="{{ custom_schema_color }} bg-[var(--background)]">
     <div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
       <div class="m-[var(--margin)] p-[var(--padding)]">
-        <div class="heading">{{ blog.tilte }}</div>
+        <div class="heading mb-[40px] text-center text-[30px] font-bold text-[var(--text)] lg:text-[50px]">
+          <h3>
+            {%- if section.settings.heading != blank -%}
+              {{ section.settings.heading }}
+            {%- else -%}
+              {{ blog.title }}
+            {%- endif -%}
+          </h3>
+        </div>
         <div class="section__content-wrapper{% if section.blocks.size > 0 %} flex{% endif %} mb-[50px]">
-          <div class="gap-[20px] {{items_class}}">
+          <div class="list-blog gap-[20px] {{items_class}}">
             {%- for article in blog.articles -%}
               {%- render 'article-item', article: article, class: class -%}
             {%- else -%}
@@ -42,11 +54,13 @@
             {%- endfor -%}
           </div>
         </div>
-        {%- render 'pagination', paginate: paginate -%}
+        {%- render 'pagination', paginate: paginate, type: pagination_type -%}
       </div>
     </div>
   </div>
 {%- endpaginate %}
+
+<!-- jsFile: infinite-load-blog -->
 
 {%- schema -%}
 {
@@ -54,6 +68,15 @@
   "class": "shopify-section-main-blog",
   "tag": "section",
   "settings": [
+    {
+      "type": "header",
+      "content": "Custom heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Blog title"
+    },
     {
       "type": "header",
       "content": "General settings"
@@ -111,6 +134,11 @@
       "id": "show_paginate",
       "label": "Show pagination",
       "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_date",
+      "label": "Hide date"
     }
   ],
   "blocks": []

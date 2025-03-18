@@ -44,7 +44,11 @@
         {%- if section.blocks.size > 0 -%}
           <div class="banner-wrapper {{ items_class }}">
             {%- for block in section.blocks -%}
-              <div class="block-item rounded-[20px] p-[20px]" style="background: {{ block.settings.bg_block_color }}">
+              <div
+                class="block-item rounded-[20px] p-[20px]"
+                style="background: {{ block.settings.bg_block_color }}"
+                {{ block.shopify_attributes }}
+              >
                 <div class="svg-wrapper">
                   {{
                     'icon-check-circle.svg'

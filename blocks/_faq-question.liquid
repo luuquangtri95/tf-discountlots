@@ -3,7 +3,7 @@
   data-file="{{ 'accordion-component.js' | asset_url }}"
   data-close-screen="(max-width: 749px)"
 >
-  <details class="border-b">
+  <details class="border-b" {{ block.shopify_attributes }}>
     <summary class="cursor-pointer">
       <div class="flex w-full items-center justify-between py-[15px] pr-[10px]">
         <p class="title flex-1 font-bold">{{ block.settings.question }}</p>

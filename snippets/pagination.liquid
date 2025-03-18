@@ -3,12 +3,14 @@
     <infinite-loading
       data-url="{{paginate.next.url}}&section_id={{section.id}}"
       data-container="{{productContainer}}"
-      class="flex100-important flex justify-center"
+      class="flex100-important relative flex justify-center"
     >
-      <div class="svg_loading">
-        {% render 'icons', icon: 'loading' %}
+      <div class="loading absolute top-[50%] mt-[-20px] hidden">
+        <span class="flex h-[40px] w-[200px] items-center justify-center bg-[var(--btn-background)]">Loading...</span>
       </div>
-      <button class="btn btn-1 js-load-more">Load more</button>
+      <button class="btn btn-1 js-load-more h-[50px] min-w-[240px] rounded-[5px] border border-[var(--btn-border-color)] bg-[var(--btn-background)] p-2 font-[600] uppercase text-[var(--btn-color)] hover:border-[var(--hover-btn-border-color)] hover:bg-[var(--hover-btn-background)] hover:text-[var(--hover-btn-color)] lg:text-[20px]">
+        Load more
+      </button>
     </infinite-loading>
   {% else %}
     {%- if paginate.pages > 1 -%}
