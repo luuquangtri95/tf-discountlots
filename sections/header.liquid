@@ -1,25 +1,15 @@
-{%- liquid
+{% liquid
   assign section_id = '#shopify-section-' | append: section.id
-  assign layout = section.settings.section_layout
+  assign layout = section.settings.section_layout | handle
   assign main_menu = section.settings.main_menu
   assign logo_width = settings.logo_width | default: '120px,200px'
--%}
+%}
 
-{%- unless main_menu == blank -%}
-  {%- assign half_menu = main_menu.links.size | divided_by: 2.0 | ceil -%}
-
-  {%- for link in main_menu.links -%}
-    {%- capture menu_item -%}
-      {%- render 'header-snippet', type: 'link', link: link, firstLv: true -%}
-    {%- endcapture -%}
-
-    {%- if forloop.index0 < half_menu -%}
-      {%- assign left_menu = left_menu | append: menu_item -%}
-    {%- else -%}
-      {%- assign right_menu = right_menu | append: menu_item -%}
-    {%- endif -%}
-  {%- endfor -%}
-{%- endunless -%}
+{%- capture class -%}
+  |section-container relative
+  {% if layout == 'boxed' %}|container{% endif %}
+  {%- if section.settings.show_background -%}|[background:var(--background)] {%- endif -%}
+{%- endcapture -%}
 
 {%- capture section_css -%}
   {%- render 'css-resp', class: section_id, css: '--logo-width', value: logo_width -%}
@@ -28,47 +18,18 @@
 {%- render 'snippet-section', type: 'css', value: section_css -%}
 
 <div
-  class="header-section block layout-{{ layout | handle }} relative bg-[#fff]"
+  class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }} bg-white"
   data-section-type="header"
 >
-  <div class="section-container{% if layout == 'boxed' %} container{% endif %}">
-    <div class="flex items-center justify-between py-4">
-      {% comment %} Search {% endcomment %}
-      <div class="hidden flex-[0_0_150px]  lg:block ">
-        <a
-          class="jsTogglePopup inline-block"
-          href="{{routes.search_url}}"
-          title="{{- 'sections.header.search' | t -}}"
-          aria-label="{{- 'sections.header.search' | t -}}"
-          data-control="#headerSearchPopup"
-        >
-          {{ 'icon-search.svg' | inline_asset_content }}
-        </a>
-      </div>
-
-      {% comment %} Left menu {% endcomment %}
-      <div class="flex flex-[1] items-center justify-center gap-[30px]">
-        {%- unless left_menu == blank -%}
-          <div class="hidden lg:flex lg:flex-[1] lg:justify-end">
-            <ul
-              class="main-navigation lg:flex lg:flex-wrap lg:items-center lg:justify-end lg:gap-[15px] xl:gap-[20px]"
-              role="list"
-              aria-label="{{- 'accessibility.text.main_navigation' | t -}}"
-            >
-              {{ left_menu }}
-            </ul>
-          </div>
-        {%- endunless -%}
-
-        {% comment %} Logo {% endcomment %}
+  <div class="m-[var(--margin)] p-[var(--padding)]">
+    <div class="">
+      <div class="flex items-center justify-between py-4">
         <div class="flex-[0_0_var(--logo-width)] text-center text-xl md:text-3xl">
           {%- render 'logo', is_header: true -%}
         </div>
-
-        {% comment %} Hamburger {% endcomment %}
-        <div class="flex-[0_0_50px] lg:hidden">
+        <div class="lg:hidden">
           <button
-            class="jsTogglePopup jsTemplate cursor-pointer"
+            class="cursor-pointer"
             type="button"
             data-template="#mobileMenuTemplate"
             data-control="#mobileMenu"
@@ -79,77 +40,94 @@
           </button>
         </div>
 
-        {% comment %} Right menu {% endcomment %}
-        {%- unless right_menu == blank -%}
-          <div class="hidden lg:flex lg:flex-[1]">
-            <ul
-              class="main-navigation lg:flex lg:flex-wrap lg:items-center lg:gap-[15px] xl:gap-[20px]"
-              role="list"
-              aria-label="{{- 'accessibility.text.main_navigation' | t -}}"
-            >
-              {{ right_menu }}
-            </ul>
-          </div>
-        {%- endunless -%}
-      </div>
+        <div class="hidden lg:block">
+          <ul class="flex">
+            {%- for link in main_menu.links -%}
+              <li class="p-[15px] text-[14px]">
+                <a href="{{ link.url }}">{{ link.title }}</a>
+              </li>
+            {%- endfor -%}
 
-      {% comment %} Icons {% endcomment %}
-      {%- liquid
-        assign icon_class = 'p-2 md:p-3'
-        assign icon_width = 'md:max-w-[28px]'
-      -%}
-      <div class="flex flex-[0_0_50px] items-center justify-end lg:flex-[0_0_150px]">
-        {%- if shop.customer_accounts_enabled -%}
-          <a
-            href="{{routes.account_url}}"
-            class="{{icon_class}} hidden lg:block"
-            title="{% if customer %}{{- 'general.text.my_account' | t -}}{% else %}{{- 'general.text.account' | t -}}{% endif %}"
-            aria-label="{% if customer %}{{- 'general.text.my_account' | t -}}{% else %}{{- 'general.text.account' | t -}}{% endif %}"
-          >
-            {{ 'icon-account.svg' | inline_asset_content }}
-          </a>
-        {%- endif -%}
-
-        {% comment %}
-          <a
-            href="{{routes.cart_url}}"
-            title="{{- 'sections.header.cart' | t -}}"
-            class="{{icon_class}} jsTogglePopup"
-            data-control="#cartDrawer"
-            aria-label="{{- 'sections.header.cart' | t -}}"
-          >
-            <span class="relative">
-              {{ 'icon-cart.svg' | inline_asset_content }}
-              <span
-                class="pointer-events-none jsCartCount data-[count=0]:hidden before:absolute before:bottom-[-4px] before:right-[-4px] before:block before:w-[8px] before:h-[8px] before:bg-[var(--primary-color)] before:rounded-full"
-                data-count="{{ cart.item_count }}"
-              >
-              </span>
-            </span>
-          </a>
-        {% endcomment %}
+            <li class="rounded-lg bg-[#f17105] p-[15px] text-[14px] font-bold text-[#fff]">
+              <a href="#">Search Land For Sale</a>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-{% render 'snippet-mobile-menu' %}
+<div class="sub-menu-mobile absolute left-0 right-0 top-[100%] hidden border border-t-[1px] bg-white py-[20px] lg:hidden">
+  <div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
+    <ul class="">
+      {%- for link in main_menu.links -%}
+        <li class="p-[15px] text-[14px]">
+          <a href="{{ link.url }}">{{ link.title }}</a>
+        </li>
+      {%- endfor -%}
 
-{% schema %}
-{
-  "name": "t:sections.header.name",
-  "tag": "section",
-  "class": "ss-header",
-  "presets": [
-    {
-      "name": "t:sections.header.name"
+      <li class="rounded-lg bg-[#f17105] p-[15px] text-[14px] font-bold text-[#fff]">
+        <a href="#">Search Land For Sale</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  class Header {
+    constructor() {
+      this._navMobile = document.querySelector('[data-control="#mobileMenu"]');
+      this._subMenuMobile = document.querySelector('.sub-menu-mobile');
+
+      if (this._navMobile && this._subMenuMobile) {
+        this._navMobile.addEventListener('click', (event) => {
+          event.stopPropagation();
+          this.toggleMenu();
+        });
+
+        document.addEventListener('click', (event) => this.handleClickOutside(event));
+      }
     }
-  ],
-  "limit": 1,
-  "enabled_on": {
-    "groups": ["header"]
-  },
+
+    toggleMenu() {
+      const isHidden = this._subMenuMobile.classList.contains('hidden');
+      this._subMenuMobile.classList.toggle('hidden', !isHidden);
+    }
+
+    handleClickOutside(event) {
+      if (
+        !this._subMenuMobile.classList.contains('hidden') &&
+        !this._subMenuMobile.contains(event.target) &&
+        !this._navMobile.contains(event.target)
+      ) {
+        this._subMenuMobile.classList.add('hidden');
+      }
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const _ = new Header();
+  });
+</script>
+
+{%- schema -%}
+{
+  "name": "Header",
+  "tag": "section",
   "settings": [
+    // SECTION SETTINGS
+    {
+      "type": "link_list",
+      "id": "main_menu",
+      "label": "Main menu",
+      "default": "main-menu"
+    },
+    // GENERAL SETTINGS
+    {
+      "type": "header",
+      "content": "General settings"
+    },
     {
       "type": "select",
       "id": "section_layout",
@@ -167,88 +145,24 @@
       "default": "boxed"
     },
     {
-      "type": "header",
-      "content": "t:sections.header.settings.header_1"
-    },
-    {
-      "type": "link_list",
-      "id": "main_menu",
-      "label": "Main menu",
-      "default": "main-menu"
-    },
-    {
-      "type": "header",
-      "content": "* Mobile custom"
-    },
-    {
-      "type": "paragraph",
-      "content": "+ Banner"
-    },
-    {
-      "type": "image_picker",
-      "id": "mm_banner",
-      "label": "Main banner"
-    },
-    {
-      "type": "richtext",
-      "id": "mm_banner_heading",
-      "label": "Banner content"
-    },
-    {
-      "type": "color",
-      "id": "mm_banner_heading_color",
-      "label": "Content text color",
-      "default": "#333333"
-    },
-    {
-      "type": "inline_richtext",
-      "id": "mm_button",
-      "label": "Button content"
-    },
-    {
-      "type": "color",
-      "id": "mm_button_background_color",
-      "label": "Button background color",
-      "default": "#333333"
-    },
-    {
-      "type": "color",
-      "id": "mm_button_color",
-      "label": "Button color",
-      "default": "#ffffff"
-    },
-    {
-      "type": "header",
-      "content": "Additional content"
-    },
-    {
-      "type": "inline_richtext",
-      "id": "m_content",
-      "label": "Content"
+      "type": "text",
+      "id": "padding",
+      "label": "Section Padding",
+      "default": "50px 20px",
+      "info": "Define the padding for the section. Format: Top Right Bottom Left (e.g., 50px 20px)."
     },
     {
       "type": "text",
-      "id": "m_btn_text",
-      "label": "Button text"
-    },
-    {
-      "type": "url",
-      "id": "m_btn_link",
-      "label": "Button link"
-    },
-    {
-      "type": "color",
-      "id": "m_btn_color",
-      "label": "Button text color",
-      "default": "#ffffff"
-    },
-    {
-      "type": "color",
-      "id": "m_btn_bg_color",
-      "label": "Button background color",
-      "default": "#00af9f"
+      "id": "margin",
+      "label": "Margin",
+      "info": "t:blocks.block_style.settings.block_margin.info"
     }
   ],
-  "blocks": []
+  "blocks": [],
+  "presets": [
+    {
+      "name": "Header"
+    }
+  ]
 }
-{% endschema %}
+{%- endschema -%}

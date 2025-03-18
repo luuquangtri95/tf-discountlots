@@ -23,8 +23,8 @@
     {%- assign flex_direction = 'flex-row-reverse justify-end' -%}
 {% endcase %}
 
-<div class="flex items-center gap-2 {{ flex_direction }}">
-  <p class="">{{ rating_text }}</p>
+<div class="flex items-center gap-1 {{ flex_direction }}">
+  <p class="text-[12px] md:text-[14px] lg:text-[14px] xl:text-[18px]">{{ rating_text }}</p>
   <div class="flex items-center">
     {%- for i in (1..5) -%}
       <span class="inline-block {{ width }} {% if i <= rating %}text-[var(--star-color)]{% else %}text-gray-300{% endif %}">
