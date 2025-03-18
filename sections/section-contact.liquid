@@ -82,7 +82,7 @@
                     <div class="flex flex-1 flex-col gap-2">
                       {% render 'star-rating',
                         rating: block.settings.review_rating_range,
-                        position: block.settings.content_position,
+                        position: block.settings.alignment,
                         star_size: block.settings.star_size,
                         rating_text: block.settings.rating_text
                       %}
@@ -97,7 +97,7 @@
                   <div {{ block.shopify_attributes }}>
                     {% render 'star-rating',
                       rating: block.settings.rating_range,
-                      position: block.settings.content_position,
+                      position: block.settings.alignment,
                       star_size: block.settings.star_size,
                       rating_text: block.settings.rating_text
                     %}
@@ -272,8 +272,8 @@
         },
         {
           "type": "select",
-          "id": "content_position",
-          "label": "Content Positino",
+          "id": "alignment",
+          "label": "Alignment of Star Rating",
           "options": [
             {
               "value": "left",

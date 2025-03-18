@@ -1,12 +1,12 @@
 {% liquid
   assign section_id = '#shopify-section-' | append: section.id
-  assign rating = section.settings.rating_range
-  assign text_rating = section.settings.text_rating
   assign layout = section.settings.section_layout | handle
 %}
 
 {% capture css_variables %}
 --section-heading-color : {{ section.settings.section_heading_color }};
+--star-color: #f7cf2f;
+--text-color: #489cd8;
 {% endcapture %}
 
 <!-- Class -->
@@ -27,7 +27,7 @@
 
 <div class="{{ class | strip_newlines | replace: '|', ' ' | replace: '   ', '  ' | replace: '  ', ' ' | strip }}">
   <div class="m-[var(--margin)] p-[var(--padding)]">
-    <div class="heading mb-[30px] text-center text-[30px]">
+    <div class="heading mb-[30px] text-center text-[40px]">
       <p class="text-[var(--section-heading-color)]">{{ section.settings.section_heading }}</p>
       <span class="sub-heading text-[var(--section-heading-color)]">{{ section.settings.section_subheading }}</span>
     </div>
@@ -72,16 +72,17 @@
       <button class="mb-4 w-full rounded-lg border border-[#000] bg-[#f76d2f] px-[24px] py-[14px] text-[16px] text-[#fff]">
         GET STARTED
       </button>
+    </div>
 
-      <p class="text-[12px] leading-[1.6]">
-        {%- for i in (1..5) -%}
-          <span class="inline-block w-[14px] align-text-top text-[#f7cf2f] {% if i <= rating %}text-[#f7cf2f]{% else %}text-gray-300{% endif %}">
-            {{ 'icon-star-rating.svg' | inline_asset_content }}
-          </span>
-        {%- endfor -%}
-
-        {{ text_rating }}
-      </p>
+    <div class="flex items-center justify-center text-[12px] leading-[1.6]">
+      <div>
+        {%- render 'star-rating',
+          rating: section.settings.rating_range,
+          position: section.settings.alignment,
+          star_size: section.settings.star_size,
+          rating_text: section.settings.rating_text
+        -%}
+      </div>
     </div>
   </div>
 </div>
@@ -128,10 +129,50 @@
     },
     {
       "type": "inline_richtext",
-      "id": "text_rating",
+      "id": "rating_text",
       "label": "Rating Text",
       "default": "Rated <strong>5</strong> stars By <strong>3,000+</strong> Clients",
       "info": "Customize the text displayed alongside the star rating. Use HTML tags like <strong> for emphasis."
+    },
+    {
+      "type": "select",
+      "id": "star_size",
+      "label": "Star Size",
+      "options": [
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "medium"
+        },
+        {
+          "value": "large",
+          "label": "large"
+        },
+        {
+          "value": "extra_large",
+          "label": "Extra large"
+        }
+      ],
+      "default": "small"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment of Star Rating",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
     },
     // GENERAL SETTINGS
     {
